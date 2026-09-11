@@ -1,0 +1,386 @@
+<!-- /sections/section-text-row.liquid -->
+
+{%- render 'multicolumn' -%}
+
+{% schema %}
+{
+  "name": "Text columns with icons",
+  "class": "index-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading size",
+      "default": "heading-medium",
+      "options": [
+        {"value": "heading-mini", "label": "Mini"},
+        {"value": "heading-x-small", "label": "Extra small"},
+        {"value": "heading-small", "label": "Small"},
+        {"value": "heading-medium", "label": "Medium"},
+        {"value": "heading-large", "label": "Large"},
+        {"value": "heading-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "align_heading",
+      "label": "Heading",
+      "default": "text-left",
+      "options": [
+        {
+          "value": "text-left",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Centered"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "align_text",
+      "label": "Text",
+      "default": "text-left",
+      "options": [
+        {
+          "value": "text-left",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Centered"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "icon_alignment",
+      "label": "Icon placement",
+      "default": "icon--top",
+      "options": [
+        {"value": "icon--top", "label": "Top"},
+        {"value": "icon--left", "label": "Left"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full-padded",
+      "options": [
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Normal"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "align_columns",
+      "label": "Columns",
+      "default": "flex-align-top",
+      "options": [
+        {
+          "value": "flex-align-top",
+          "label": "Top"
+        },
+        {
+          "value": "flex-align-center",
+          "label": "Centered"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Desktop"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "slider",
+          "label": "Slider"
+        }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "range",
+      "id": "grid",
+      "label": "Items per row",
+      "info": "Applies only when layout is set to Grid",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "select",
+      "id": "layout_mobile",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 item per row"
+        },
+        {
+          "value": "2",
+          "label": "2 items per row"
+        },
+        {
+          "value": "slider",
+          "label": "Slider"
+        }
+      ],
+      "default": "slider"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Advanced"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading SEO tag",
+      "default": "automatic",
+      "options": [
+        {"value": "automatic", "label": "Automatic"},
+        {"value": "h1", "label": "H1"},
+        {"value": "h2", "label": "H2"},
+        {"value": "h3", "label": "H3"},
+        {"value": "h4", "label": "H4"},
+        {"value": "h5", "label": "H5"},
+        {"value": "h6", "label": "H6"}
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "icon",
+      "name": "Icon",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon_name",
+          "label": "Icon",
+          "default": "icon-award",
+          "options": [
+            {"label": "Award", "value": "icon-award"},
+            {"label": "Box", "value": "icon-box"},
+            {"label": "Chat", "value": "icon-chat"},
+            {"label": "Check", "value": "icon-check"},
+            {"label": "Check circle", "value": "icon-check-circle"},
+            {"label": "Cloud", "value": "icon-cloud"},
+            {"label": "Diameter", "value": "icon-diameter"},
+            {"label": "Discount", "value": "icon-discount"},
+            {"label": "Donation", "value": "icon-donation"},
+            {"label": "Droplet", "value": "icon-droplet"},
+            {"label": "Info", "value": "icon-info-empty"},
+            {"label": "Email", "value": "icon-email"},
+            {"label": "Fast shipment", "value": "icon-fast-shipment"},
+            {"label": "Flare", "value": "icon-flare"},
+            {"label": "Flower", "value": "icon-flower"},
+            {"label": "Gift", "value": "icon-gift"},
+            {"label": "Green shipment", "value": "icon-green-shipment"},
+            {"label": "Heart", "value": "icon-heart"},
+            {"label": "Leaf", "value": "icon-leaf"},
+            {"label": "Lightning", "value": "icon-lightning"},
+            {"label": "Location", "value": "icon-location"},
+            {"label": "Mail", "value": "icon-mail"},
+            {"label": "Notes", "value": "icon-notes"},
+            {"label": "Pants", "value": "icon-pants"},
+            {"label": "Peace", "value": "icon-peace"},
+            {"label": "Pin", "value": "icon-pin"},
+            {"label": "Planet", "value": "icon-planet"},
+            {"label": "Phone", "value": "icon-phone"},
+            {"label": "Recycle", "value": "icon-recycle"},
+            {"label": "Ruler", "value": "icon-ruler"},
+            {"label": "Shield", "value": "icon-shield"},
+            {"label": "Smile", "value": "icon-smile"},
+            {"label": "Star", "value": "icon-star"},
+            {"label": "Tree", "value": "icon-tree"},
+            {"label": "Trophy", "value": "icon-trophy"},
+            {"label": "Truck", "value": "icon-truck"},
+            {"label": "Vegan", "value": "icon-vegan"},
+            {"label": "Wash", "value": "icon-wash"},
+            {"label": "Washing machine", "value": "icon-washing-machine"}
+          ]
+        },
+        {
+          "type": "range",
+          "id": "icon_size",
+          "label": "Icon size",
+          "unit": "px",
+          "min": 20,
+          "max": 80,
+          "step": 5,
+          "default": 20
+        },
+        {
+          "type": "color",
+          "id": "icon_color",
+          "label": "Color"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Alternative icon/image"
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Title"
+        },
+        {
+          "type": "select",
+          "id": "heading_font_size",
+          "label": "Heading size",
+          "default": "heading-small",
+          "options": [
+            {"value": "heading-mini", "label": "Mini"},
+            {"value": "heading-x-small", "label": "Extra small"},
+            {"value": "heading-small", "label": "Small"},
+            {"value": "heading-medium", "label": "Medium"},
+            {"value": "heading-large", "label": "Large"},
+            {"value": "heading-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Share details about your shipping policies, item returns, or customer service.</p>"
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+          "default": "body-medium",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Advanced"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "Heading SEO tag",
+          "default": "automatic",
+          "options": [
+            {"value": "automatic", "label": "Automatic"},
+            {"value": "h1", "label": "H1"},
+            {"value": "h2", "label": "H2"},
+            {"value": "h3", "label": "H3"},
+            {"value": "h4", "label": "H4"},
+            {"value": "h5", "label": "H5"},
+            {"value": "h6", "label": "H6"}
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text columns with icons",
+      "blocks": [
+        {
+          "type": "icon",
+          "settings": {
+            "title": "Secure transactions",
+            "icon_name": "icon-shield",
+            "text": "<p>Transactions are handled with bank-grade security.</p>"
+          }
+        },
+        {
+          "type": "icon",
+          "settings": {
+            "title": "Simple checkout",
+            "icon_name": "icon-trophy",
+            "text": "<p>Our secure checkout is quick and easy to use.</p>"
+          }
+        },
+        {
+          "type": "icon",
+          "settings": {
+            "title": "Get in touch",
+            "icon_name": "icon-chat",
+            "text": "<p>Have questions? Get in touch with us at any time.</p>"
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

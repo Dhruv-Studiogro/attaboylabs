@@ -1,0 +1,114 @@
+<!-- /snippets/cart-bar.liquid -->
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign selling_plan_hide = true
+  assign button_add = false
+  assign blocks_form = section.blocks | where: 'type', 'form'
+
+  if settings.currency_code_enable
+    assign current_variant_price = current_variant.price | money_with_currency
+    assign current_variant_compare_at_price = current_variant.compare_at_price | money_with_currency
+  else
+    assign current_variant_price = current_variant.price | money
+    assign current_variant_compare_at_price = current_variant.compare_at_price | money
+  endif
+
+  assign any_variant_available = false
+  for variant in product.variants
+    if variant.available
+      assign any_variant_available = true
+      break
+    endif
+  endfor
+-%}
+
+{% if product.selling_plan_groups.size > 0 and blocks_form.size > 0 and blocks_form[0].settings.subscriptions_enable_selectors %}
+  {%- assign selling_plan_hide = false -%}
+{% endif %}
+
+{%- if product.has_only_default_variant and selling_plan_hide -%}
+  {%- assign button_add = true -%}
+{%- endif -%}
+
+<div id="cart-bar" class="cart-bar">
+  <div class="cart-bar__form__wrapper form__wrapper{% if button_add and current_variant.available != true %} variant--soldout{% endif %}{% if settings.show_newsletter %} show-product-notification{% endif %}{% unless any_variant_available %} all-variants--soldout{% endunless %}" data-form-wrapper>
+    <div class="cart-bar__info">
+      <h4 class="cart-bar__product__title">{{ product.title | strip_html }}</h4>
+
+      <div class="body-small cart-bar__product__price product__price" data-price-wrapper>
+        <span data-product-price {% if current_variant.compare_at_price > current_variant.price %} class="product__price--sale"{% endif %}>
+          {%- if current_variant.price == 0 -%}
+            {{ 'general.money.free' | t }}
+          {%- else -%}
+            {{ current_variant_price }}
+          {%- endif -%}
+        </span>
+
+        {% if product.compare_at_price_max > product.price %}
+          <span class="visually-hidden" data-compare-text>{{ 'products.product.regular_price' | t }}</span>
+          <s class="product__price--strike" data-compare-price>
+            {% if current_variant.compare_at_price > current_variant.price %}
+              {{ current_variant_compare_at_price }}
+            {% endif %}
+          </s>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="cart-bar__form">
+      <div class="cart-bar__submit product__submit product__submit--spb">
+        <button type="button"
+          class="btn btn--primary btn--outline product__submit__add{% unless button_add %} product__submit__add--default{% endunless %}"
+          {% if button_add %} data-add-to-cart-bar{% elsif any_variant_available %} data-cart-bar-scroll{% endif %}
+          {% if any_variant_available == false or button_add and current_variant.available != true %} disabled="disabled"{% endif %}>
+          <span class="btn__text"{% if button_add %} data-add-to-cart-text{% endif %}>
+            {%- if button_add -%}
+              {%- assign preorder_check = false -%}
+
+              {%- if product.tags contains '_preorder' or product.metafields.theme.preorder.value -%}
+                {%- assign preorder_check = true -%}
+              {%- endif -%}
+
+              {%- if current_variant.available and preorder_check -%}
+                {{ 'products.product.pre_order' | t }}
+              {%- elsif current_variant.available -%}
+                {{ 'products.product.add_to_cart' | t }}
+              {%- else -%}
+                {{ 'products.product.sold_out' | t }}
+              {%- endif -%}
+            {%- elsif any_variant_available -%}
+              {{ 'products.product.configure' | t }}
+            {%- else -%}
+              {{ 'products.product.sold_out' | t }}
+            {%- endif -%}
+          </span>
+
+          <span class="btn__loader">
+            <svg height="18" width="18" class="svg-loader">
+              <circle r="7" cx="9" cy="9" />
+              <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+            </svg>
+          </span>
+
+          <span class="btn__added">&nbsp;</span>
+
+          {%- unless button_add or any_variant_available == false -%}
+            {%- render 'icon-nav-arrow-up' -%}
+          {%- endunless -%}
+        </button>
+
+        {%- if settings.show_newsletter -%}
+          {%- assign newsletter_text = 'general.newsletter_form.newsletter_product_availability' | t -%}
+          {%- assign button_text = 'products.product.sold_out' | t | append: ' - ' | append: newsletter_text -%}
+
+          <button type="button"
+            class="btn btn--primary btn--outline product__submit__add product__submit__add--default product__cart-bar-notification-button"
+            data-cart-bar-product-notification>
+            <span class="btn__text">{{ button_text }}</span>
+          </button>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>

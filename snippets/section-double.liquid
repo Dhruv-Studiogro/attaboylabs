@@ -1,0 +1,842 @@
+{%- comment -%}
+  "enable_slider" is used for "text-slide" blocks with "Optional image" added and make the entire Image & text block a single slide.
+  "enable_text_slider" is used for "text-slide" blocks without "Optional image" added. Then we only create a slider for the text blocks and the images are static.
+{%- endcomment -%}
+
+{%- liquid
+  assign desktop_height = section.settings.height
+  assign mobile_height = section.settings.mobile_height
+  assign width = section.settings.width
+  assign enable_slider = false
+  assign enable_text_slider = false
+  assign text_slide_blocks = section.blocks | where: 'type', 'text-slide'
+  assign show_placeholder = section.settings.show_placeholder
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign show_video_background = false
+
+  assign animation_anchor = '#BrickSection--' | append: section.id
+  assign animation_order = 0
+  assign accordion_blocks = section.blocks | where: 'type', 'accordion'
+
+  assign autoplay = section.settings.autoplay
+  assign autoplay_speed = false
+
+  if autoplay
+    assign autoplay_speed = section.settings.autoplay_speed | times: 1000
+  endif
+
+  if text_slide_blocks.size > 1
+    assign enable_text_slider = true
+
+    for block in section.blocks
+      if block.settings.image
+        assign enable_slider = true
+        assign enable_text_slider = false
+        break
+      endif
+    endfor
+  endif
+
+  capture style
+    echo '--PT: ' | append: section.settings.padding_top | append: 'px;'
+    echo '--PB: ' | append: section.settings.padding_bottom | append: 'px;'
+  endcapture
+
+  assign image_1 = section.settings.image_1
+  assign image_2 = section.settings.image_2
+  assign image_width = section.settings.image_width
+  capture sizes
+    if image_1 and image_2
+      if image_width == 'three-quarters'
+        echo '(min-width: 750px) 37.5vw, 100vw'
+      else
+        echo '(min-width: 750px) 25vw, 100vw'
+      endif
+    else
+      if image_width == 'three-quarters'
+        echo '(min-width: 750px) 75vw, 100vw'
+      else
+        echo '(min-width: 750px) 50vw, 100vw'
+      endif
+    endif
+  endcapture
+
+  assign figure_width_class = ''
+  assign item_sizes_width = '50vw'
+  assign item_placeholder = '||number-items-placeholder||'
+  assign item_per_row_medium = item_placeholder
+  if image_width == 'three-quarters'
+    assign figure_width_class = ' brick__block--three-quarters'
+    assign item_sizes_width = '35vw'
+    assign item_per_row_medium = 1
+  endif
+
+  assign item_sizes_padding_desktop = '100px'
+  assign item_sizes_padding_tablet = '60px'
+  if settings.grid_style == 'compact'
+    assign item_sizes_padding_desktop = '64px'
+    assign item_sizes_padding_tablet = '44px'
+  endif
+
+  assign item_sizes_images_mobile = 'calc(100vw / ' | append: item_placeholder | append: ')'
+  assign item_sizes_images_tablet = '(min-width: 750px) calc(((' | append: item_sizes_width | append: ' * 90 / 100) - ' | append: item_sizes_padding_tablet | append: ') / ' | append: item_per_row_medium | append: ')'
+  assign item_sizes_images_desktop = '(min-width: 990px) calc(((' | append: item_sizes_width | append: ' * 84 / 100) - ' | append: item_sizes_padding_desktop | append: ') / ' | append: item_per_row_medium | append: ')'
+  assign item_sizes_images_widescreen = '(min-width: 1400px) calc(((' | append: item_sizes_width | append: ' * 76 / 100) - ' | append: item_sizes_padding_desktop | append: ') / ' | append: item_placeholder | append: ')'
+  capture item_sizes_images
+    echo item_sizes_images_widescreen | append: ', ' | append: item_sizes_images_desktop | append: ', ' | append: item_sizes_images_tablet | append: ', ' | append: item_sizes_images_mobile
+  endcapture
+
+  capture columns_style
+    echo '--COLUMNS-WIDESCREEN: ' | append: item_placeholder | append: ';'
+    echo '--COLUMNS: ' | append: item_per_row_medium | append: ';'
+    echo '--COLUMNS-MEDIUM: ' | append: item_per_row_medium | append: ';'
+    echo '--COLUMNS-SMALL: ' | append: item_placeholder | append: ';'
+    echo '--COLUMNS-MOBILE: ' | append: item_placeholder | append: ';'
+  endcapture
+
+  capture alignment
+    if section.settings.text_alignment == 'text-left'
+      echo ' align--middle-left'
+    else
+      echo ' align--middle-center'
+    endif
+  endcapture
+-%}
+
+{%- capture section_images -%}
+  {%- if image_1 != blank -%}
+    <div class="brick__block__image"
+      {% unless enable_slider %}
+        data-slide="1"
+      {% endunless %}
+    >
+      {%- render 'image-hero' image: image_1, sizes: sizes, desktop_height: desktop_height, mobile_height: mobile_height -%}
+    </div>
+  {%- endif -%}
+
+  {%- if image_2 != blank -%}
+    <div class="brick__block__image"
+      {% unless enable_slider %}
+        data-slide="2"
+      {% endunless %}
+    >
+      {%- render 'image-hero' image: image_2, sizes: sizes, desktop_height: desktop_height, mobile_height: mobile_height -%}
+    </div>
+  {%- endif -%}
+
+  {%- if image_1 == blank and image_2 == blank -%}
+    <div class="brick__block__image">
+      {%- render 'image-hero' sizes: sizes, desktop_height: desktop_height, mobile_height: mobile_height -%}
+    </div>
+  {%- endif -%}
+{%- endcapture -%}
+
+<section
+  id="BrickSection--{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="double"
+  class="index-image-text section-padding {{ section.settings.text_alignment }} {{ color_scheme }}"
+  style="{{ style }}"
+>
+  {%- if section.blocks.size > 0 -%}
+    {%- if enable_slider -%}
+      <slider-component
+        class="brick__slider brick__slider--optional-images"
+        data-slider
+        data-dots="{{ settings.dots_style }}"
+        data-options='{"pageDots": true, "prevNextButtons": true, "autoPlay": {{ autoplay_speed }}, "pauseAutoPlayOnHover": false}'
+      >
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign image = block.settings.image
+            assign subheading = block.settings.subheading
+            assign title = block.settings.title
+            assign text = block.settings.text
+            assign button_text = block.settings.button_text
+          -%}
+
+          <div
+            class="brick__section{% if section.settings.layout == 'is-reversed' %} brick__section--reversed{% endif %}{% if section.settings.reverse_blocks %} brick__section--reversed-mobile{% endif %} {{ width }} {{ desktop_height }} {{ mobile_height }}"
+            data-slide
+            {{ block.shopify_attributes }}
+          >
+            <div class="brick__block brick__block--images{{ figure_width_class }}">
+              {%- if image -%}
+                <div class="brick__block__image">
+                  {%- render 'image-hero',
+                    image: image,
+                    sizes: sizes,
+                    desktop_height: desktop_height,
+                    mobile_height: mobile_height
+                  -%}
+                </div>
+              {%- else -%}
+                {{ section_images }}
+              {%- endif -%}
+            </div>
+
+            <div
+              class="brick__block brick__block--text"
+              {% if style != blank %}
+                style="{{ style }}"
+              {% endif %}
+            >
+              <div class="brick__block__text">
+                <div class="hero__content hero__content--compact">
+                  {%- if subheading != blank -%}
+                    <p class="hero__subheading">
+                      {{ subheading }}
+                    </p>
+                  {%- endif -%}
+
+                  {%- if title != blank -%}
+                    {%- liquid
+                      assign heading_tag = 'h2'
+
+                      unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                        assign heading_tag = block.settings.heading_tag
+                      endunless
+                    -%}
+
+                    <{{ heading_tag }} class="hero__title {{ block.settings.heading_font_size }}">
+                      {{ title }}
+                    </{{ heading_tag }}>
+                  {%- endif -%}
+
+                  {%- if text != blank -%}
+                    <div class="hero__rte {{ block.settings.text_font_size }}">
+                      {{ text }}
+                    </div>
+                  {%- endif -%}
+
+                  {%- if button_text != blank -%}
+                    {%- liquid
+                      assign button_style = block.settings.button_style
+                      if button_style == 'btn--text' and block.settings.show_arrow
+                        assign button_style = button_style | append: ' btn--text-no-underline'
+                      endif
+                    -%}
+
+                    <div class="hero__button">
+                      <a
+                        href="{{ block.settings.button_url | default: '#!' }}"
+                        class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}"
+                      >
+                        <span>{{ button_text }}</span>
+
+                        {%- if block.settings.show_arrow -%}
+                          {%- render 'icon-arrow-right' -%}
+                        {%- endif -%}
+                      </a>
+                    </div>
+                  {%- endif -%}
+                </div>
+              </div>
+            </div>
+          </div>
+        {%- endfor -%}
+      </slider-component>
+    {%- else -%}
+      <div class="brick__section{% if section.settings.layout == 'is-reversed' %} brick__section--reversed{% endif %}{% if section.settings.reverse_blocks %} brick__section--reversed-mobile{% endif %}{% if accordion_blocks.size > 0 %} brick__section--accordion{% endif %} {{ width }} {{ desktop_height }} {{ mobile_height }}">
+        {%- liquid
+          assign block_images_tag = 'div'
+          if image_1 != blank and image_2 != blank
+            assign block_images_tag = 'slider-component'
+          endif
+        -%}
+        <{{ block_images_tag }}
+          class="brick__block {{ figure_width_class }} brick__block--images"
+          {% if image_1 != blank and image_2 != blank %}
+            data-slider
+            data-slider-fullwidth
+            data-dots="{{ settings.dots_style }}"
+            data-options='{"watchCSS": true, "pageDots": false, "prevNextButtons": false, "autoPlay": 4000, "pauseAutoPlayOnHover": false}'
+          {% endif %}
+        >
+          {%- if image_1 != blank or image_2 != blank or show_placeholder -%}
+            {{ section_images }}
+          {%- elsif request.design_mode -%}
+            <div class="brick__section-missing-metafield-image">
+              {{ 'products.general.missing_metafield_image' | t }}
+            </div>
+          {%- endif -%}
+        </{{ block_images_tag }}>
+
+        <div
+          class="brick__block brick__block--text{% if enable_slider %} brick__block--slider{% endif %}"
+          {% if style != blank %}
+            style="{{ style }}"
+          {% endif %}
+          {{ block.shopify_attributes }}
+        >
+          <div class="brick__block__text">
+            {%- liquid
+              assign content_tag = 'div'
+              if enable_text_slider
+                assign content_tag = 'slider-component'
+              endif
+            -%}
+            <{{ content_tag }}
+              class="hero__content hero__content--compact{% if enable_text_slider %} grid--mobile-slider{% else %} hero__content--no-padding{% endif %}"
+              {% if enable_text_slider %}
+                data-slider="BrickSlider--{{ section.id }}"
+                data-slider-desktop
+                data-dots="{{ settings.dots_style }}"
+                data-options='{"watchCSS": true, "wrapAround": true, "pageDots": true, "prevNextButtons": false, "autoPlay": {{ autoplay_speed }}, "pauseAutoPlayOnHover": false }'
+                {% if request.design_mode %}
+                  data-block-scroll
+                {% endif %}
+              {% endif %}
+            >
+              {%- if accordion_blocks.size > 0 -%}
+                <collapsible-elements single="true">
+              {%- endif -%}
+
+              {%- for block in section.blocks -%}
+                {%- liquid
+                  capture block_style
+                    echo '--block-padding-bottom:' | append: block.settings.padding_bottom | append: 'px;'
+                  endcapture
+                -%}
+
+                {%- if enable_text_slider -%}
+                  <div
+                    class="hero__slide grid-item"
+                    data-slide="{{ block.id }}"
+                    {{ block.shopify_attributes }}
+                  >
+                {%- endif -%}
+
+                {%- case block.type -%}
+                  {%- when 'text-slide' -%}
+                    {%- if block.settings.subheading != blank -%}
+                      <p class="hero__subheading">
+                        {{ block.settings.subheading }}
+                      </p>
+                    {%- endif -%}
+
+                    {%- if block.settings.title != blank -%}
+                      {%- liquid
+                        assign heading_tag = 'h2'
+
+                        unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                          assign heading_tag = block.settings.heading_tag
+                        endunless
+                      -%}
+
+                      <{{ heading_tag }} class="hero__title {{ block.settings.heading_font_size }}">
+                        {{ block.settings.title }}
+                      </{{ heading_tag }}>
+                    {%- endif -%}
+
+                    {%- if block.settings.text != blank -%}
+                      <div class="hero__rte {{ block.settings.text_font_size }}">
+                        {{ block.settings.text }}
+                      </div>
+                    {%- endif -%}
+
+                    {%- if block.settings.button_text != blank -%}
+                      {%- liquid
+                        assign button_style = block.settings.button_style
+                        if button_style == 'btn--text' and block.settings.show_arrow
+                          assign button_style = button_style | append: ' btn--text-no-underline'
+                        endif
+                      -%}
+
+                      <div class="hero__button">
+                        <a
+                          href="{{ block.settings.button_url | default: '#!' }}"
+                          class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}"
+                        >
+                          <span>{{ block.settings.button_text }}</span>
+
+                          {%- if block.settings.show_arrow -%}
+                            {%- render 'icon-arrow-right' -%}
+                          {%- endif -%}
+                        </a>
+                      </div>
+                    {%- endif -%}
+
+                  {%- when 'heading' -%}
+                    {%- if block.settings.title != blank -%}
+                      {%- liquid
+                        assign animation_order = animation_order | plus: 1
+                        assign heading_tag = 'h2'
+
+                        unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                          assign heading_tag = block.settings.heading_tag
+                        endunless
+                      -%}
+
+                      <{{ heading_tag }}
+                        class="hero__title {{ block.settings.heading_font_size }} block-padding"
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                        {{ block.shopify_attributes }}
+                        style="{{ block_style }}"
+                      >
+                        {{ block.settings.title }}
+                      </{{ heading_tag }}>
+                    {%- endif -%}
+
+                  {%- when 'subheading' -%}
+                    {%- if block.settings.subheading != blank -%}
+                      {%- assign animation_order = animation_order | plus: 1 -%}
+                      <p
+                        class="hero__subheading {{ block.settings.text_font_size }} block-padding"
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                        {{ block.shopify_attributes }}
+                        style="{{ block_style }}"
+                      >
+                        {{ block.settings.subheading }}
+                      </p>
+                    {%- endif -%}
+
+                  {%- when 'text' -%}
+                    {%- if block.settings.text != blank -%}
+                      {%- assign animation_order = animation_order | plus: 1 -%}
+                      <div
+                        class="hero__rte {{ block.settings.text_font_size }} block-padding"
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                        {{ block.shopify_attributes }}
+                        style="{{ block_style }}"
+                      >
+                        {{ block.settings.text }}
+                      </div>
+                    {%- endif -%}
+
+                  {%- when 'buttons' -%}
+                    {%- if block.settings.button_text != blank -%}
+                      {%- liquid
+                        assign prev_index = forloop.index0 | minus: 1
+                        assign next_index = forloop.index0 | plus: 1
+                        assign prev_block = section.blocks[prev_index]
+                        assign next_block = section.blocks[next_index]
+                        assign animation_order = animation_order | plus: 1
+                        assign first_button_of_group = false
+                        assign last_button_of_group = false
+                        if next_block.type == 'buttons' and forloop.index0 == 0 or prev_block.type != 'buttons' and next_index != section.blocks.size and next_block.type == 'buttons'
+                          assign first_button_of_group = true
+                        endif
+
+                        if prev_block.type == 'buttons' and next_block.type != 'buttons' and prev_index != -1 or forloop.index == section.blocks.size and prev_block.type == 'buttons'
+                          assign last_button_of_group = true
+                        endif
+
+                        assign button_style = block.settings.button_style
+                        if button_style == 'btn--text' and block.settings.show_arrow
+                          assign button_style = button_style | append: ' btn--text-no-underline'
+                        endif
+                      -%}
+
+                      {%- if first_button_of_group -%}
+                        <div class="hero__button-group">
+                      {%- endif -%}
+
+                      <div
+                        class="hero__button block-padding"
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                        {{ block.shopify_attributes }}
+                        style="{{ block_style }}"
+                      >
+                        <a
+                          href="{{ block.settings.button_url | default: '#!' }}"
+                          class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}"
+                        >
+                          <span>{{ block.settings.button_text }}</span>
+
+                          {%- if block.settings.show_arrow -%}
+                            {%- render 'icon-arrow-right' -%}
+                          {%- endif -%}
+                        </a>
+                      </div>
+
+                      {%- if last_button_of_group -%}
+                        </div>
+                      {%- endif -%}
+                    {%- endif -%}
+
+                  {%- when 'divider' -%}
+                    {%- assign animation_order = animation_order | plus: 1 -%}
+                    {%- capture attributes -%}
+                      data-aos="hero"
+                      data-aos-anchor="{{ animation_anchor }}"
+                      data-aos-order="{{ animation_order }}"
+                    {%- endcapture -%}
+
+                    {%- render 'divider', block: block, attributes: attributes -%}
+
+                  {%- when 'accordion' -%}
+                    {%- assign title = block.settings.title -%}
+                    {%- assign content = block.settings.content -%}
+                    {%- assign animation_order = animation_order | plus: 1 -%}
+                    {%- if title != blank and content != blank -%}
+                      <details
+                        class="accordion block-padding"
+                        data-collapsible
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                        {{ block.shopify_attributes }}
+                        style="{{ block_style }}"
+                      >
+                        <summary class="accordion__title" data-collapsible-trigger>
+                          {%- if block.settings.show_icon -%}
+                            {%- liquid
+                              assign icon_size = block.settings.icon_size
+                              assign icon_color = block.settings.icon_color
+                              assign icon_image = block.settings.icon_image
+                              capture icon_style
+                                echo 'style="'
+                                echo '--icon-size: ' | append: icon_size | append: 'px;'
+                                if icon_color != blank and icon_color != 'rgba(0,0,0,0)'
+                                  echo ' --icons: ' | append: icon_color | append: ';'
+                                endif
+                                echo '"'
+                              endcapture
+                            -%}
+
+                            <div
+                              class="icon__animated icon__animated--{{ block.id }}{% if icon_image != blank %} icon__animated--image{% endif %}"
+                              {{ icon_style }}
+                            >
+                              {%- liquid
+                                if icon_image
+                                  assign icon_width = icon_size
+                                  assign icon_width_retina = icon_width | times: 2
+                                  assign icon_sizes = icon_width | append: 'px'
+                                  assign icon_widths = icon_width | append: ', ' | append: icon_width_retina
+
+                                  render 'image', image: icon_image, width: icon_width_retina, sizes: icon_sizes, widths: icon_widths
+                                else
+                                  render 'animated-icon', filename: block.settings.icon_name
+                                endif
+                              -%}
+                            </div>
+                          {%- endif -%}
+
+                          {{ title }}
+
+                          {%- render 'icon-plus' -%}
+                          {%- render 'icon-minus' -%}
+                        </summary>
+
+                        <div class="accordion__body rte" data-collapsible-body>
+                          <div class="accordion__content" data-collapsible-content>
+                            {{ content }}
+                          </div>
+                        </div>
+                      </details>
+                    {%- endif -%}
+
+                  {%- when 'image' -%}
+                    {%- liquid
+                      assign animation_order = animation_order | plus: 1
+                      assign image_width_percent = block.settings.image_width
+                      assign image_width_ratio = image_width_percent | times: 0.01
+
+                      capture block_style
+                        echo block_style
+                        echo 'width: ' | append: image_width_percent | append: '%;'
+                      endcapture
+
+                      capture sizes
+                        assign image_size_mobile = 'calc((100vw - 64px) * ' | append: image_width_ratio | append: ')'
+
+                        if image_width == 'three-quarters'
+                          assign image_size_desktop = 'calc((35vw * 0.76 - 64px) * ' | append: image_width_ratio | append: ')'
+                        else
+                          assign image_size_desktop = 'calc((50vw * 0.76 - 64px) * ' | append: image_width_ratio | append: ')'
+                        endif
+
+                        echo '(min-width: 750px) ' | append: image_size_desktop | append: ', ' | append: image_size_mobile
+                      endcapture
+                    -%}
+
+                    <div
+                      class="hero__media block-padding"
+                      data-aos="hero"
+                      data-aos-anchor="{{ animation_anchor }}"
+                      data-aos-order="{{ animation_order }}"
+                      style="{{ block_style }}"
+                      {{ block.shopify_attributes }}
+                    >
+                      {%- render 'image', image: block.settings.image, sizes: sizes -%}
+                    </div>
+
+                  {%- when 'video' -%}
+                    {%- liquid
+                      assign video = block.settings.video
+                      assign animation_order = animation_order | plus: 1
+
+                      assign video_aspect_ratio = video.aspect_ratio | default: 1
+                      if block.settings.custom_aspect_ratio
+                        assign video_aspect_ratio = 1 | divided_by: block.settings.aspect_ratio
+                      endif
+
+                      capture block_style
+                        echo block_style
+                        echo 'width: ' | append: block.settings.video_width | append: '%;'
+                      endcapture
+                    -%}
+
+                    <div
+                      class="hero__media block-padding"
+                      data-aos="hero"
+                      data-aos-anchor="{{ animation_anchor }}"
+                      data-aos-order="{{ animation_order }}"
+                      style="{{ block_style }}"
+                      {{ block.shopify_attributes }}
+                    >
+                      <div
+                        class="video-background image-height image-height--mobile"
+                        {{ attributes }}
+                        style="--aspect-ratio: {{ video_aspect_ratio }};"
+                      >
+                        {%- if video != null -%}
+                          {%- unless show_video_background -%}
+                            {%- assign show_video_background = true -%}
+
+                            <script src="{{ 'video-background.js' | asset_url }}" defer="defer"></script>
+                          {%- endunless -%}
+
+                          <video-background
+                            class="video__player"
+                            data-video-player
+                            data-video-id="{{ section.id }}-video-background"
+                          >
+                            <template data-video-template>
+                              {{
+                                video
+                                | video_tag:
+                                  image_size: '500x',
+                                  autoplay: true,
+                                  loop: true,
+                                  muted: true,
+                                  controls: false
+                              }}
+                            </template>
+                          </video-background>
+                        {%- else -%}
+                          {%- render 'image',
+                            placeholder: 'lifestyle-1',
+                            aspect_ratio: video_aspect_ratio,
+                            attributes: attributes
+                          -%}
+                        {%- endif -%}
+                      </div>
+                    </div>
+
+                  {%- when 'product' -%}
+                    {%- liquid
+                      assign product_list_count = block.settings.product_list.count
+                      assign product_list_columns = product_list_count
+                      assign animation_order = animation_order | plus: 1
+                      if product_list_count < 1
+                        assign product_list_columns = 2
+                      endif
+                      assign style_products = columns_style | replace: item_placeholder, product_list_columns
+                      assign block_style = block_style | append: style_products
+                    -%}
+
+                    <div
+                      class="hero__products grid block-padding"
+                      data-aos="hero"
+                      data-aos-anchor="{{ animation_anchor }}"
+                      data-aos-order="{{ animation_order }}"
+                      style="{{ block_style }}"
+                      {{ block.shopify_attributes }}
+                    >
+                      {%- liquid
+                        if product_list_count > 0
+                          assign product_sizes_images = item_sizes_images | replace: item_placeholder, product_list_count
+
+                          for product in block.settings.product_list
+                            render 'product-grid-item', product: product, sizes: product_sizes_images, show_product_card: block.settings.show_product_card
+                          endfor
+                        else
+                          for i in (1..2)
+                            render 'onboarding-product-grid-item', index: forloop.index, animation_delay: forloop.index0, placeholder_root: 'product-', show_product_card: block.settings.show_product_card
+                          endfor
+                        endif
+                      -%}
+                    </div>
+
+                  {%- when 'collection' -%}
+                    {%- liquid
+                      assign collection_grid_items = ''
+                      assign collection_grid_items_counter = 0
+                      assign collection_sizes_placeholder = '||collection-sizes-placeholder||'
+                      assign button_empty_counter = 0
+                      assign animation_order = animation_order | plus: 1
+                      assign animation_duration = 800
+                      assign aspect_ratio = 1
+                      assign alignment_class = ''
+                      if settings.product_grid_center
+                        assign alignment_class = 'collection-item--centered'
+                      endif
+                    -%}
+
+                    {%- for i in (1..2) -%}
+                      {%- liquid
+                        assign animation_delay = forloop.index0
+                        assign collection = 'collection_' | append: forloop.index
+                        assign collection = block.settings[collection]
+                        assign collection_image_string = 'image_' | append: forloop.index
+                        assign collection_image = block.settings[collection_image_string] | default: collection.image | default: collection.products.first.featured_media.preview_image
+                        assign collection_title = collection.title
+                        assign button_text = 'button_text_' | append: forloop.index
+                        assign button_text = block.settings[button_text]
+                        assign show_arrow = block.settings.show_arrow
+                        assign button_size = block.settings.button_size
+                        assign button_type = block.settings.button_type
+                        assign button_style = block.settings.button_style
+                        if button_style == 'btn--text' and show_arrow
+                          assign button_style = button_style | append: ' btn--text-no-underline'
+                        endif
+                      -%}
+
+                      {%- capture collection_grid_items -%}
+                        {{- collection_grid_items -}}
+
+                        {%- if collection != blank or collection_image != blank or button_text != blank -%}
+                          {%- assign collection_grid_items_counter = collection_grid_items_counter | plus: 1 -%}
+
+                          <div class="grid-item collection-item{% if block.settings.show_collection_card %} collection-item--card{% endif %} {{ alignment_class }}">
+                            {%- if collection != empty and button_text == blank -%}
+                              <a class="collection-item__content" href="{{ collection.url }}" aria-label="{{ collection.title | strip_html | escape }}">
+                            {%- else -%}
+                              <div class="collection-item__content">
+                            {%- endif -%}
+                              {%- if collection != empty and button_text != blank -%}
+                                <a href="{{ collection.url }}" aria-label="{{ collection.title | strip_html | escape }}">
+                              {%- endif -%}
+                                <div class="collection-item__image">
+                                  <div class="collection-item__bg">
+                                    {%- liquid
+                                      capture placeholder
+                                        echo 'collection-' | append: forloop.index
+                                      endcapture
+
+                                      render 'image' image: collection_image, placeholder: placeholder, sizes: collection_sizes_placeholder, aspect_ratio: aspect_ratio
+                                    -%}
+                                  </div>
+                                </div>
+                              {%- if collection != empty and button_text != blank -%}
+                                </a>
+                              {%- endif -%}
+
+                              {%- if button_text != blank -%}
+                                <div class="collection-item__actions">
+                                  <a href="{{ collection.url | default: '#!' }}" class="btn {{ button_style }} {{ button_size }} {{ button_type }}">
+                                    <span>{{ button_text }}</span>
+
+                                    {%- if show_arrow -%}
+                                      {%- render 'icon-arrow-right' -%}
+                                    {%- endif -%}
+                                  </a>
+                                </div>
+                              {%- elsif collection_title != blank -%}
+                                <div class="collection-item__info">
+                                  <span>
+                                    {{ collection_title }}
+
+                                    {%- render 'superscript', superscript_collection: collection -%}
+                                  </span>
+                                </div>
+                              {%- else -%}
+                                {%- assign button_empty_counter = button_empty_counter | plus: 1 -%}
+                              {%- endif -%}
+                            {%- if collection != empty and button_text == blank -%}
+                              </a>
+                            {%- else -%}
+                              </div>
+                            {%- endif -%}
+                          </div>
+                        {%- endif -%}
+                      {%- endcapture -%}
+                    {%- endfor -%}
+
+                    {%- comment -%} Onboarding collection items {%- endcomment -%}
+                    {%- if collection_grid_items == blank -%}
+                      {%- assign collection_grid_items_counter = 2 -%}
+                      {%- capture collection_grid_items -%}
+                        {%- for i in (1..2) -%}
+                          <div class="grid-item collection-item{% if block.settings.show_collection_card %} collection-item--card{% endif %} {{ alignment_class }}">
+                            <div class="collection-item__content">
+                              <div class="collection-item__image" data-collection-image>
+                                <div class="collection-item__bg">
+                                  {%- liquid
+                                    capture placeholder
+                                      echo 'collection-' | append: forloop.index
+                                    endcapture
+                                    render 'image' placeholder: placeholder, aspect_ratio: aspect_ratio
+                                  -%}
+                                </div>
+                              </div>
+
+                              <div class="collection-item__info">
+                                <span>{{ 'collections.general.items.heading' | t }}</span>
+                              </div>
+                            </div>
+                          </div>
+                        {%- endfor -%}
+                      {%- endcapture -%}
+                    {%- endif -%}
+
+                    {%- liquid
+                      assign collection_sizes_images = item_sizes_images | replace: item_placeholder, collection_grid_items_counter
+                      assign style_collection = columns_style | replace: item_placeholder, collection_grid_items_counter
+                      assign block_style = block_style | append: style_collection
+                    -%}
+
+                    <div
+                      class="hero__collections block-padding grid{% if collection_grid_items_counter == button_empty_counter %} hide-image-border{% endif %}"
+                      data-aos="hero"
+                      data-aos-anchor="{{ animation_anchor }}"
+                      data-aos-order="{{ animation_order }}"
+                      style="{{ block_style }}"
+                      {{ block.shopify_attributes }}
+                    >
+                      {{- collection_grid_items | replace: collection_sizes_placeholder, collection_sizes_images -}}
+                    </div>
+
+                  {%- when 'code' -%}
+                    {%- assign animation_order = animation_order | plus: 1 -%}
+
+                    <div
+                      class="hero__custom-code block-padding"
+                      data-aos="hero"
+                      data-aos-anchor="{{ animation_anchor }}"
+                      data-aos-order="{{ animation_order }}"
+                      style="{{ block_style }}"
+                      {{ block.shopify_attributes }}
+                    >
+                      {{ block.settings.code }}
+                    </div>
+                {%- endcase -%}
+
+                {%- if enable_text_slider -%}
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+
+              {%- if accordion_blocks.size > 0 -%}
+                </collapsible-elements>
+              {%- endif -%}
+            </{{ content_tag }}>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+  {%- else -%}
+    {%- render 'no-blocks' -%}
+  {%- endif -%}
+</section>

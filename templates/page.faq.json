@@ -1,0 +1,253 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "subheading": "",
+        "show_title": true,
+        "heading_font_size": "heading-large",
+        "show_content": true,
+        "text_font_size": "body-medium",
+        "align_text": "text-center",
+        "width": "wrapper",
+        "color_scheme": "",
+        "padding_top": 50,
+        "padding_bottom": 50,
+        "heading_tag": "automatic"
+      }
+    },
+    "section_hero_GTqxfp": {
+      "type": "section-hero",
+      "blocks": {
+        "heading_aJXXmR": {
+          "type": "heading",
+          "settings": {
+            "title": "clincally-dosed. ingredient stacked. no corners cut.",
+            "heading_font_size": "heading-large",
+            "heading_tag": "automatic"
+          }
+        },
+        "text_kRmfPq": {
+          "type": "text",
+          "settings": {
+            "text": "<p>We use evidence-backed ingredients at their effective doses. No fairy dusting. No proprietary blends. Every scoop is stacked with what works—measured, mixed, and designed to be felt.</p>",
+            "text_font_size": "body-large"
+          }
+        },
+        "button_meMmhq": {
+          "type": "button",
+          "settings": {
+            "link_text": "Try risk-free now",
+            "link": "shopify://products/everydamnday",
+            "button_type": "btn--primary",
+            "button_size": "btn--large",
+            "button_style": "btn--solid",
+            "show_arrow": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_aJXXmR",
+        "text_kRmfPq",
+        "button_meMmhq"
+      ],
+      "custom_css": [
+        "h2 {color: #f26729 !important; font-family: \"NewScienceMonoBold\", monospace !important; font-size: 4.5vw; line-height: 0.9em;}",
+        "p,span,li {font-family: \"coolvetica\", monospace !important; font-size: 1.3vw; text-transform: uppercase;}",
+        ".button,.btn,.shopify-payment-button__button,.button--primary,.button--secondary {font-family: \"NewScienceMonoMedium\", monospace !important;}",
+        "@media screen and (max-width: 768px) {h1, h2, h3 {font-size: 11vw; } p, li, span, .body-text, .paragraph {font-size: 4.25vw; line-height: 1.3; }}"
+      ],
+      "name": "Image banner",
+      "settings": {
+        "image_1": "shopify://shop_images/Attaboy-Standard.jpg",
+        "link": "",
+        "width": "wrapper--full",
+        "height": "screen-height-three-quarters",
+        "flex_align_desktop": "align--middle-center-desktop",
+        "content_width": 75,
+        "mobile_height": "screen-height-three-quarters--mobile",
+        "flex_align_mobile": "align--middle-center-mobile",
+        "color_scheme": "scheme-2",
+        "show_text_background": false,
+        "overlay_opacity": 65,
+        "show_overlay_text": false,
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "show_placeholder": true
+      }
+    },
+    "section_accordion_group_BDpL9m": {
+      "type": "section-accordion-group",
+      "blocks": {
+        "heading_y7bcaG": {
+          "type": "heading",
+          "settings": {
+            "title": "Frequently Asked Questions"
+          }
+        },
+        "question_3rhXAm": {
+          "type": "question",
+          "settings": {
+            "default_open": false,
+            "title": "What is Attaboy?",
+            "content": "<p>Attaboy is a men's health and performance brand built to cut through the clutter of wellness hype and give guys a smarter, simpler way to feel and perform better. We combine clinically backed ingredients, transparent formulas, and real-world utility into products that actually make a difference, without the fluff. It’s wellness designed for the doers, thinkers, and builders who want to feel dialed in every damn day.</p>",
+            "show_icon": false,
+            "icon_name": "icon-award",
+            "icon_size": 20,
+            "icon_color": ""
+          }
+        },
+        "question_w97xcq": {
+          "type": "question",
+          "settings": {
+            "default_open": false,
+            "title": "What's Actually In Every Damn Day?",
+            "content": "<p>Every Damn Day is made with 14 research-backed ingredients, each one included for a reason, and dosed to deliver real results. No proprietary blends, no under dosed fluff. You’ll find performance-focused compounds like Creatine Monohydrate, L-Citrulline, Alpha-GPC, and Glycine, plus key electrolytes and metabolic support, all working together to fuel energy, focus, strength, hydration, and recovery in one scoop.</p>",
+            "show_icon": false,
+            "icon_name": "icon-award",
+            "icon_size": 20,
+            "icon_color": ""
+          }
+        },
+        "question_TehkGt": {
+          "type": "question",
+          "settings": {
+            "default_open": false,
+            "title": "What does Every Damn Day Replace?",
+            "content": "<p>Every Damn Day replaces the cluttered stack of powders, pills, and half-finished routines crowding your cabinet. It delivers the core benefits of a pre-workout, hydration mix, recovery formula, and cognitive support, without the need for caffeine, sugar, or synthetic junk. One scoop gives you everything you actually need to perform, recover, and feel better, without the overwhelm or expense of managing 5+ products.</p>",
+            "show_icon": false,
+            "icon_name": "icon-award",
+            "icon_size": 20,
+            "icon_color": ""
+          }
+        },
+        "question_dxgfT9": {
+          "type": "question",
+          "settings": {
+            "default_open": false,
+            "title": "How do I take Every Damn Day?",
+            "content": "<p>One scoop, once a day, mixed with cold water and taken whenever it fits your routine. No loading phases, no timing hacks. Just consistent daily use to support strength, energy, hydration, focus, and recovery from the inside out.</p>",
+            "show_icon": false,
+            "icon_name": "icon-award",
+            "icon_size": 20,
+            "icon_color": ""
+          }
+        },
+        "question_xzjqaT": {
+          "type": "question",
+          "settings": {
+            "default_open": false,
+            "title": "Can I stack this with other supplements?",
+            "content": "<p>Absolutely. Every Damn Day is designed to be the foundation, not the full shelf. It covers your core performance, hydration, and recovery needs without conflicting with most other supplements. Whether you’re taking protein, creatine, or a greens powder, Attaboy plays well with others, and often lets you eliminate what you don’t actually need.</p>",
+            "show_icon": false,
+            "icon_name": "icon-award",
+            "icon_size": 20,
+            "icon_color": ""
+          }
+        },
+        "question_xap8Mi": {
+          "type": "question",
+          "settings": {
+            "default_open": false,
+            "title": "Does It Have Caffeine?",
+            "content": "<p>Nope. Every Damn Day is free of all stimulants, especially caffeine. </p>",
+            "show_icon": false,
+            "icon_name": "icon-award",
+            "icon_size": 20,
+            "icon_color": ""
+          }
+        },
+        "question_UfKgXH": {
+          "type": "question",
+          "settings": {
+            "default_open": false,
+            "title": "Is it safe for daily use?",
+            "content": "<p>Yes. Every ingredient is \"GRAS\" (Generally Recognized As Safe) and dosed with real data in mind.</p>",
+            "show_icon": false,
+            "icon_name": "icon-award",
+            "icon_size": 20,
+            "icon_color": ""
+          }
+        },
+        "question_qKd3md": {
+          "type": "question",
+          "settings": {
+            "default_open": false,
+            "title": "Will this help with testosterone?",
+            "content": "<p>Every Damn Day helps regulate cortisol and support testosterone levels, especially when combined with good sleep, training, and diet. It's not a T-Booster, it's a system optimizer.</p>",
+            "show_icon": false,
+            "icon_name": "icon-award",
+            "icon_size": 20,
+            "icon_color": ""
+          }
+        },
+        "question_pLEQax": {
+          "type": "question",
+          "settings": {
+            "default_open": false,
+            "title": "What's the flavor like?",
+            "content": "<p>coastal lime. it's crisp, salty, refreshing - and not too sweet. Perfect for a morning wake up.</p>",
+            "show_icon": false,
+            "icon_name": "icon-award",
+            "icon_size": 20,
+            "icon_color": ""
+          }
+        },
+        "question_exWWm3": {
+          "type": "question",
+          "settings": {
+            "default_open": false,
+            "title": "Where is it made?",
+            "content": "<p>All Attaboy products are proudly formulated in-house and made in North Carolina with globally sourced, high-quality ingredients.</p>",
+            "show_icon": false,
+            "icon_name": "icon-award",
+            "icon_size": 20,
+            "icon_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "heading_y7bcaG",
+        "question_3rhXAm",
+        "question_w97xcq",
+        "question_TehkGt",
+        "question_dxgfT9",
+        "question_xzjqaT",
+        "question_xap8Mi",
+        "question_UfKgXH",
+        "question_qKd3md",
+        "question_pLEQax",
+        "question_exWWm3"
+      ],
+      "custom_css": [
+        ".accordion__title {font-family: \"coolvetica\"; letter-spacing: 1px;}",
+        ".accordion__heading {font-family: \"NewScienceMonoBold\"; line-height: 1em;}"
+      ],
+      "name": "Accordion group",
+      "settings": {
+        "heading_font_size": "heading-large",
+        "question_font_size": "heading-small",
+        "width": "wrapper",
+        "columns": "1",
+        "color_scheme": "scheme-3",
+        "padding_top": 50,
+        "padding_bottom": 50
+      }
+    }
+  },
+  "order": [
+    "main",
+    "section_hero_GTqxfp",
+    "section_accordion_group_BDpL9m"
+  ]
+}

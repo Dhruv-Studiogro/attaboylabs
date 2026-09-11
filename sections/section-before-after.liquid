@@ -1,0 +1,451 @@
+{%- liquid
+  assign animation_order = 0
+  assign animation_anchor = '#SectionBeforeAfter--' | append: section.id
+  assign aspect_ratio = 1 | divided_by: section.settings.aspect_ratio
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign blocks_size = section.blocks.size
+
+  if blocks_size == 0
+    assign compare_images_width = 'full'
+  else
+    assign compare_images_width = 'half'
+  endif
+-%}
+
+{%- style -%}
+  #SectionBeforeAfter--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  }
+{%- endstyle -%}
+
+<section
+  id="SectionBeforeAfter--{{ section.id }}"
+  class="section-before-after section-padding {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="before-after"
+>
+  <div class="{{ section.settings.width }}">
+    <div class="before-after">
+      {%- if blocks_size > 0 -%}
+        <div class="before-after__content">
+          {%- for block in section.blocks -%}
+            {%- liquid
+              capture block_style
+                echo '--block-padding-bottom:' | append: block.settings.padding_bottom | append: 'px;'
+              endcapture
+            -%}
+
+            {%- case block.type -%}
+              {%- when 'heading' -%}
+                {%- liquid
+                  assign animation_order = animation_order | plus: 1
+                  assign heading_tag = 'h2'
+
+                  unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                    assign heading_tag = block.settings.heading_tag
+                  endunless
+                -%}
+
+                <{{ heading_tag }}
+                  class="section__title {{ block.settings.heading_font_size }} block-padding"
+                  data-aos="hero"
+                  data-aos-order="{{ animation_order }}"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  {{ block.shopify_attributes }}
+                  style="{{ block_style }}"
+                >
+                  {{ block.settings.heading }}
+                </{{ heading_tag }}>
+
+              {%- when 'subheading' -%}
+                {%- if block.settings.subheading != blank -%}
+                  {%- assign animation_order = animation_order | plus: 1 -%}
+                  <p
+                    class="hero__subheading block-padding"
+                    data-aos="hero"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="{{ animation_order }}"
+                    {{ block.shopify_attributes }}
+                    style="{{ block_style }}"
+                  >
+                    {{ block.settings.subheading }}
+                  </p>
+                {%- endif -%}
+
+              {%- when 'text' -%}
+                {%- assign animation_order = animation_order | plus: 1 -%}
+                <div
+                  class="hero__description {{ block.settings.text_font_size }} section__description block-padding"
+                  data-aos="hero"
+                  data-aos-order="{{ animation_order }}"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  {{ block.shopify_attributes }}
+                  style="{{ block_style }}"
+                >
+                  {{ block.settings.description }}
+                </div>
+
+              {%- when 'button' -%}
+                {%- liquid
+                  assign button_style = block.settings.button_style
+                  if button_style == 'btn--text' and block.settings.show_arrow
+                    assign button_style = button_style | append: ' btn--text-no-underline'
+                  endif
+
+                  if forloop.last
+                    assign last_block = true
+                  endif
+                -%}
+
+                {%- capture button_html -%}
+                  <a class="btn {{ button_style }} {{ block.settings.button_type }} {{ block.settings.button_size }}"
+                    href="{{ block.settings.link_url | default: '#!' }}">
+                    <span>{{ block.settings.link_text | escape }}</span>
+
+                    {%- if block.settings.show_arrow -%}
+                      {%- render 'icon-arrow-right' -%}
+                    {%- endif -%}
+                  </a>
+                {%- endcapture -%}
+
+                {%- assign button_block_attrubutes = block.shopify_attributes -%}
+                {%- assign animation_order = animation_order | plus: 1 -%}
+
+                <div
+                  class="before-after__buttons desktop block-padding"
+                  data-aos="hero"
+                  data-aos-order="{{ animation_order }}"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  {{ button_block_attrubutes }}
+                  style="{{ block_style }}"
+                >
+                  {{ button_html }}
+                </div>
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      <div class="before-after__images{% if compare_images_width == 'full' %} before-after__images--full-width{% endif %}">
+        {%- render 'compare-images',
+          image_1: section.settings.image_1,
+          image_2: section.settings.image_2,
+          image_position: section.settings.image_position,
+          animation_anchor: animation_anchor,
+          aspect_ratio: aspect_ratio,
+          compare_images_width: compare_images_width,
+          wrapper: section.settings.width
+        -%}
+      </div>
+    </div>
+
+    {%- if button_html != blank -%}
+      {%- unless last_block -%}
+        {%- assign animation_order = animation_order | plus: 1 -%}
+      {%- endunless -%}
+
+      <div
+        class="before-after__buttons mobile"
+        data-aos="hero"
+        data-aos-order="{{ animation_order }}"
+        data-aos-anchor="{{ animation_anchor }}"
+        {{ button_block_attrubutes }}
+      >
+        {{ button_html }}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Before and after",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_1",
+      "label": "Primary image",
+      "info": "2000 x 1400px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "Secondary image",
+      "info": "2000 x 1400px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "range",
+      "id": "aspect_ratio",
+      "min": 0.5,
+      "max": 1.5,
+      "step": 0.1,
+      "unit": ":1",
+      "label": "Image aspect ratio",
+      "info": "Wide to tall",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper",
+      "options": [
+        {"value": "wrapper--full", "label": "Full width"},
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Normal"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 50
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Real People, Real Results"
+        },
+        {
+          "type": "select",
+          "id": "heading_font_size",
+          "label": "Heading size",
+          "default": "heading-large",
+          "options": [
+            {"value": "heading-mini", "label": "Mini"},
+            {"value": "heading-x-small", "label": "Extra small"},
+            {"value": "heading-small", "label": "Small"},
+            {"value": "heading-medium", "label": "Medium"},
+            {"value": "heading-large", "label": "Large"},
+            {"value": "heading-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Padding"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Bottom",
+          "default": 16
+        },
+        {
+          "type": "header",
+          "content": "Advanced"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "Heading SEO tag",
+          "default": "automatic",
+          "options": [
+            {"value": "automatic", "label": "Automatic"},
+            {"value": "h1", "label": "H1"},
+            {"value": "h2", "label": "H2"},
+            {"value": "h3", "label": "H3"},
+            {"value": "h4", "label": "H4"},
+            {"value": "h5", "label": "H5"},
+            {"value": "h6", "label": "H6"}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "settings": [
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "Introducing"
+        },
+        {
+          "type": "header",
+          "content": "Padding"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Bottom",
+          "default": 16
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Text",
+          "default": "<p>Share success stories using before and after images to demonstrate how effective your products are.</p>"
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+          "default": "body-medium",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Padding"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Bottom",
+          "default": 16
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Text",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_type",
+          "label": "Color",
+          "default": "btn--primary",
+          "options": [
+            {"value": "btn--black", "label": "Black"},
+            {"value": "btn--white", "label": "White"},
+            {"value": "btn--primary", "label": "Primary"},
+            {"value": "btn--secondary", "label": "Secondary"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "Size",
+          "default": "",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": ""},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Style",
+          "default": "btn--solid",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "show_arrow",
+          "label": "Show arrow",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Padding"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Bottom",
+          "default": 16
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Before and after",
+      "blocks": [{"type": "heading"}, {"type": "text"}, {"type": "button"}]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "custom.pre_footer", "footer"]
+  }
+}
+{% endschema %}

@@ -1,0 +1,106 @@
+{% comment %}
+    Renders text block for custom content or newsletter sections
+
+    Accepts:
+    - block: {Object} Block object
+    - style: {String} Block inline style
+    - padding_class: {String} Set class "has-padding" if background colors of the block and the body are different
+    - animation_anchor: {String} ID of the element that will trigger animations
+
+    Usage:
+    {% render 'brick-text', block: block, style: style, padding_class: padding_class, animation_anchor: animation_anchor %}
+{% endcomment %}
+
+{%- liquid
+  assign subheading = block.settings.subheading
+  assign title = block.settings.title
+  assign text = block.settings.text
+  assign button_text = block.settings.button_text
+  assign button_style = block.settings.button_style
+  assign show_social_links = block.settings.show_social_links
+
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+
+  assign bg_color = block.settings.bg_color | default: scheme_bg_color
+  assign text_color = block.settings.color
+  assign animation_order = 0
+  assign animation_anchor = animation_anchor | default: ''
+  assign padding_class = padding_class | default: ''
+
+  if button_style == 'btn--text' and block.settings.show_arrow
+    assign button_style = button_style | append: ' btn--text-no-underline'
+  endif
+-%}
+
+{%- capture style -%}
+  {%- unless bg_color == 'rgba(0,0,0,0)' or bg_color == blank -%}
+    --bg: {{ bg_color }};
+  {%- endunless -%}
+
+  {%- unless text_color == 'rgba(0,0,0,0)' or text_color == blank -%}
+    --text: {{ text_color }};
+    --text-light: {{ text_color | color_mix: bg_color, 70 }};
+    --text-dark: {{ text_color | color_saturate: 10 | color_darken: 15 }};
+  {%- endunless -%}
+{%- endcapture -%}
+
+<div class="brick__block brick__block--text"{% if style != blank %} style="{{ style }}"{% endif %} {{ block.shopify_attributes }}>
+  <div class="brick__block__text{{ padding_class }}">
+    <div class="hero__content hero__content--compact {{ block.settings.align_text }}">
+      {%- if subheading != blank -%}
+        {%- assign animation_order = animation_order | plus: 1 -%}
+        <p class="hero__subheading"
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}">{{ subheading }}</p>
+      {%- endif -%}
+
+      {%- if title != blank -%}
+        {%- liquid
+          assign animation_order = animation_order | plus: 1
+          assign heading_tag = 'h2'
+
+          unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+            assign heading_tag = block.settings.heading_tag
+          endunless
+        -%}
+
+        <{{ heading_tag }} class="hero__title {{ block.settings.heading_font_size }}"
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}">{{ title }}</{{ heading_tag }}>
+      {%- endif -%}
+
+      {%- if text != blank -%}
+        {%- assign text_columns_class = block.settings.text_columns | prepend: 'columns--' -%}
+        {%- assign animation_order = animation_order | plus: 1 -%}
+        <div class="hero__rte {{ block.settings.text_font_size }} {{ text_columns_class }}"
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}">{{ text }}</div>
+      {%- endif -%}
+
+      {%- if button_text != blank -%}
+        {%- assign animation_order = animation_order | plus: 1 -%}
+        <div class="hero__button"
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}">
+          <a href="{{ block.settings.button_url | default: '#!' }}" class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}">
+            <span>{{ button_text }}</span>
+
+            {%- if block.settings.show_arrow -%}
+              {%- render 'icon-arrow-right' -%}
+            {%- endif -%}
+          </a>
+        </div>
+      {%- endif -%}
+
+      {%- if show_social_links -%}
+        {%- assign animation_order = animation_order | plus: 1 -%}
+        {%- render 'social-icons', animation_anchor: animation_anchor, animation_order: animation_order -%}
+      {%- endif -%}
+    </div>
+  </div>
+</div>

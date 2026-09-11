@@ -1,0 +1,37 @@
+{% if section.settings.product %}
+  {% assign product = all_products[section.settings.product] %}
+  <div class="replo-subscription-block" data-product-id="{{ product.id }}">
+    <!-- Recharge widget will be injected here -->
+  </div>
+{% else %}
+  <div class="replo-subscription-block">
+    <p>Please select a product in the theme editor.</p>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Replo Subscription Block",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Select a product"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Default",
+      "category": "Custom",
+      "settings": {
+        "product": ""
+      }
+    }
+  ]
+}
+{% endschema %}

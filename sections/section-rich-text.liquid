@@ -1,0 +1,606 @@
+<!-- /sections/section-rich-text.liquid -->
+{%- liquid
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign image_desktop = section.settings.image
+  assign image_mobile = section.settings.image_mobile
+  assign overlay_opacity = section.settings.overlay_opacity | times: 0.01
+  assign show_overlay_text = section.settings.show_overlay_text
+  assign animation_anchor = '#Rte--' | append: section.id
+  assign animation_order = 0
+-%}
+
+{%- style -%}
+  #Rte--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  }
+{%- endstyle -%}
+
+<section
+  id="Rte--{{ section.id }}"
+  class="index-rte section-padding {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="rich-text"
+>
+  {%- if image_desktop or image_mobile -%}
+    <div class="hero__bg">
+      <div class="hero__image">
+        {%- render 'image-hero', image_desktop: image_desktop, image_mobile: image_mobile -%}
+      </div>
+
+      {%- unless show_overlay_text or overlay_opacity == 0.0 -%}
+        <div class="image-overlay" style="--overlay-opacity: {{ overlay_opacity }};"></div>
+      {%- endunless -%}
+    </div>
+  {%- endif -%}
+
+  {%- if section.blocks.size > 0 -%}
+    <div class="hero__content__wrapper {{ section.settings.align_text }} {{ section.settings.width }}">
+      <div
+        class="hero__content hero__content--compact hero__content--transparent{% if show_overlay_text %} backdrop--radial{% endif %}"
+        {% if show_overlay_text %}
+          style="--overlay-opacity: {{ overlay_opacity }};"
+        {% endif %}
+      >
+        {%- for block in section.blocks -%}
+          {%- liquid
+            capture block_style
+              echo 'style="'
+              echo '--block-padding-bottom:' | append: block.settings.padding_bottom | append: 'px;'
+              echo '"'
+            endcapture
+          -%}
+
+          {%- case block.type -%}
+            {%- when 'heading' -%}
+              {%- if block.settings.title != blank -%}
+                {%- liquid
+                  assign animation_order = animation_order | plus: 1
+                  assign heading_tag = 'h2'
+
+                  unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                    assign heading_tag = block.settings.heading_tag
+                  endunless
+                -%}
+
+                <{{ heading_tag }}
+                  class="hero__title {{ block.settings.heading_font_size }} block-padding"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="{{ animation_order }}"
+                  {{ block.shopify_attributes }}
+                  {{ block_style }}
+                >
+                  {{ block.settings.title }}
+                </{{ heading_tag }}>
+              {%- endif -%}
+
+            {%- when 'subheading' -%}
+              {%- if block.settings.subheading != blank -%}
+                {%- assign animation_order = animation_order | plus: 1 -%}
+                <p
+                  class="hero__subheading block-padding"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="{{ animation_order }}"
+                  {{ block.shopify_attributes }}
+                  {{ block_style }}
+                >
+                  {{ block.settings.subheading }}
+                </p>
+              {%- endif -%}
+
+            {%- when 'text' -%}
+              {%- if block.settings.text != blank -%}
+                {%- assign animation_order = animation_order | plus: 1 -%}
+                <div
+                  class="hero__rte {{ block.settings.text_font_size }} block-padding"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="{{ animation_order }}"
+                  {{ block.shopify_attributes }}
+                  {{ block_style }}
+                >
+                  {{ block.settings.text }}
+                </div>
+              {%- endif -%}
+
+            {%- when 'image' -%}
+              {%- liquid
+                assign animation_order = animation_order | plus: 1
+                assign image_width_percent = block.settings.image_width
+                assign image_width_ratio = image_width_percent | times: 0.01
+
+                capture block_style
+                  echo 'style="'
+                  echo '--block-padding-bottom:' | append: block.settings.padding_bottom | append: 'px;'
+                  echo 'width: ' | append: image_width_percent | append: '%'
+                  echo '"'
+                endcapture
+
+                capture sizes
+                  assign image_size_mobile = 'calc((100vw - 32px) * ' | append: image_width_ratio | append: ')'
+
+                  case section.settings.width
+                    when 'wrapper--full-padded'
+                      assign image_size_desktop = 'calc(100vw - 100px * ' | append: image_width_ratio | append: ')'
+                    when 'wrapper'
+                      assign image_size_desktop = 'calc(80vw * ' | append: image_width_ratio | append: ')'
+                    when 'wrapper--narrow'
+                      assign image_size_desktop = 'calc(670px * ' | append: image_width_ratio | append: ')'
+                  endcase
+
+                  echo '(min-width: 750px) ' | append: image_size_desktop | append: ', ' | append: image_size_mobile
+                endcapture
+              -%}
+
+              <div
+                class="hero__media block-padding"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ animation_order }}"
+                {{ block.shopify_attributes }}
+                {{ block_style }}
+              >
+                {%- render 'image', image: block.settings.image, sizes: sizes -%}
+              </div>
+
+            {%- when 'buttons' -%}
+              {%- liquid
+                assign button_style = block.settings.button_style
+                if button_style == 'btn--text' and block.settings.show_arrow
+                  assign button_style = button_style | append: ' btn--text-no-underline'
+                endif
+              -%}
+
+              {%- if block.settings.button_text != blank -%}
+                {%- liquid
+                  assign prev_index = forloop.index0 | minus: 1
+                  assign next_index = forloop.index0 | plus: 1
+                  assign prev_block = section.blocks[prev_index]
+                  assign next_block = section.blocks[next_index]
+                  assign animation_order = animation_order | plus: 1
+                -%}
+                {%- if next_block.type == 'buttons'
+                  and forloop.index0 == 0
+                  or prev_block.type != 'buttons'
+                  and next_index != section.blocks.size
+                  and next_block.type == 'buttons'
+                -%}
+                  <div class="hero__button-group">
+                {%- endif -%}
+
+                <div
+                  class="hero__button block-padding"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="{{ animation_order }}"
+                  {{ block.shopify_attributes }}
+                  {{ block_style }}
+                >
+                  <a
+                    href="{{ block.settings.button_url | default: '#!' }}"
+                    class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}"
+                  >
+                    <span>{{ block.settings.button_text }}</span>
+
+                    {%- if block.settings.show_arrow -%}
+                      {%- render 'icon-arrow-right' -%}
+                    {%- endif -%}
+                  </a>
+                </div>
+
+                {%- if prev_block.type == 'buttons'
+                  and next_block.type != 'buttons'
+                  and prev_index != -1
+                  or forloop.index == section.blocks.size
+                  and prev_block.type == 'buttons'
+                  and prev_index != -1
+                -%}
+                  </div>
+                {%- endif -%}
+              {%- endif -%}
+
+            {%- when 'divider' -%}
+              {%- assign animation_order = animation_order | plus: 1 -%}
+              {%- capture attributes -%}
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ animation_order }}"
+              {%- endcapture -%}
+
+              {%- render 'divider', block: block, attributes: attributes -%}
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- else -%}
+    {%- render 'no-blocks' -%}
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Rich text",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "align_text",
+      "label": "Text alignment",
+      "default": "text-left",
+      "options": [
+        {"value": "text-left", "label": "Left"},
+        {"value": "text-center", "label": "Centered"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper",
+      "options": [
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Normal"},
+        {"value": "wrapper--narrow", "label": "Narrow"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Desktop"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "info": "Optional. 3200 x 1200px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)",
+      "label": "Background image"
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Background image",
+      "info": "Optional. 1200 x 1600px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "info": "Increase contrast for legible text.",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay_text",
+      "label": "Overlay behind text only",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "label": "Top",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 100
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Rich text"
+        },
+        {
+          "type": "select",
+          "id": "heading_font_size",
+          "label": "Heading size",
+          "default": "heading-large",
+          "options": [
+            {"value": "heading-mini", "label": "Mini"},
+            {"value": "heading-x-small", "label": "Extra small"},
+            {"value": "heading-small", "label": "Small"},
+            {"value": "heading-medium", "label": "Medium"},
+            {"value": "heading-large", "label": "Large"},
+            {"value": "heading-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Padding"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Bottom",
+          "default": 16
+        },
+        {
+          "type": "header",
+          "content": "Advanced"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "Heading SEO tag",
+          "default": "automatic",
+          "options": [
+            {"value": "automatic", "label": "Automatic"},
+            {"value": "h1", "label": "H1"},
+            {"value": "h2", "label": "H2"},
+            {"value": "h3", "label": "H3"},
+            {"value": "h4", "label": "H4"},
+            {"value": "h5", "label": "H5"},
+            {"value": "h6", "label": "H6"}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "settings": [
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "Introducing"
+        },
+        {
+          "type": "header",
+          "content": "Padding"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Bottom",
+          "default": 16
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+          "default": "body-medium",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Padding"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Bottom",
+          "default": 16
+        }
+      ]
+    },
+    {
+      "type": "buttons",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Text",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_type",
+          "label": "Color",
+          "default": "btn--primary",
+          "options": [
+            {"value": "btn--black", "label": "Black"},
+            {"value": "btn--white", "label": "White"},
+            {"value": "btn--primary", "label": "Primary"},
+            {"value": "btn--secondary", "label": "Secondary"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "Size",
+          "default": "",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": ""},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Style",
+          "default": "btn--solid",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "show_arrow",
+          "label": "Show arrow",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Padding"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Bottom",
+          "default": 16
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "200 x 200px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "min": 10,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "label": "Width",
+          "default": 20
+        },
+        {
+          "type": "header",
+          "content": "Padding"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Bottom",
+          "default": 16
+        }
+      ]
+    },
+    {
+      "type": "divider",
+      "name": "Divider",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_line",
+          "label": "Show line",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "label": "Bottom",
+          "default": 20
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Rich text",
+      "blocks": [
+        {
+          "type": "subheading"
+        },
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "buttons"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

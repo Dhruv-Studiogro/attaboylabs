@@ -1,0 +1,112 @@
+<!-- /snippets/collection-grid-item.liquid -->
+
+{% comment %}
+    Renders a list of collections in grid format
+
+    Accepts:
+    - collection: {Object} Collction to render (required)
+    - animation_delay: {Int} number of miliseconds to delay for position in loop
+    - animation_anchor: Trigger animation selector
+    - aspect_ratio: Image aspect ratio
+    - index: (Int) Index in the loop
+
+    Usage:
+    {% render 'collection-grid-item', block: block, animation_delay: animation_delay, animation_anchor: animation_anchor, aspect_ratio: aspect_ratio, index: index %}
+{% endcomment %}
+
+{%- liquid
+  assign layout = section.settings.layout
+  assign collection = collections[block.settings.collection]
+  assign collection_title = block.settings.title | default: collection.title
+  assign collection_image = block.settings.collection_image | default: collection.image | default: collection.products.first.featured_media.preview_image
+  assign animation_duration = 800
+
+  assign columns_desktop = section.settings.grid | plus: 0
+  assign columns_medium = 3
+  assign columns_small = 2
+  assign columns_mobile = section.settings.layout_mobile | plus: 0
+
+  assign eager_images_limit = columns_desktop
+  if layout == 'grid'
+    if columns_desktop > 3
+      assign eager_images_limit = columns_desktop | times: 2
+    endif
+  else
+    assign eager_images_limit = 3
+  endif
+
+  if index > eager_images_limit
+    assign loading = 'lazy'
+  endif
+
+	if columns_desktop == 2 or columns_desktop == 4
+    assign columns_medium = 2
+  endif
+
+  assign alignment_class = ''
+  if settings.product_grid_center
+    assign alignment_class = 'collection-item--centered'
+  endif
+
+  capture sizes
+    if layout == 'slider'
+      if settings.grid_style == 'compact'
+        echo '(min-width: 1400px) calc(100vw * 0.28), (min-width: 750px) calc(100vw * 0.38), calc(100vw - 82px)'
+      else
+        echo '(min-width: 1400px) calc((100vw - 100px) * 0.28), (min-width: 750px) calc((100vw - 32px) * 0.38), calc(100vw - 82px)'
+      endif
+    else
+      if settings.grid_style == 'compact'
+        echo '(min-width: 1400px) calc(100vw / ' | append: columns_desktop | append: '), (min-width: 750px) calc(100vw / ' | append: columns_medium | append: '), (min-width: 480px) calc(100vw / ' | append: columns_small | append: '), calc(100vw / ' | append: columns_mobile | append: ')'
+      else
+        echo '(min-width: 1400px) calc((100vw - 100px) / ' | append: columns_desktop | append: ' - 32px), (min-width: 750px) calc((100vw - 32px) / ' | append: columns_medium | append: ' - 22px), (min-width: 480px) calc((100vw - 32px) / ' | append: columns_small | append: ' - 16px), calc((100vw - 32px) / ' | append: columns_mobile | append: ')'
+      endif
+    endif
+  endcapture
+-%}
+
+<div class="grid-item collection-item {{ alignment_class }}" data-grid-item {{ block.shopify_attributes }}>
+  {%- if collection == empty -%}
+    <div class="collection-item__content">
+  {%- else -%}
+    <a aria-label="{{ collection.title | strip_html | escape }}" href="{{ collection.url }}" class="collection-item__content">
+  {%- endif -%}
+
+    <div class="collection-item__image" data-collection-image>
+      <div class="collection-item__bg"
+        data-aos="img-in"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-delay="{{ animation_delay | times: 150 }}"
+        data-aos-duration="{{ animation_duration }}"
+        data-aos-easing="ease-out-quart">
+        {%- liquid
+          capture placeholder
+            echo 'collection-' | append: placeholder_index
+          endcapture
+          render 'image' image: collection_image,  placeholder: placeholder, sizes: sizes, aspect_ratio: aspect_ratio, loading: loading
+        -%}
+      </div>
+    </div>
+
+    <div class="collection-item__info"
+      data-aos="fade"
+      data-aos-anchor="{{ animation_anchor }}"
+      data-aos-delay="{{ animation_delay | times: 150 }}"
+      data-aos-duration="{{ animation_duration }}">
+      <span>
+        {%- if collection_title != blank -%}
+          {{ collection_title }}
+
+          {%- render 'superscript', superscript_collection: collection -%}
+        {%- else -%}
+          {{ 'collections.general.items.heading' | t }}
+        {%- endif -%}
+      </span>
+    </div>
+
+  {%- if collection == empty -%}
+    </div>
+  {%- else -%}
+    </a>
+  {%- endif -%}
+</div>

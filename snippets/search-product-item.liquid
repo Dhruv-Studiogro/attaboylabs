@@ -1,0 +1,114 @@
+{% comment %}
+    Renders product item in predictive search
+
+    Accepts:
+    - product: {Object} product (required)
+    - product_item_classes: {String} product item classes
+    - animation_delay: {Int} Animation delay
+    - animation_duration: {Int} Animation duration
+    - animation_anchor: {String} Animation anchor
+    - focusable: {Boolean} Default: false
+
+    Usage:
+    {% render 'search-product-item', product: product, animation_delay: animation_delay, animation_duration: animation_duration, animation_anchor: animation_anchor, product_item_classes: product_item_classes %}
+{% endcomment %}
+
+{%- liquid
+  assign current_variant = product.first_available_variant
+  assign featured_image = product.featured_media
+  assign second_image = product.media[1]
+  assign show_second_image = settings.image_hover_enable
+  assign product_item_classes = product_item_classes | prepend: ' ' | default: ''
+  assign animation_delay = animation_delay | default: 100
+  assign animation_duration = animation_duration | default: 800
+  assign animation_anchor = animation_anchor | default: ''
+  assign focusable = focusable | default: false
+
+  assign hidden_product = false
+  if product.tags contains 'hide'
+    assign hidden_product = true
+  endif
+
+  assign product_double_class = ''
+  if second_image.preview_image and show_second_image
+    assign product_double_class = ' double__image'
+  else
+    assign show_second_image = false
+  endif
+
+  assign sizes = '(min-width: 1400px) calc((80vw - 100px) * 0.75 / 4), (min-width: 750px) calc(1100px * 0.75 / 3), 50px'
+-%}
+
+{%- unless hidden_product -%}
+  <div class="predictive-search__grid-item product-item product-item grid-item{{ product_item_classes }}"
+    role="option"
+    aria-selected="false"
+    data-aos="fade"
+    data-aos-delay="{{ animation_delay }}"
+    data-aos-duration="{{ animation_duration }}"
+    data-aos-anchor="{{ animation_anchor }}">
+    <a href="{{ product.url }}" class="product-link" aria-label="{{ product.title | strip_html | escape }}"{% unless focusable %} tabindex="-1"{% endunless %} data-product-link>
+      <div class="product-item__image{{ product_double_class }}{% unless featured_image %} image--empty{% endunless %}">
+        {%- if featured_image -%}
+          {%- liquid
+            assign hover_limit = settings.image_hover_limit | minus: 1
+
+            capture featured_image
+              render 'image' image: product.featured_media.preview_image, aspect_ratio: aspect_ratio, sizes: sizes, widths: widths, loading: 'eager', fetchpriority: 'high', attributes: image_animations, cover: true
+            endcapture
+          -%}
+
+          <div class="product-item__bg">
+            {{ featured_image }}
+          </div>
+
+          {%- if show_second_image -%}
+            <hover-images class="product-item__bg__under">
+              <div class="product-item__bg__slider" data-hover-slider>
+                <div class="product-item__bg__slide{% if media.media_type == 'video' or media.media_type == 'external_video' %} deferred-media{% endif %}"
+                  data-hover-slide-touch
+                >
+                  {{ featured_image }}
+                </div>
+
+                {%- for media in product.media limit: hover_limit offset: 1 -%}
+                  <div class="product-item__bg__slide{% if media.media_type == 'video' or media.media_type == 'external_video' %} deferred-media{% endif %}"
+                    data-hover-slide
+                    data-hover-slide-touch
+                  >
+                    {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+                      {%- liquid
+                        case media.media_type
+                          when 'video'
+                            echo media | media_tag: image_size: '1024x1024', class: 'media-video', autoplay: true, loop: true, controls: false, preload: 'none', muted: true
+                          when 'external_video'
+                            if media.host == 'youtube'
+                              echo media | external_video_url: autoplay: true, playsinline: true, loop: true, playlist: media.external_id, controls: false, mute: true, showinfo: false | external_video_tag: loading: 'lazy', data-host: media.host
+                            else
+                              echo media | external_video_url: autoplay: true, playsinline: true, loop: true, controls: false, muted: true | external_video_tag: data-host: media.host
+                            endif
+                        endcase
+                      -%}
+                    {%- else -%}
+                      {%- render 'image' image: media.preview_image, aspect_ratio: aspect_ratio, sizes: sizes, widths: widths, loading: 'eager', fetchpriority: 'high', attributes: image_animations, cover: true -%}
+                    {%- endif -%}
+                  </div>
+                {%- endfor -%}
+              </div>
+            </hover-images>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+
+      <div class="product-information">
+        <div class="product-item__info {{ settings.product_grid_font_size }}">
+          <p class="product-item__title">
+            {{ product.title | strip_html }}
+          </p>
+
+          {%- render 'product-grid-price' product: product, current_variant: current_variant -%}
+          </div>
+      </div>
+    </a>
+  </div>
+{%- endunless -%}

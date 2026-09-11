@@ -1,0 +1,182 @@
+{% comment %}
+  Renders image block for custom content or newsletter sections
+
+  Accepts:
+  - block: {Object} Block object
+  - animation_anchor: {String} ID of the element that will trigger animations
+
+  Usage:
+  {% render 'brick-image', block: block, animation_anchor: animation_anchor %}
+{% endcomment %}
+
+{%- liquid
+  assign title = block.settings.title
+  assign text = block.settings.text
+  assign link = block.settings.link
+  assign link_text = block.settings.link_text
+
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+
+  assign bg_color = block.settings.bg_color | default: scheme_bg_color
+  assign text_color = block.settings.color
+  assign overlay_opacity = block.settings.overlay_opacity | times: 0.01
+  assign overlay_color = block.settings.overlay_color
+  assign show_overlay_text = block.settings.show_overlay_text
+  assign show_text_background = block.settings.show_text_background
+  assign desktop_height = section.settings.height
+  assign mobile_height = block.settings.mobile_height | default: section.settings.mobile_height
+  assign wrapper_width = section.settings.width
+
+  assign hero_transparent = true
+  if show_text_background and scheme_bg_color.alpha != 0.0 or scheme_bg_color != blank or bg_color.alpha != 0.0 or bg_color != blank
+    assign hero_transparent = false
+  endif
+
+  assign show_header_backdrop = false
+  if hero_transparent and show_overlay_text
+    assign show_header_backdrop = true
+  endif
+
+  assign button_style = block.settings.button_style
+  if button_style == 'btn--text' and block.settings.show_arrow
+    assign button_style = button_style | append: ' btn--text-no-underline'
+  endif
+
+  assign animation_order = 0
+-%}
+
+{%- capture style -%}
+  {%- unless bg_color.alpha == 0.0 or bg_color == blank -%}
+    --bg: {{ bg_color }};
+  {%- endunless -%}
+
+  {%- unless text_color.alpha == 0.0 or text_color == blank -%}
+    --text: {{ text_color }};
+    --text-light: {{ text_color | color_mix: bg_color, 70 }};
+    --text-dark: {{ text_color | color_saturate: 10 | color_darken: 15 }};
+  {%- endunless -%}
+
+  {%- unless overlay_color.alpha == 0.0 or overlay_color == blank -%}
+    --overlay-bg: {{ overlay_color }};
+  {%- endunless -%}
+{%- endcapture -%}
+
+<div
+  class="brick__block"
+  {% if style != blank %}
+    style="{{ style }}"
+  {% endif %}
+  {{ block.shopify_attributes }}
+>
+  <div class="brick__block__image frame">
+    {%- if link != blank and link_text == blank -%}
+      <a class="frame__item" href="{{ link }}">
+    {%- else -%}
+      <div class="frame__item">
+    {%- endif -%}
+
+    {%- unless show_overlay_text or overlay_opacity == 0.0 -%}
+      <div class="image-overlay" style="--overlay-opacity: {{ overlay_opacity }};"></div>
+    {%- endunless -%}
+
+    {%- liquid
+      capture image_sizes
+        if section.blocks.size > 1
+          if wrapper_width == 'wrapper--full'
+            echo '(min-width: 750px) 50vw, 100vw'
+          elsif wrapper_width == 'wrapper--full-padded'
+            echo '(min-width: 990px) calc((100vw - 100px) / 2), (min-width: 750px) calc((100vw - 60px) / 2), calc(100vw - 32px - 50px)'
+          else
+            echo '(min-width: 990px) calc(1100px / 2), (min-width: 750px) calc((100vw - 60px) / 2), calc(100vw - 32px - 50px)'
+          endif
+        else
+          if wrapper_width == 'wrapper--full'
+            echo '100vw'
+          elsif wrapper_width == 'wrapper--full-padded'
+            echo '(min-width: 990px) calc(100vw - 100px), (min-width: 750px) calc(100vw - 60px), calc(100vw - 32px)'
+          else
+            echo '(min-width: 990px) calc(1100px / 2), (min-width: 750px) calc((100vw - 60px) / 2), calc(100vw - 32px - 50px)'
+          endif
+        endif
+      endcapture
+
+      render 'image-hero', image: block.settings.image, desktop_height: desktop_height, mobile_height: mobile_height, sizes: image_sizes
+    -%}
+
+    {%- if link != blank and link_text == blank -%}
+      </a>
+    {%- else -%}
+      </div>
+    {%- endif -%}
+
+    {%- if title != blank or text != blank or link_text != blank -%}
+      <div
+        class="hero__content__wrapper frame__item {{ block.settings.flex_align }}{% if show_header_backdrop %} backdrop--linear{% endif %}"
+        {% if show_header_backdrop %}
+          style="--header-overlay-color: var(--overlay-bg); --header-overlay-opacity: {{ overlay_opacity }};"
+        {% endif %}
+      >
+        <div
+          class="hero__content{% if hero_transparent %} hero__content--transparent{% endif %}{% if show_overlay_text %} backdrop--radial{% endif %}"
+          {% if overlay_opacity != 0.0 %}
+            style="--overlay-opacity: {{ overlay_opacity }};"
+          {% endif %}
+        >
+          {%- if title != blank -%}
+            {%- liquid
+              assign animation_order = animation_order | plus: 1
+              assign heading_tag = 'h2'
+
+              unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                assign heading_tag = block.settings.heading_tag
+              endunless
+            -%}
+
+            <{{ heading_tag }}
+              class="hero__title {{ block.settings.heading_font_size }}"
+              data-aos="hero"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="{{ animation_order }}"
+            >
+              {{- title | escape -}}
+            </{{ heading_tag }}>
+          {%- endif -%}
+
+          {%- if text != blank -%}
+            {%- assign animation_order = animation_order | plus: 1 -%}
+            <div
+              class="hero__description {{ block.settings.text_font_size }}"
+              data-aos="hero"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="{{ animation_order }}"
+            >
+              {{ text }}
+            </div>
+          {%- endif -%}
+
+          {%- if link_text != blank -%}
+            {%- assign animation_order = animation_order | plus: 1 -%}
+            <div
+              class="hero__button"
+              data-aos="hero"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="{{ animation_order }}"
+            >
+              <a
+                class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}"
+                href="{{ link | default: '#!' }}"
+              >
+                <span>{{ link_text | escape }}</span>
+
+                {%- if block.settings.show_arrow -%}
+                  {%- render 'icon-arrow-right' -%}
+                {%- endif -%}
+              </a>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</div>

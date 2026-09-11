@@ -1,0 +1,32 @@
+{% comment %}
+    Renders order notes on Cart page and Cart drawer
+
+    Accepts:
+    - block: {Object} Block object (required)
+
+    Usage:
+    {% render 'cart-block-gift-note', block: block %}
+{% endcomment %}
+
+<details
+  class="cart__widget accordion"
+  data-collapsible
+>
+  <summary class="cart__widget__title" data-collapsible-trigger>
+    {{- 'cart.general.gift_notes_label' | t -}}
+
+    {%- render 'icon-plus' -%}
+    {%- render 'icon-minus' -%}
+  </summary>
+
+  <div class="cart__widget__content" data-collapsible-body>
+    <div class="cart__widget__content__inner" data-collapsible-content>
+      {%- assign gift_note_attribute_default = 'Gift note' -%}
+      {%- assign gift_note_attribute_string = 'cart.general.gift_note_attribute' | t -%}
+      {%- assign gift_note_attribute = gift_note_attribute_string | default: gift_note_attribute_default -%}
+
+      <label for="gift-note">{{ 'cart.general.customer_note' | t }}</label>
+      <textarea id="gift-note" name="attributes[{{ gift_note_attribute }}]" class="cart__field cart__field--textarea" form="cartForm" aria-label="{{ 'cart.general.customer_note' | t }}">{{ cart.attributes[gift_note_attribute] }}</textarea>
+    </div>
+  </div>
+</details>

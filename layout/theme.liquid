@@ -1,0 +1,203 @@
+<!doctype html>
+<html class="no-js no-touch supports-no-cookies" lang="{{ request.locale.iso_code }}">
+  <head>
+{% render 'replo-head' %}{% render 'skio-head' %}
+    <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TR6DJ4CR');</script>
+<!-- End Google Tag Manager -->
+    {%- render 'head' -%}
+
+    {{ content_for_header }}
+    <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "rwe494p0v5");
+</script>
+
+
+    <script>
+      if (window.location.pathname.startsWith('/tools/recurring')) window.location.href = '/a/account/login'; 
+    </script>
+    <script>/* >> Heatmap.com :: Snippet << */(function (h,e,a,t,m,ap) { (h._heatmap_paq = []).push([ 'setTrackerUrl', (h.heatUrl = e) + a]); h.hErrorLogs=h.hErrorLogs || []; ap=t.createElement('script');  ap.src=h.heatUrl+'preprocessor.min.js?sid='+m;  ap.defer=true; t.head.appendChild(ap); ['error', 'unhandledrejection'].forEach(function (ty) {     h.addEventListener(ty, function (et) { h.hErrorLogs.push({ type: ty, event: et }); }); });})(window,'https://dashboard.heatmap.com/','heatmap.php',document,5282);</script>
+  <script async="true" src="https://app.lightlabs.com/assets/ll-pip-widget-v5.js"></script>
+  <script src="https://backend.alia-prod.com/public/embed.js?shop=attaboybrand.myshopify.com" async></script>
+  </head>
+
+  <body
+    id="{{ page_title | handle }}"
+    class="template-{{ template.name | handle }} grid-{{ settings.grid_style }}{% if customer %} customer-logged-in{% endif %}{% if settings.animations_enable %} aos-initialized{% endif %}{% if settings.product_grid_outline %} has-line-design{% endif %}"
+    data-animations="{{ settings.animations_enable }}"
+  >
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TR6DJ4CR"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+    {%- render 'loading' -%}
+
+    <a class="in-page-link visually-hidden skip-link" data-skip-content href="#MainContent">
+      {{- 'general.accessibility.skip_to_content' | t -}}
+    </a>
+
+    <div class="container" data-site-container>
+      <div class="header-sections">
+        {% sections 'group-header' %}
+      </div>
+
+      {% sections 'group-overlay' %}
+
+      <!-- CONTENT -->
+      <main role="main" id="MainContent" class="main-content">
+        {{ content_for_layout }}
+      </main>
+    </div>
+
+    {% sections 'group-pre-footer' %}
+
+    <footer class="footer-sections">
+      {% sections 'group-footer' %}
+    </footer>
+
+    {%- if settings.swatches_type != 'disabled' -%}
+      {% render 'template-swatch' %}
+    {%- endif -%}
+
+    {% render 'zoom-pswp' %}
+
+    {%- if template.name != 'product' and settings.show_scroll_top_button -%}
+      <button
+        type="button"
+        class="btn btn--scroll-top btn--black btn--solid"
+        aria-label="{{ 'general.accessibility.scroll_to_top' | t }}"
+        data-scroll-top-button
+      >
+        {%- render 'icon-arrow-up' -%}
+      </button>
+    {%- endif -%}
+
+    {%- comment -%}
+      In order to use your custom javascript file at assets/custom.js
+      just cut this next line and paste it outside this comment:
+      <script src="{{ 'custom.js' | asset_url }}" defer="defer"></script>
+    {%- endcomment -%}
+    <!-- Paste marketing code or third party scripts below this comment line ============== -->
+
+    <!-- And above this comment line ================================================== -->
+    <script>
+  document.addEventListener("junip:product:summary:loaded", function (event) {
+    // Confirm it loaded for the correct product
+    if (event.detail.productSummary.productId === "7947823382562") {
+      const avgRating = event.detail.productSummary.averageRating?.toFixed(1);
+      const reviewCount = event.detail.productSummary.reviewCount;
+
+      const text = `${avgRating} ★ average from ${reviewCount} verified buyer${reviewCount > 1 ? 's' : ''}`;
+      document.getElementById("attaboy-rating-text").innerText = text;
+    }
+  });
+</script>
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const btn = document.querySelector('.scroll-to-top-btn');
+
+    const waitForTarget = setInterval(() => {
+      const targetBlock = document.querySelector('.product__block.product__badges.block-padding');
+
+      if (btn && targetBlock) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+
+          const elementPosition = targetBlock.getBoundingClientRect().top + window.pageYOffset;
+          const offset = window.innerHeight * 0.25; // 25% of screen height
+
+          window.scrollTo({
+            top: elementPosition - offset,
+            behavior: 'smooth'
+          });
+        });
+
+        clearInterval(waitForTarget);
+      }
+    }, 200);
+  });
+</script>
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const stickyATC = document.querySelector('.stick-atc');
+
+    function handleScroll() {
+      const scrollY = window.scrollY || window.pageYOffset;
+      const triggerPoint = window.innerHeight * 1.1; // 110vh
+
+      if (stickyATC) {
+        if (scrollY > triggerPoint) {
+          stickyATC.classList.add('show');
+        } else {
+          stickyATC.classList.remove('show');
+        }
+      }
+    }
+
+    // Run on load and scroll
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+  });
+</script>
+  {{'tiny-img-link-preloader.js' | asset_url | script_tag }}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window.location.pathname !== "/") return;
+
+    const atc = document.querySelector(".sticky-atc");
+    const hero = document.querySelector(".vid-pack-hero");
+    if (!atc || !hero) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          // Add when hero is less than 50% visible
+          if (entry.intersectionRatio < 0.5) {
+            atc.classList.add("visible");
+          } else {
+            atc.classList.remove("visible");
+          }
+        });
+      },
+      {
+        threshold: 0.5
+      }
+    );
+
+    observer.observe(hero);
+  });
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const stickyEl = document.querySelector('.iLzDjl6AmoAkmMeEE');
+    const endTrigger = document.querySelector('.iVigNESzRaSV8i0ch');
+
+    if (!stickyEl || !endTrigger) return;
+
+    function checkPosition() {
+      const triggerRect = endTrigger.getBoundingClientRect();
+      const stickyRect = stickyEl.getBoundingClientRect();
+
+      if (triggerRect.bottom <= stickyRect.bottom) {
+        stickyEl.style.visibility = 'hidden';
+        stickyEl.style.pointerEvents = 'none';
+      } else {
+        stickyEl.style.visibility = 'visible';
+        stickyEl.style.pointerEvents = 'auto';
+      }
+    }
+
+    window.addEventListener('scroll', checkPosition);
+    window.addEventListener('resize', checkPosition);
+    checkPosition(); // Initial run
+  });
+</script>
+</body>
+</html>

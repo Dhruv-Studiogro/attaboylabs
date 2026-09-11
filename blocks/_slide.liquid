@@ -1,0 +1,255 @@
+{%- liquid
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+  assign scheme_text_color = settings.color_schemes[selected_color_scheme].settings.section_text
+  assign desktop_height = section.settings.height
+  assign mobile_height = section.settings.mobile_height
+  assign image_desktop = block.settings.image
+  assign image_mobile = block.settings.mobile_image
+  assign alt = image_mobile.alt | default: image_desktop.alt | default: block.settings.title | default: default_slide_label
+  assign image_link = block.settings.link
+  assign content_width = block.settings.content_width
+  assign show_text_background = block.settings.show_text_background
+  assign overlay_color = block.settings.overlay_color
+  assign overlay_opacity = block.settings.overlay_opacity | times: 0.01
+  assign show_overlay_text = block.settings.show_overlay_text
+  assign bg_color = block.settings.bg_color
+  assign text_color = block.settings.color
+  assign bg = ''
+  assign text = ''
+
+  assign hero_transparent = true
+  if show_text_background and scheme_bg_color.alpha != 0.0 or scheme_bg_color != blank or bg_color.alpha != 0.0 or bg_color != blank
+    assign hero_transparent = false
+  endif
+
+  if bg_color.alpha != 0.0 and bg_color != blank
+    assign bg = '--bg:' | append: bg_color | append: ';'
+  endif
+
+  assign show_header_backdrop = false
+  if hero_transparent and show_overlay_text
+    assign show_header_backdrop = true
+  endif
+
+  if text_color.alpha != 0.0 and text_color != blank
+    assign text = '--text:' | append: text_color | append: ';'
+  else
+    assign text = '--text:' | append: scheme_text_color | append: ';'
+  endif
+-%}
+
+{%- capture slide_style -%}
+  --overlay-opacity: {{ overlay_opacity }};
+  --hero-content-width: {{ content_width }}%;
+
+  {%- unless overlay_color.alpha == 0.0 or overlay_color == blank -%}
+    --overlay-bg: {{ overlay_color }};
+  {%- endunless -%}
+
+  {% if show_header_backdrop %}
+    --header-overlay-color: var(--overlay-bg);
+    --header-overlay-opacity: {{ overlay_opacity }};"
+  {% endif %}
+
+  {%- if bg != blank or text != blank -%}
+    {{ bg }}
+    {{ text }}
+  {%- endif -%}
+{%- endcapture -%}
+
+<div
+  class="slideshow__slide frame {{ section.settings.height }} {{ section.settings.mobile_height }}{% if forloop.first %} is-selected{% endif %}"
+  data-slide="{{ block.id }}"
+  data-slide-text-color="{{ text_color }}"
+  style="{{ slide_style }}"
+  {{ block.shopify_attributes }}
+>
+  {%- if image_link != blank -%}
+    <a
+      class="hero__image frame__item"
+      href="{{ image_link }}"
+      aria-label="{{ block.settings.title | default: default_slide_label | escape }}"
+    >
+  {%- else -%}
+    <div class="hero__image frame__item">
+  {%- endif -%}
+
+  {%- unless show_overlay_text or overlay_opacity == 0.0 -%}
+    <div class="image-overlay"></div>
+  {%- endunless -%}
+
+  {%- liquid
+    if forloop.first and section.index < 3
+      assign loading = 'eager'
+      assign fetchpriority = 'high'
+      assign preload = true
+    else
+      assign loading = 'lazy'
+      assign fetchpriority = 'high'
+      assign preload = false
+    endif
+
+    render 'image-hero', image_desktop: image_desktop, image_mobile: image_mobile, desktop_height: desktop_height, mobile_height: mobile_height, alt: alt, loading: loading, fetchpriority: fetchpriority, preload: preload
+  -%}
+
+  {%- if image_link -%}
+    </a>
+  {%- else -%}
+    </div>
+  {%- endif -%}
+
+  {%- if block.type != blank -%}
+    <div class="hero__content__wrapper frame__item {{ block.settings.flex_align_desktop }} {{ block.settings.flex_align_mobile }}{% if show_header_backdrop %} backdrop--linear{% endif %}">
+      <div
+        class="hero__content{% if hero_transparent %} hero__content--transparent{% endif %}{% if show_overlay_text %} backdrop--radial{% endif %}"
+        {% if show_header_backdrop %}
+          style="--overlay-opacity: {{ overlay_opacity }};"
+        {% endif %}
+      >
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Image",
+  "blocks": [{"type": "heading"}, {"type": "text"}, {"type": "button"}, {"type": "_group-buttons"}, {"type": "@app"}],
+  "tag": null,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Match size to other slides. 3200 x 1200px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Image link"
+    },
+    {
+      "type": "header",
+      "content": "Desktop"
+    },
+    {
+      "type": "select",
+      "id": "flex_align_desktop",
+      "label": "Text alignment",
+      "default": "align--middle-center-desktop",
+      "options": [
+        {"value": "align--top-left-desktop", "label": "Top left"},
+        {"value": "align--top-center-desktop", "label": "Top center"},
+        {"value": "align--top-right-desktop", "label": "Top right"},
+        {"value": "align--middle-left-desktop", "label": "Middle left"},
+        {"value": "align--middle-center-desktop", "label": "Absolute center"},
+        {"value": "align--middle-right-desktop", "label": "Middle right"},
+        {"value": "align--bottom-left-desktop", "label": "Bottom left"},
+        {"value": "align--bottom-center-desktop", "label": "Bottom center"},
+        {"value": "align--bottom-right-desktop", "label": "Bottom right"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "min": 20,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Content width",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image",
+      "info": "Match size to other slides. 1200 x 1600px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)."
+    },
+    {
+      "type": "select",
+      "id": "flex_align_mobile",
+      "label": "Text alignment",
+      "default": "align--middle-center-mobile",
+      "options": [
+        {"value": "align--top-left-mobile", "label": "Top left"},
+        {"value": "align--top-center-mobile", "label": "Top center"},
+        {"value": "align--top-right-mobile", "label": "Top right"},
+        {"value": "align--middle-left-mobile", "label": "Middle left"},
+        {"value": "align--middle-center-mobile", "label": "Absolute center"},
+        {"value": "align--middle-right-mobile", "label": "Middle right"},
+        {"value": "align--bottom-left-mobile", "label": "Bottom left"},
+        {"value": "align--bottom-center-mobile", "label": "Bottom center"},
+        {"value": "align--bottom-right-mobile", "label": "Bottom right"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "paragraph",
+      "content": "Overrides color scheme. Set to Transparent to revert back to using color schemes."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_text_background",
+      "label": "Show text background",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background"
+    },
+    {
+      "type": "color",
+      "id": "color",
+      "label": "Text"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "info": "Increase contrast for legible text.",
+      "unit": "%",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay_text",
+      "label": "Overlay behind text only",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "button"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,160 @@
+{%- liquid
+  assign block_element = block_element | default: false
+  assign desktop_height = desktop_height | default: section.settings.desktop_height
+  if request.visual_preview_mode
+    assign desktop_height = ''
+  endif
+  assign mobile_height = mobile_height | default: section.settings.mobile_height
+  assign video = section.settings.video
+  assign video_popup = section.settings.video_popup | default: section.settings.video_popup_social
+  assign image_desktop = section.settings.image | default: video.preview_image
+  assign image_mobile = section.settings.mobile_image
+  assign text_color = section.settings.color
+  assign overlay_opacity = section.settings.overlay_opacity | times: 0.01
+  assign show_overlay_text = section.settings.show_overlay_text
+  assign animation_anchor = '#Video--' | append: section.id
+
+  assign title = section.settings.title
+  assign text = section.settings.text
+  assign link_text = section.settings.link_text
+
+  assign button_style = section.settings.button_style
+  if button_style == 'btn--text' and section.settings.show_arrow
+    assign button_style = button_style | append: ' btn--text-no-underline'
+  endif
+
+  assign show_video_popup = false
+  if section.settings.show_video_popup and video_popup != blank
+    assign show_video_popup = true
+  endif
+
+  assign show_text_background = section.settings.show_text_background
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+
+  assign hero_transparent = true
+  if show_text_background and scheme_bg_color.alpha != 0 or scheme_bg_color.alpha != 0.0
+    assign hero_transparent = false
+  endif
+
+  assign show_header_backdrop = false
+  if hero_transparent and show_overlay_text
+    assign show_header_backdrop = true
+  endif
+
+  assign animation_order = 0
+-%}
+
+{%- capture style -%}
+  {%- unless text_color.alpha == 0.0 or text_color == blank -%}
+    --text: {{ text_color }};
+  {%- endunless -%}
+{%- endcapture -%}
+
+{%- if section.settings.link != blank and link_text == blank -%}
+  <a class="hero__video frame__item" href="{{ section.settings.link }}">
+{%- else -%}
+  <div class="hero__video frame__item">
+{%- endif -%}
+
+  {%- liquid
+    capture video_poster
+      render 'image-hero', image_desktop: image_desktop, image_mobile: image_mobile, desktop_height: desktop_height, mobile_height: mobile_height, aspect_ratio: video.aspect_ratio, aspect_ratio_mobile: video.aspect_ratio
+    endcapture
+  -%}
+
+  {%- if video != nil -%}
+    <div class="video-background {{ desktop_height }} {{ mobile_height }}" style="--aspect-ratio: {{ video.aspect_ratio | default: 1 }};">
+      <div class="video__poster">
+        {{ video_poster }}
+      </div>
+      <video-background class="video__player is-loading" data-video-player data-video-id="{{ section.id }}-video-background">
+        <template data-video-template>
+          {{ video | video_tag: autoplay: true, image_size: '1085x', loop: true, muted: true, controls: false }}
+        </template>
+      </video-background>
+    </div>
+  {%- else -%}
+    {{ video_poster }}
+  {%- endif -%}
+
+  {%- unless show_overlay_text or overlay_opacity == 0.0 -%}
+    <div class="image-overlay" style="--overlay-opacity: {{ overlay_opacity }};"></div>
+  {%- endunless -%}
+
+{%- if section.settings.link != blank and link_text == blank -%}
+  </a>
+{%- else -%}
+  </div>
+{%- endif -%}
+
+{%- if title != blank or text != blank or link_text != blank or show_video_popup -%}
+  <div class="hero__content__wrapper frame__item {{ section.settings.flex_align }}{% if show_header_backdrop %} backdrop--linear{% endif %}" id="Video--{{ section.id }}" style="{{ style }}{{ overlay_style }}{% if show_header_backdrop %} --header-overlay-color: var(--overlay-bg); --header-overlay-opacity: {{ overlay_opacity }};{% endif %}">
+    <div class="hero__content{% if hero_transparent %} hero__content--transparent{% endif %}{% if show_overlay_text %} backdrop--radial{% endif %}"{% if overlay_opacity != 0.0 %} style="--overlay-opacity: {{ overlay_opacity }};"{% endif %}>
+      {%- if title != blank -%}
+        {%- liquid
+          assign animation_order = animation_order | plus: 1
+          assign heading_tag = 'h2'
+
+          unless section.settings.heading_tag == 'automatic' or section.settings.heading_tag == blank
+            assign heading_tag = section.settings.heading_tag
+          endunless
+        -%}
+        <{{ heading_tag }} class="hero__title {{ section.settings.heading_font_size | default: 'heading-medium' }}"
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}">
+          {{ title | escape }}
+        </{{ heading_tag }}>
+      {%- endif -%}
+
+      {%- if text != blank -%}
+        {%- assign animation_order = animation_order | plus: 1 -%}
+        <div class="hero__description {{ section.settings.text_font_size }}"
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}">
+          {{ text }}
+        </div>
+      {%- endif -%}
+
+      {%- if link_text != blank or show_video_popup -%}
+        <div class="hero__button-group">
+          {%- if link_text != blank -%}
+            {%- assign animation_order = animation_order | plus: 1 -%}
+            <div class="hero__button"
+              data-aos="hero"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="{{ animation_order }}">
+              <a class="btn {{ button_style }} {{ section.settings.button_type }} {{ section.settings.button_size }}" href="{{ section.settings.link }}">
+                <span>{{ link_text | escape }}</span>
+
+                {%- if section.settings.show_arrow -%}
+                  {%- render 'icon-arrow-right' -%}
+                {%- endif -%}
+              </a>
+            </div>
+          {%- endif -%}
+
+          {%- if show_video_popup -%}
+            {%- liquid
+              assign video_parent_id = 'item-video-' | append: section.id
+              assign animation_order = animation_order | plus: 1
+            -%}
+
+            <video-popup class="hero__button"
+              data-aos="hero"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="{{ animation_order }}">
+              <a href="{{ video_popup }}"
+                class="btn {{ section.settings.button_size }} {{ section.settings.button_style }} {{ section.settings.button_type }} image__video__play"
+                data-video-play="{%- render 'photoswipe-video-html' item_link: video_popup, item_id: video_parent_id, item_enable_sound: 'false' -%}">
+                {% render 'icon-play' %}
+              </a>
+            </video-popup>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}

@@ -1,0 +1,450 @@
+{%- liquid
+  assign unique = section.id
+  assign animation_anchor = '#highlights--' | append: unique
+  assign heading = section.settings.heading
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign blocks_style = section.settings.style
+  assign columns_desktop = section.settings.grid | plus: 0
+  assign columns_medium = 3
+  assign columns_small = 2
+  assign columns_mobile = section.settings.layout_mobile | plus: 0
+
+  capture items_classes
+    echo 'highlights__items'
+    if section.settings.layout_mobile == 'slider'
+      echo ' highlights__items--mobile-slider'
+    else
+      echo ' highlights__items--mobile-grid'
+    endif
+  endcapture
+-%}
+
+{%- style -%}
+  #highlights--{{ unique }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    --columns-desktop: {{ columns_desktop }};
+    --columns-medium: {{ columns_medium }};
+    --columns-small: {{ columns_small }};
+    --columns-mobile: {{ columns_mobile }};
+  }
+{%- endstyle -%}
+
+<div
+  class="highlights section-padding {{ color_scheme }}"
+  id="highlights--{{ unique }}"
+  data-section-id="{{ unique }}"
+  data-section-type="highlights"
+>
+  <div class="{{ section.settings.width }} highlights__container">
+    {%- if heading != blank -%}
+      {%- liquid
+        assign heading_tag = 'h2'
+
+        unless section.settings.heading_tag == 'automatic' or section.settings.heading_tag == blank
+          assign heading_tag = section.settings.heading_tag
+        endunless
+      -%}
+
+      <div class="grid__heading-holder {{ section.settings.heading_position }}">
+        <{{ heading_tag }}
+          class="highlights__title grid__heading {{ section.settings.heading_font_size }}"
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="1"
+        >
+          {{- heading -}}
+        </{{ heading_tag }}>
+      </div>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="{{ items_classes }}">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign image = block.settings.image
+            assign bg_color = block.settings.bg_color
+            assign text_color = block.settings.color
+            assign border_color = block.settings.border_color
+
+            assign link = block.settings.url
+            assign animation_delay = forloop.index0 | times: 150
+            assign has_bg_color = false
+            if bg_color != 'rgba(0,0,0,0)' and bg_color != blank
+              assign has_bg_color = true
+            endif
+
+            assign has_text_color = false
+            if text_color != 'rgba(0,0,0,0)' and text_color != blank
+              assign has_text_color = true
+            endif
+
+            assign has_border_color = false
+            if border_color != 'rgba(0,0,0,0)' and border_color != blank
+              assign has_border_color = true
+            endif
+
+            capture aos
+              echo 'data-aos="fade"'
+              echo 'data-aos-duration="500"'
+              echo 'data-aos-delay="' | append: animation_delay | append: '"'
+              echo 'data-aos-anchor="' | append: animation_anchor | append: '"'
+            endcapture
+
+            capture style
+              echo 'style="'
+
+              if has_bg_color
+                echo '--btn-bg: ' | append: bg_color | append: ';'
+                assign btn_primary_brightness = bg_color | color_brightness
+                if btn_primary_brightness <= 65
+                  assign bg_color_hover = bg_color | color_lighten: 10
+                else
+                  assign bg_color_hover = bg_color | color_darken: 5
+                endif
+                echo '--btn-bg-hover: ' | append: bg_color_hover | append: ';'
+              endif
+
+              if has_text_color
+                echo '--btn-text: ' | append: text_color | append: ';'
+                echo '--btn-text-hover: ' | append: text_color | append: ';'
+              endif
+
+              if has_border_color
+                echo '--btn-border: ' | append: border_color | append: ';'
+                echo '--btn-border-hover: ' | append: border_color | append: ';'
+              endif
+
+              echo '"'
+            endcapture
+
+            capture item_attributes
+              echo 'class="highlights__item highlights__item--' | append: blocks_style
+
+              echo '"'
+              echo aos | append: ' ' | append: block.shopify_attributes
+            endcapture
+
+            capture item_inner_classes
+              echo 'highlights__item-inner'
+              if blocks_style == 'button'
+                echo ' btn btn--primary btn--solid btn--large'
+                unless link != blank
+                  echo ' is-disabled'
+                endunless
+              elsif link != blank
+                echo ' highlights__item-link'
+              endif
+            endcapture
+          -%}
+
+          <div {{ item_attributes }}>
+            {%- if link != blank -%}
+              <a href="{{ link }}" class="{{ item_inner_classes }}" {{ style }}>
+            {%- else -%}
+              <div class="{{ item_inner_classes }}" {{ style }}>
+            {%- endif -%}
+
+            {%- if image or blocks_style != 'button' -%}
+              <div class="highlights__item__background{% if has_border_color %} highlights__item__background--border{% endif %}">
+                {%- if image -%}
+                  {%- capture sizes -%}
+                      (min-width: 990px) calc((100vw - 100px) / {{ columns_desktop }}), (min-width: 750px) calc((100vw - 60px) / {{ columns_medium }}), calc(100vw - 32px)
+                    {%- endcapture -%}
+
+                  {%- render 'image', image: image, sizes: sizes, cover: true -%}
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+            <div class="highlights__item__content {{ section.settings.text_font_size }}">
+              <span>{{ block.settings.heading }}</span>
+            </div>
+
+            {%- if link != blank -%}
+              </a>
+            {%- else -%}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Highlights",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        {"value": "square", "label": "Square"},
+        {"value": "rectangle", "label": "Rectangle"},
+        {"value": "circle", "label": "Circle"},
+        {"value": "button", "label": "Button"}
+      ],
+      "default": "rectangle"
+    },
+    {
+      "type": "range",
+      "id": "grid",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "label": "Highlights per row",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Highlights"
+    },
+    {
+      "type": "select",
+      "id": "heading_position",
+      "label": "Heading alignment",
+      "options": [
+        {"value": "text-left", "label": "Left"},
+        {"value": "text-center", "label": "Center"}
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading size",
+      "default": "heading-large",
+      "options": [
+        {"value": "heading-mini", "label": "Mini"},
+        {"value": "heading-x-small", "label": "Extra small"},
+        {"value": "heading-small", "label": "Small"},
+        {"value": "heading-medium", "label": "Medium"},
+        {"value": "heading-large", "label": "Large"},
+        {"value": "heading-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "text_font_size",
+      "label": "Highlight text size",
+      "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+      "default": "body-medium",
+      "options": [
+        {"value": "body-x-small", "label": "Extra small"},
+        {"value": "body-small", "label": "Small"},
+        {"value": "body-medium", "label": "Medium"},
+        {"value": "body-large", "label": "Large"},
+        {"value": "body-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full-padded",
+      "options": [
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Normal"},
+        {"value": "wrapper--narrow", "label": "Narrow"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "select",
+      "id": "layout_mobile",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 highlight per row"
+        },
+        {
+          "value": "2",
+          "label": "2 highlights per row"
+        },
+        {
+          "value": "slider",
+          "label": "Slider"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Advanced"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading SEO tag",
+      "default": "automatic",
+      "options": [
+        {"value": "automatic", "label": "Automatic"},
+        {"value": "h1", "label": "H1"},
+        {"value": "h2", "label": "H2"},
+        {"value": "h3", "label": "H3"},
+        {"value": "h4", "label": "H4"},
+        {"value": "h5", "label": "H5"},
+        {"value": "h6", "label": "H6"}
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "highlight",
+      "name": "Highlight",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "1400 x 1400px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Highlight"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "paragraph",
+          "content": "Overrides color scheme. Set to Transparent to revert back to using color schemes."
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Text"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background"
+        },
+        {
+          "type": "color",
+          "id": "border_color",
+          "label": "Border"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Highlights",
+      "blocks": [
+        {
+          "type": "highlight",
+          "settings": {
+            "heading": "Tops"
+          }
+        },
+        {
+          "type": "highlight",
+          "settings": {
+            "heading": "Bottoms"
+          }
+        },
+        {
+          "type": "highlight",
+          "settings": {
+            "heading": "Dresses"
+          }
+        },
+        {
+          "type": "highlight",
+          "settings": {
+            "heading": "Socks"
+          }
+        },
+        {
+          "type": "highlight",
+          "settings": {
+            "heading": "Sales"
+          }
+        },
+        {
+          "type": "highlight",
+          "settings": {
+            "heading": "New Arrivals"
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

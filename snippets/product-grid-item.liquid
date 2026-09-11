@@ -1,0 +1,734 @@
+{% comment %}
+  Renders list of products in grid layout
+
+  Accepts:
+  - product: {Object} product (required)
+  - animation_delay: {Int} animation timing for load
+  - last_element: {Boolean} True when custom image is taking up the first slot for the collection
+                            and the loop is on the last element for the page.
+  - index: element index in the loop
+  - block_index: index of the block in Tab collections section
+  - sizes: Image sizes
+  - attributes: Accept html attributes
+  - modifier_class: Accept custom class
+
+  Usage:
+  {% render 'product-grid-item', product: product, index: index, sizes: image_sizes, attributes: '', modifier_class: '' %}
+{% endcomment %}
+
+{%- liquid
+  assign attributes = attributes | default: ''
+  assign animation_delay = animation_delay | default: 0
+  assign aos_delay_default = animation_delay | times: 100
+  assign aos_delay = aos_delay | default: aos_delay_default
+  assign aos_duration = 800
+  assign layout_desktop = section.settings.layout_desktop
+  assign layout_mobile = section.settings.layout_mobile
+  assign product_card_class = ''
+  assign modifier_class = modifier_class | default: ''
+  assign index = index | default: 1
+
+  assign columns_desktop = section.settings.grid | plus: 0
+  assign columns_medium = 2
+  assign columns_small = 2
+  assign columns_mobile = section.settings.grid_mobile | plus: 0
+
+  if columns_desktop == 0
+    assign columns_desktop = 4
+  endif
+
+  if columns_mobile == 0
+    assign columns_mobile = 1
+  endif
+
+  if columns_desktop == 2 or columns_desktop == 4
+    assign columns_medium = 2
+  endif
+
+  if show_product_card
+    assign product_card_class = 'product-item--card'
+  endif
+
+  if settings.product_grid_center
+    assign alignment_class = 'product-item--centered'
+  else
+    assign alignment_class = 'product-item--left'
+  endif
+
+  assign overlay_text_class = 'product-item--outer-text'
+  if settings.overlay_text
+    assign overlay_text_class = 'product-item--overlay-text'
+  endif
+
+  assign quickview_class = ''
+  if settings.quickview_enable and product.first_available_variant
+    assign quickview_class = 'product-item--has-quickbuy'
+  endif
+
+  assign has_siblings = false
+  if settings.show_siblings and product.metafields.theme.siblings.value != blank and product.metafields.theme.siblings.type == 'single_line_text_field'
+    assign has_siblings = true
+  endif
+
+  if settings.show_siblings and product.metafields.theme.sibling_products != blank and product.metafields.theme.sibling_products.type == 'list.product_reference'
+    assign has_siblings = true
+  endif
+
+  if sizes == blank
+    case layout_desktop
+      when 'grid'
+        if section.settings.width == 'wrapper'
+          if settings.grid_style == 'compact'
+            assign sizes = '(min-width: 1400px) calc(80vw / ' | append: columns_desktop | append: '), (min-width: 750px) calc(100vw / ' | append: columns_medium | append: '), (min-width: 480px) calc(100vw / ' | append: columns_small | append: '), calc(100vw / ' | append: columns_mobile | append: ')'
+          else
+            assign sizes = '(min-width: 1400px) calc((80vw - 64px) / ' | append: columns_desktop | append: ' - 32px), (min-width: 750px) calc(100vw / ' | append: columns_medium | append: ' - 22px), (min-width: 480px) calc(100vw / ' | append: columns_small | append: ' - 16px), calc(100vw / ' | append: columns_mobile | append: ')'
+          endif
+        else
+          if settings.grid_style == 'compact'
+            assign sizes = '(min-width: 1400px) calc(100vw / ' | append: columns_desktop | append: '), (min-width: 750px) calc(100vw / ' | append: columns_medium | append: '), (min-width: 480px) calc(100vw / ' | append: columns_small | append: '), calc(100vw / ' | append: columns_mobile | append: ')'
+          else
+            assign sizes = '(min-width: 1400px) calc(100vw / ' | append: columns_desktop | append: ' - 32px), (min-width: 750px) calc(100vw / ' | append: columns_medium | append: ' - 22px), (min-width: 480px) calc(100vw / ' | append: columns_small | append: ' - 16px), calc(100vw / ' | append: columns_mobile | append: ')'
+          endif
+        endif
+
+      when 'slider'
+        if settings.grid_style == 'compact'
+          assign sizes = '(min-width: 990px) calc(100vw * 0.28), (min-width: 750px) calc(100vw * 0.38), calc(100% - 50px )'
+        else
+          assign sizes = '(min-width: 990px) calc((100vw - 100px) * 0.28), (min-width: 750px) calc((100vw - 60px) * 0.38), calc(100vw - 66px)'
+        endif
+
+      else
+        assign sizes = '500px'
+    endcase
+  endif
+
+  assign widths = '136, 160, 180, 220, 254, 284, 292, 320, 480, 528, 640, 720, 960, 1080, 1296, 1512, 1728, 1950'
+  assign aspect_ratio = 1 | divided_by: settings.product_grid_aspect_ratio
+
+  assign loading = 'eager'
+  if columns_desktop <= 3
+    assign eager_images_limit = columns_desktop
+  else
+    assign eager_images_limit = columns_desktop | times: 2
+  endif
+
+  if layout_desktop == 'slider' and index > 3
+    assign loading = 'lazy'
+  elsif index > eager_images_limit
+    assign loading = 'lazy'
+  endif
+
+  if block_index > 1
+    assign loading = 'lazy'
+  endif
+-%}
+
+{%- if settings.swatches_type != 'disabled' and settings.show_grid_swatches -%}
+  {%- assign has_colors = false -%}
+  {%- assign swatch_translation = 'general.swatches.color' | t -%}
+  {%- assign swatch_labels = swatch_translation | append: ',' | split: ',' -%}
+
+  {%- capture swatches -%}
+    {%- for label in swatch_labels -%}
+      {%- assign sanitized_label = label | lstrip | rstrip -%}
+
+      {%- if settings.swatches_type == 'theme' -%}
+        {%- if product.options_by_name[sanitized_label].values.size > 0 -%}
+          {%- assign has_colors = true -%}
+
+          {%- capture swatch_values -%}
+            {%- for value in product.options_by_name[sanitized_label].values -%}
+              {{- value -}}: {{- value | handle -}}
+              {%- unless forloop.last -%}, {%- endunless -%}
+            {%- endfor -%}
+          {%- endcapture -%}
+        {%- endif -%}
+      {%- elsif settings.swatches_type == 'native' -%}
+        {%- capture swatch_values -%}
+          {%- for value in product.options_by_name[sanitized_label].values -%}
+            {%- if value.swatch -%}
+              {%- assign has_colors = value -%}
+            {%- endif -%}
+
+            {%- liquid
+              if value.swatch.image
+                assign image_url = value.swatch.image | image_url: width: 48
+                assign swatch_value = 'url(' | append: image_url | append: ')'
+              elsif value.swatch.color
+                assign swatch_value = value.swatch.color
+              else
+                assign swatch_value = nil
+              endif
+            -%}
+            {{- value -}}: {{- swatch_value -}}
+            {%- unless forloop.last -%}, {%- endunless -%}
+          {%- endfor -%}
+        {%- endcapture -%}
+      {% endif %}
+
+      {%- if has_colors -%}
+        <native-scrollbar class="radio__fieldset radio__fieldset--swatches radio__fieldset--pgi" data-grid-swatch-fieldset>
+          <grid-swatch class="selector-wrapper__scrollbar"
+            data-scrollbar
+            data-swatch-handle="{{ product.handle }}"
+            data-swatch-label="{{ label }}"
+            data-swatch-values="{{ swatch_values | strip_html | escape }}">
+          </grid-swatch>
+
+          {%- if settings.collection_swatch_style == 'text-slider' or settings.collection_swatch_style == 'slider' -%}
+            <div class="selector-wrapper__actions">
+              <button type="button" class="radio__fieldset__arrow radio__fieldset__arrow--prev is-hidden" data-scrollbar-arrow-prev>
+                {%- render 'icon-nav-arrow-left' -%}
+                <span class="visually-hidden">{{ 'products.general.see_all' | t }}</span>
+              </button>
+              <button type="button" class="radio__fieldset__arrow radio__fieldset__arrow--next is-hidden" data-scrollbar-arrow-next>
+                {% render 'icon-nav-arrow-right' %}
+                <span class="visually-hidden">{{ 'products.general.see_all' | t }}</span>
+              </button>
+            </div>
+          {%- endif -%}
+        </native-scrollbar>
+
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+{%- endif -%}
+
+{%- liquid
+  assign double_img = false
+  if product.media[1].preview_image and settings.image_hover_enable
+    assign double_img = true
+  endif
+
+  assign current_variant = product.first_available_variant
+  assign product_url = product.url | within: collection
+
+  capture item_unique
+    echo 'product-item--' | append: section.id | append: '-' | append: product.id
+  endcapture
+
+  assign aos_anchor_default = item_unique | prepend: '#'
+  assign aos_anchor = aos_anchor | default: aos_anchor_default
+-%}
+
+{%- if has_siblings -%}
+  {%- liquid
+    assign sibling_products = product.metafields.theme.sibling_products.value | default: collections[product.metafields.theme.siblings.value].products
+    assign count = product.metafields.theme.sibling_products.value.count | default: collections[product.metafields.theme.siblings.value].products.size
+    assign count_string_one = 'collections.general.colors_with_count.one' | t
+    assign count_string_other = 'collections.general.colors_with_count.other' | t
+
+    if count > 5 and settings.collection_swatch_style == 'limited'
+      assign siblingSwatchesLeft = count | minus: 5
+    endif
+  -%}
+
+  {%- if sibling_products != blank -%}
+    {%- capture siblings_html -%}
+      <product-siblings class="product-item__siblings product-item__swatches__holder product-item__swatches__holder--{{ settings.swatch_style }} product-item__swatches__holder--{{ settings.collection_swatch_style }}">
+        <native-scrollbar class="radio__fieldset radio__fieldset--swatches radio__fieldset--pgi" data-sibling-fieldset>
+          <div class="selector-wrapper__scrollbar" data-scrollbar>
+            {%- liquid
+              assign any_sibling_cutline = false
+              assign siblings_limit = 50
+              if settings.collection_swatch_style == 'limited'
+                assign siblings_limit = 5
+              endif
+            -%}
+
+            {%- for sib_product in sibling_products limit: siblings_limit -%}
+              {%- liquid
+                assign current_class = ''
+                assign sib_product_compare_at_price = ''
+                if sib_product.handle == product.handle
+                  assign current_class = ' sibling__link--current'
+                endif
+
+                if settings.currency_code_enable
+                  assign sib_product_price = sib_product.price | money_with_currency
+                else
+                  assign sib_product_price = sib_product.price | money
+                endif
+
+                if sib_product.compare_at_price > sib_product.price
+                  if settings.currency_code_enable
+                    assign sib_product_compare_at_price = sib_product.compare_at_price | money_with_currency
+                  else
+                    assign sib_product_compare_at_price = sib_product.compare_at_price | money
+                  endif
+                endif
+
+                if sib_product.price == 0 and sib_product.price_varies == false
+                  assign sib_product_price = 'general.money.free' | t
+                endif
+
+                assign sib_cutline = sib_product.metafields.theme.cutline | strip_html
+                assign sib_color = sib_product.metafields.theme.sibling_color.value | default: sib_product.metafields.theme.sibling_colour.value | default: sib_product.metafields.theme.siblings_color.value | default: sib_product.metafields.theme.siblings_colour.value | default: sib_product.metafields.theme.siblings_colors.value | default: sib_product.metafields.theme.siblings_colours.value
+                assign swatch_color = sib_color | handle
+
+                if sib_cutline != blank
+                  assign any_sibling_cutline = true
+                endif
+              -%}
+
+              <tooltip-component
+                class="swatches swatch__button swatch__button--{{ settings.swatch_style }} swatch-{{ swatch_color }}"
+                style="
+                  --animation-delay: {{ forloop.index0 | times: 50 }}ms;
+                  --swatch: var(--{{ swatch_color }});
+                "
+                data-tooltip="{{ sib_color }}"
+                data-sibling-link="{{ sib_product.url }}"
+                data-sibling-price="{{ sib_product_price | strip_html }}"
+                data-sibling-compare-at-price="{{ sib_product_compare_at_price | strip_html }}"
+                data-sibling-cutline="{{ sib_cutline }}"
+                data-sibling-image="{{ sib_product.featured_media.preview_image.src | image_url }}"
+                tabindex="0">
+                <div class="sibling__link{{ current_class }}">
+                  {%- if settings.sibling_style == 'image' -%}
+                    {%- liquid
+                      case settings.swatch_size
+                        when 'regular'
+                          assign sibling_width = 1.15 | times: settings.base_font_size | round
+                        when 'large'
+                          assign sibling_width = 2.3 | times: settings.base_font_size | round
+                      endcase
+
+                      assign sibling_sizes = sibling_width | append: 'px'
+                      assign sibling_width_15x = sibling_width | times: 1.5
+                      assign sibling_width_2x = sibling_width | times: 2
+                      assign sibling_widths = sibling_width | append: ', ' | append: sibling_width_15x | append: ', ' | append: sibling_width_2x
+                    -%}
+
+                    {%- render 'image', image: sib_product.featured_media.preview_image, width: sibling_width_2x, height: sibling_width_2x, widths: sibling_widths, sizes: sibling_sizes, aspect_ratio: 1 -%}
+                  {%- endif -%}
+                </div>
+              </tooltip-component>
+            {%- endfor -%}
+
+            {%- if settings.collection_swatch_style == 'limited' and siblingSwatchesLeft > 0 -%}
+              <div class="swatch-limited">{{ '+' | append: siblingSwatchesLeft }}</div>
+            {%- endif -%}
+          </div>
+
+          {%- if settings.collection_swatch_style == 'text-slider' or settings.collection_swatch_style == 'slider' -%}
+            <div class="selector-wrapper__actions">
+              <button type="button" class="radio__fieldset__arrow radio__fieldset__arrow--prev is-hidden" data-scrollbar-arrow-prev>
+                {%- render 'icon-nav-arrow-left' -%}
+                <span class="visually-hidden">{{ 'products.general.see_all' | t }}</span>
+              </button>
+
+              <button type="button" class="radio__fieldset__arrow radio__fieldset__arrow--next is-hidden" data-scrollbar-arrow-next>
+                {% render 'icon-nav-arrow-right' %}
+                <span class="visually-hidden">{{ 'products.general.see_all' | t }}</span>
+              </button>
+            </div>
+          {%- endif -%}
+        </native-scrollbar>
+
+        {%- if settings.collection_swatch_style == 'text' or settings.collection_swatch_style == 'text-slider' -%}
+          <span class="product-item__swatches__count">
+            <span data-sibling-count>{{ count }} {{ count | pluralize: count_string_one, count_string_other }}</span>
+          </span>
+        {%- endif -%}
+      </product-siblings>
+    {%- endcapture -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- capture over_image_content -%}
+  {%- liquid
+    assign product_tags = product.tags | join: ',' | append: ','
+    assign preorder = false
+    assign is_preorder_meta = false
+    assign on_sale = false
+    assign sold_out = false
+    assign badge = ''
+    assign badge_new = ''
+    assign badge_soldout = ''
+    assign badge_alignment = settings.badge_alignment
+
+    if product.metafields.theme.badge != blank and product.metafields.theme.badge.type == 'single_line_text_field'
+      assign badge = product.metafields.theme.badge.value
+    endif
+
+    if badge == '' and product_tags contains '_badge_'
+      assign badge = product_tags | split: '_badge_'
+      assign badge = badge[1] | split: ',' | first | replace: '_', ' '
+    endif
+
+    if product.metafields.theme.preorder.type == 'boolean' and product.metafields.theme.preorder.value == true
+      assign is_preorder_meta = true
+    endif
+
+    if product_tags contains '_preorder' or is_preorder_meta
+      assign preorder = true
+    endif
+
+    if product.compare_at_price > product.price and settings.sale_tags_enable
+      assign on_sale = true
+    endif
+
+    unless product.available
+      assign sold_out = true
+    endunless
+
+    if settings.show_automatic_new_badge
+      assign product_created_timestamp = product.created_at | date: '%s' | plus: 0
+      assign days_in_seconds = settings.badge_new_date_limit | times: 24 | times: 60 | times: 60
+      assign current_date_timestamp = "now" | date: '%s'
+      assign check_date_timestamp = current_date_timestamp | minus: days_in_seconds
+
+      if product_created_timestamp > check_date_timestamp
+        assign badge_new = 'products.product.new' | t
+      endif
+    endif
+
+    if settings.show_sold_out_badge and sold_out
+      assign badge_soldout = 'products.product.sold_out' | t
+    endif
+  -%}
+
+  {%- if badge != '' or badge_new != '' or badge_soldout != '' -%}
+    <span class="badge-box {{ badge_alignment }}"
+      data-aos="fade"
+      data-aos-delay="{{ aos_delay }}"
+      data-aos-duration="{{ aos_duration }}"
+      data-aos-anchor="{{ aos_anchor }}">
+      {%- if badge_soldout != '' -%}
+        {{ badge_soldout }}
+      {%- elsif badge_new != '' -%}
+        {{ badge_new }}
+      {%- else -%}
+        {{ badge }}
+      {%- endif -%}
+    </span>
+  {%- elsif preorder and sold_out == false -%}
+    <span class="preorder-box {{ badge_alignment }}"
+      data-aos="fade"
+      data-aos-delay="{{ aos_delay }}"
+      data-aos-duration="{{ aos_duration }}"
+      data-aos-anchor="{{ aos_anchor }}">{{ 'products.product.pre_order' | t }}</span>
+  {%- elsif on_sale and sold_out == false -%}
+    <span class="sale-box {{ badge_alignment }}"
+      data-aos="fade"
+      data-aos-delay="{{ aos_delay }}"
+      data-aos-duration="{{ aos_duration }}"
+      data-aos-anchor="{{ aos_anchor }}">{{ 'products.product.on_sale' | t }}</span>
+  {%- endif -%}
+
+  {%- if settings.quickview_enable and current_variant -%}
+    {%- liquid
+      assign has_preorder_meta = false
+      assign has_preorder_tag = false
+      assign sibling_property_name = 'general.siblings.label' | t | strip_html | escape
+      assign sibling_property_value = ''
+
+      if siblings_html != blank and product.variants.size == 1
+        assign title_down = product.title | downcase
+        assign sibling = product.metafields.theme.sibling_color.value | default: product.metafields.theme.sibling_colour.value | default: product.metafields.theme.siblings_color.value | default: product.metafields.theme.siblings_colour.value | default: product.metafields.theme.siblings_colors.value | default: product.metafields.theme.siblings_colours.value
+        assign sibling_down = sibling | downcase
+        unless title_down contains sibling_down
+          assign sibling_property_value = sibling | strip_html | escape
+        endunless
+      endif
+
+      if current_variant.available and product.metafields.theme.preorder.type == 'boolean' and product.metafields.theme.preorder.value == true
+        assign has_preorder_meta = true
+      endif
+
+      if current_variant.available and product.tags contains '_preorder'
+        assign has_preorder_tag = true
+      endif
+
+      if has_preorder_meta or has_preorder_tag
+        assign preorder_name = 'products.product.sale_type' | t | strip_html | escape
+        assign preorder_value = 'products.product.pre_order' | t | strip_html | escape
+      endif
+
+      assign unique = section.id | append: '-' | append: product.id
+    -%}
+
+    <quick-add-product>
+      <div class="quick-add__holder" data-quick-add-holder="{{ product.id }}">
+        {%- if product.variants.size == 1 -%}
+          {%- assign product_form_id = 'ProductForm--' | append: unique -%}
+          {%- form 'product', product, id: product_form_id -%}
+            <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+
+            {%- if sibling_property_value != blank -%}
+              <input
+                type="hidden"
+                name="properties[{{ sibling_property_name }}]"
+                value="{{ sibling_property_value }}">
+            {%- endif -%}
+
+            {%- if preorder_value != blank -%}
+              <input
+                type="hidden"
+                name="properties[{{ preorder_name }}]"
+                value="{{ preorder_value }}">
+            {%- endif -%}
+
+            <button class="quick-add__button caps--link"
+              type="submit"
+              name="add"
+              aria-label="{{ 'products.general.quick_add' | t }}"
+              data-add-to-cart
+            >
+              <span class="btn__text">
+                {%- if preorder -%}
+                  {{ 'products.product.pre_order' | t }}
+                {%- else -%}
+                  {{ 'products.general.quick_add' | t }}
+                {%- endif -%}
+              </span>
+              <span class="btn__plus"></span>
+              <span class="btn__added">&nbsp;</span>
+              <span class="btn__loader">
+                <svg height="18" width="18" class="svg-loader">
+                  <circle r="7" cx="9" cy="9" />
+                  <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+                </svg>
+              </span>
+              <span class="btn__error" data-message-error>&nbsp;</span>
+            </button>
+          {%- endform -%}
+        {%- else -%}
+          <button class="quick-add__button caps--link"
+            type="button"
+            aria-label="{{ 'products.general.quick_add' | t }}"
+            data-quick-add-btn
+            data-quick-add-modal-handle="{{ product.handle }}"
+          >
+            <span class="btn__text">
+              {%- if preorder -%}
+                {{ 'products.product.pre_order' | t }}
+              {%- else -%}
+                {{ 'products.general.quick_add' | t }}
+              {%- endif -%}
+            </span>
+            <span class="btn__plus"></span>
+            <span class="btn__added">&nbsp;</span>
+            <span class="btn__loader">
+              <svg height="18" width="18" class="svg-loader">
+                <circle r="7" cx="9" cy="9" />
+                <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+              </svg>
+            </span>
+          </button>
+        {%- endif -%}
+
+        {%- unless product.has_only_default_variant -%}
+          {%- render 'product-quick-add-modal-template', product_id: product.id, unique: unique -%}
+        {%- endunless -%}
+      </div>
+    </quick-add-product>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- liquid
+  capture product_item_cutline
+    if settings.show_cutline and product.metafields.theme.cutline != blank and product.metafields.theme.cutline.type == 'single_line_text_field'
+      assign product_title_downcase = product.title | strip_html | escape | downcase
+      assign cutline_downcase = product.metafields.theme.cutline.value | downcase
+
+      unless product_title_downcase contains cutline_downcase
+        echo product.metafields.theme.cutline.value
+      endunless
+    endif
+  endcapture
+
+  capture swatches_class
+    if siblings_html != blank or has_colors
+      echo 'product-item--swatches'
+    endif
+  endcapture
+
+  assign hidden_product = false
+  if product.tags contains 'hide'
+    assign hidden_product = true
+  endif
+-%}
+
+{%- capture image_animations -%}
+  data-aos="img-in"
+  data-aos-delay="{{ aos_delay }}"
+  data-aos-duration="{{ aos_duration }}"
+  data-aos-anchor="{{ aos_anchor }}"
+  data-aos-easing="ease-out-quart"
+{%- endcapture -%}
+
+{%- unless hidden_product -%}
+  <div
+    class="grid-item product-item {{ swatches_class }} {{ alignment_class }} {{ overlay_text_class }} {{ quickview_class }} {{ product_card_class }}{% if modifier_class != '' %} {{ modifier_class }}{% endif %}"
+    id="{{ item_unique }}"
+    data-grid-item
+    {{ attributes }}
+  >
+    <div class="product-item__image{% if double_img %} double__image{% endif %}" data-product-image>
+      <a
+        class="product-link"
+        href="{{ product_url }}"
+        aria-label="{{ product.title | strip_html | escape }}"
+        data-product-link="{{ product_url }}"
+      >
+        {%- if product.media.size > 0 -%}
+          <div class="product-item__bg" data-product-image-default>
+            {%- liquid
+              assign fetchpriority = 'auto'
+              assign preload = false
+              if index <= eager_images_limit
+                assign fetchpriority = 'high'
+                assign preload = true
+              endif
+
+              capture featured_image
+                render 'image', image: product.featured_media.preview_image, aspect_ratio: aspect_ratio, sizes: sizes, widths: widths, loading: loading, fetchpriority: fetchpriority, preload: preload, attributes: image_animations, cover: true
+              endcapture
+            -%}
+
+            {{ featured_image }}
+
+            {%- if settings.swatches_type != 'disabled' and current_variant -%}
+              {%- assign image_inner_empty = true -%}
+              {%- assign variant_images = '' -%}
+              {%- for variant in product.variants -%}
+                {%- if variant.featured_image != blank -%}
+                  {%- comment -%}
+                    Prevent duplicated variant images to be rendered
+                  {%- endcomment -%}
+                  {%- unless variant_images contains variant.featured_image -%}
+                    {%- liquid
+                      assign variant_images = variant_images | append: variant.featured_image | append: ', '
+                      assign image_inner_empty = false
+                      assign variant_title = variant.title | replace: '"', "'"
+                    -%}
+
+                    <div class="product-item__bg__inner" data-variant-title="{{ variant_title }}">
+                      {%- render 'image',
+                        image: variant.featured_image,
+                        aspect_ratio: aspect_ratio,
+                        sizes: sizes,
+                        widths: widths,
+                        cover: true,
+                        loading: 'lazy',
+                        fetchpriority: 'high'
+                      -%}
+                    </div>
+                  {%- endunless -%}
+                {%- endif -%}
+              {%- endfor -%}
+
+              {%- if image_inner_empty -%}
+                &nbsp;
+              {%- endif -%}
+            {%- else -%}
+              &nbsp;
+            {%- endif -%}
+          </div>
+
+          {%- if double_img -%}
+            <hover-images class="product-item__bg__under">
+              <div class="product-item__bg__slider" data-hover-slider>
+                {%- for media in product.media limit: settings.image_hover_limit -%}
+                  <div
+                    class="product-item__bg__slide{% if media.media_type == 'video' or media.media_type == 'external_video' %} deferred-media{% endif %}"
+                    {% unless forloop.first %}
+                      data-hover-slide
+                    {% endunless %}
+                    data-hover-slide-touch
+                  >
+                    {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+                      {%- liquid
+                        case media.media_type
+                          when 'video'
+                            echo media | media_tag: image_size: '1024x1024', class: 'media-video', autoplay: true, loop: true, controls: false, preload: 'none', muted: true
+                          when 'external_video'
+                            if media.host == 'youtube'
+                              echo media | external_video_url: autoplay: true, playsinline: true, loop: true, playlist: media.external_id, controls: false, mute: true, showinfo: false | external_video_tag: loading: 'lazy', data-host: media.host
+                            else
+                              echo media | external_video_url: autoplay: true, playsinline: true, loop: true, controls: false, muted: true | external_video_tag: data-host: media.host
+                            endif
+                        endcase
+                      -%}
+                    {%- else -%}
+                      {%- render 'image',
+                        image: media.preview_image,
+                        aspect_ratio: aspect_ratio,
+                        sizes: sizes,
+                        widths: widths,
+                        cover: true,
+                        loading: 'lazy',
+                        fetchpriority: 'high'
+                      -%}
+                    {%- endif -%}
+                  </div>
+                {%- endfor -%}
+              </div>
+            </hover-images>
+          {%- endif -%}
+        {%- else -%}
+          {%- comment -%} Show Empty image if product has no media {%- endcomment -%}
+          <div class="product-item__bg image--empty" data-product-image-default></div>
+        {%- endif -%}
+
+        {%- if has_siblings -%}
+          <div class="product-item__bg__sibling" data-product-image-sibling></div>
+        {%- endif -%}
+      </a>
+
+      {{ over_image_content }}
+    </div>
+
+    <div
+      class="product-information"
+      style="--swatch-size: var(--swatch-size-filters);"
+      data-product-information
+    >
+      <div class="product-item__info {{ settings.product_grid_font_size }}">
+        <a class="product-link" href="{{ product_url }}" data-product-link="{{ product_url }}">
+          <p class="product-item__title">{{ product.title | strip_html | escape }}</p>
+
+          <div class="product-item__price__holder{% if has_siblings %} has-siblings{% endif %}">
+            {%- if any_sibling_cutline or product_item_cutline != blank -%}
+              {%- assign cutline_color = settings.cutline_color -%}
+
+              {%- unless cutline_color == 'rgba(0,0,0,0)' or cutline_color == blank -%}
+                {%- assign style = '--text-light:' | append: cutline_color -%}
+              {%- endunless -%}
+
+              <span
+                class="product-item__cutline"
+                data-product-cutline
+                {% if style != blank %}
+                  style="{{ style }}"
+                {% endif %}
+              >
+                {{- product_item_cutline -}}
+              </span>
+            {%- endif -%}
+
+            <div class="product-item__price" data-product-price>
+              {%- render 'product-grid-price', product: product, current_variant: current_variant -%}
+            </div>
+          </div>
+        </a>
+
+        {%- if siblings_html != blank -%}
+          {{ siblings_html }}
+        {%- elsif has_colors -%}
+          <div class="product-item__swatches__holder product-item__swatches__holder--{{ settings.swatch_style }} product-item__swatches__holder--{{ settings.collection_swatch_style }}">
+            {{ swatches }}
+
+            <span class="product-item__swatches__count">
+              <span data-swatch-count>&nbsp;</span>
+            </span>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+{%- endunless -%}

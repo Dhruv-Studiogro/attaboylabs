@@ -1,0 +1,98 @@
+{% comment %}
+    Renders a Featured image block on Collection pages
+
+    Accepts:
+    - block: {Object} The block object (required)
+
+    Usage:
+    {% render 'collection-featured-image', block: block %}
+{% endcomment %}
+
+{%- liquid
+  assign featured_image = block.settings.featured_image
+  assign featured_header = block.settings.featured_heading
+  assign featured_text = block.settings.featured_text
+  assign featured_button_text = block.settings.featured_button_text
+  assign featured_button_link = block.settings.featured_button_link
+  assign featured_color_text = block.settings.featured_color_text
+  assign featured_color_overlay = block.settings.featured_color_overlay
+  assign featured_overlay_opacity = block.settings.featured_overlay_opacity | times: 0.01
+
+  assign button_style = block.settings.button_style
+  if button_style == 'btn--text' and block.settings.show_arrow
+    assign button_style = button_style | append: ' btn--text-no-underline'
+  endif
+-%}
+
+{%- capture style -%}
+  {%- unless featured_color_text == 'rgba(0,0,0,0)' or featured_color_text == blank -%}
+    --text: {{ featured_color_text }};
+  {%- endunless -%}
+  --overlay-opacity: {{ featured_overlay_opacity }};
+  --overlay-bg: {{ featured_color_overlay }};
+{%- endcapture -%}
+
+<div class="grid-item product-item product-item--featured-image"
+  id="Product-item--{{ block.id }}"
+  style="{{ style }}"
+  {{ block.shopify_attributes }}
+>
+  {%- capture featured_image_content -%}
+    <div class="product-item__image-overlay">
+      <div class="product-item__image-content">
+        {%- if featured_header != blank -%}
+          {%- liquid
+            assign heading_tag = 'h3'
+
+            unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+              assign heading_tag = block.settings.heading_tag
+            endunless
+          -%}
+          <{{ heading_tag }} class="{{ block.settings.heading_font_size }}">{{ featured_header }}</{{ heading_tag }}>
+        {%- endif -%}
+
+        {%- if featured_text != blank -%}
+          {{ featured_text }}
+        {%- endif -%}
+
+        {%- if featured_button_text != blank -%}
+          <a href="{{ featured_button_link }}" class="btn {{ button_style }} {{ block.settings.button_type }} {{ block.settings.button_size }}" data-aos="fade-up" data-aos-anchor="{{ animation_anchor }}" data-aos-duration="{{ animation_duration }}" data-aos-delay="200">
+            <span>{{ featured_button_text }}</span>
+
+            {%- if block.settings.show_arrow -%}
+              {%- render 'icon-arrow-right' -%}
+            {%- endif -%}
+          </a>
+        {%- endif -%}
+      </div>
+
+      {%- if featured_button_text == blank and featured_button_link != blank -%}
+        <a href="{{ featured_button_link }}" class="product-item__image-link" aria-label="{{ featured_image.alt | default: featured_header | default: featured_text | strip_html | escape }}"></a>
+      {%- endif -%}
+    </div>
+  {%- endcapture -%}
+
+  {%- unless featured_image == blank -%}
+    <div class="product-item__image">
+      <div class="product-item__bg"
+        data-aos="img-in"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-delay="{{ animation_delay | times: 150 }}"
+        data-aos-duration="{{ animation_duration }}"
+        data-aos-easing="ease-out-quart"
+      >
+        {%- render 'image' image: featured_image, sizes: image_sizes, loading: 'eager', preload: 'true', fetchpriority: 'high', cover: true -%}
+      </div>
+
+      {{ featured_image_content }}
+    </div>
+  {%- else -%}
+    <div class="product-item__image">
+      <div class="svg-placeholder">
+        {{ 'collection-1' | placeholder_svg_tag }}
+      </div>
+
+      {{ featured_image_content }}
+    </div>
+  {%- endunless -%}
+</div>

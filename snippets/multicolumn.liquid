@@ -1,0 +1,487 @@
+{% comment %}
+  Renders the content of section-columns, section-multicolumn, section-text-row
+
+  Accepts:
+  - type: {String} product (optional)
+
+  Usage:
+  {% render 'multicolumn', type: 'images' %}
+{% endcomment %}
+
+{%- liquid
+  assign unique = 'SectionColumns--' | append: section.id
+  assign type = type | default: ''
+  assign animation_order = 0
+  assign animation_anchor = unique | prepend: '#'
+  assign heading = section.settings.title
+  assign description = section.settings.description
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign blocks_size = section.blocks.size
+
+  assign layout = section.settings.layout
+  assign layout_mobile = section.settings.layout_mobile
+  assign grid_columns = section.settings.grid
+
+  assign multicolumn = true
+  if layout
+    assign multicolumn = false
+  endif
+
+  assign enable_slider = false
+  if layout == 'slider'
+    assign enable_slider = true
+  endif
+
+  if multicolumn
+    assign column_count = blocks_size | at_least: 2
+    assign column_count_float = column_count | times: 1.000000
+    assign column_width = 100 | divided_by: column_count_float
+    assign one_third_blocks_only = false
+    assign one_third_block_count = 0
+
+    for block in section.blocks
+      if block.settings.column_width == 33
+        assign one_third_block_count = one_third_block_count | plus: 1
+      endif
+    endfor
+
+    if one_third_block_count == blocks_size
+      assign one_third_blocks_only = true
+    endif
+  else
+    assign columns_desktop = grid_columns | plus: 0
+    assign columns_medium = 3
+    assign columns_small = 2
+
+    if columns_desktop == 2 or columns_desktop == 4
+      assign columns_medium = 2
+    endif
+
+    assign column_width = 100 | divided_by: columns_desktop
+  endif
+
+  assign columns_mobile = layout_mobile | plus: 0
+
+  if heading != blank or description != blank
+    assign has_content = true
+  endif
+
+  assign eager_images_limit = grid_columns | default: 3
+
+  if type == 'images'
+    if grid_columns == 4
+      assign eager_images_limit = grid_columns | times: 2
+    endif
+  endif
+
+  capture layout_class
+    echo 'grid'
+
+    if multicolumn
+      echo ' multicolumn'
+    endif
+
+    if layout == 'slider'
+      echo ' grid--slider'
+    endif
+
+    if layout_mobile == 'slider'
+      echo ' grid--mobile-slider'
+    else
+      echo ' grid--mobile-vertical'
+    endif
+  endcapture
+-%}
+
+{%- style -%}
+  #SectionColumns--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    {%- unless multicolumn or enable_slider -%}
+      --COLUMNS: {{ columns_desktop }};
+      --COLUMNS-MEDIUM: {{ columns_medium }};
+      --COLUMNS-SMALL: {{ columns_small }};
+    {%- endunless -%}
+
+    --COLUMNS-MOBILE: {{ columns_mobile }};
+  }
+{%- endstyle -%}
+
+<div
+  id="{{ unique }}"
+  class="section-columns section-padding {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="columns"
+>
+  <div class="{{ section.settings.width }}">
+    {%- if has_content -%}
+      <div class="grid__heading-holder {{ section.settings.align_heading }}">
+        {%- if heading != blank -%}
+          {%- liquid
+            assign animation_order = animation_order | plus: 1
+            assign heading_tag = 'h2'
+
+            unless section.settings.heading_tag == 'automatic' or section.settings.heading_tag == blank
+              assign heading_tag = section.settings.heading_tag
+            endunless
+          -%}
+
+          <{{ heading_tag }}
+            class="grid__heading {{ section.settings.heading_font_size }}"
+            data-aos="hero"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-order="{{ animation_order }}"
+          >
+            {{- heading -}}
+          </{{ heading_tag }}>
+        {%- endif -%}
+
+        {%- if description -%}
+          {%- assign animation_order = animation_order | plus: 1 -%}
+
+          <div
+            class="grid__description"
+            data-aos="hero"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-order="{{ animation_order }}"
+          >
+            {{ description }}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if blocks_size > 0 -%}
+      {%- capture columns_content -%}
+        <div class="{{ layout_class }} {{ section.settings.align_columns }} {{ section.settings.align_text }}"
+          {% if enable_slider %}
+            data-grid-slider
+          {% endif %}
+
+          {% if request.design_mode %}
+            data-block-scroll
+          {% endif %}
+        >
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign animation_order = animation_order | plus: 1
+              assign column_width = block.settings.column_width | default: column_width
+              assign title = block.settings.title
+              assign text = block.settings.text
+              assign image = block.settings.image
+              assign image_aspect_ratio = block.settings.image_aspect_ratio | default: section.settings.image_aspect_ratio | default: 1
+              assign image_aspect_ratio_mobile = block.settings.mobile_image_aspect_ratio | default: section.settings.mobile_image_aspect_ratio | default: aspect_ratio
+              assign aspect_ratio = 1 | divided_by: image_aspect_ratio
+              assign aspect_ratio_mobile = 1 | divided_by: image_aspect_ratio_mobile
+              assign button_text = block.settings.button_text
+              assign icon_color = block.settings.icon_color
+              assign icon_size = block.settings.icon_size
+
+              if forloop.index > eager_images_limit and layout != 'slider' or forloop.index > 4 and layout == 'slider'
+                assign loading = 'lazy'
+              endif
+
+              if one_third_blocks_only or enable_slider
+                assign column_width = 33.333333
+              endif
+
+              assign column_width_multiplier = column_width | times: 0.01
+
+              assign button_style = block.settings.button_style
+              if button_style == 'btn--text' and block.settings.show_arrow
+                assign button_style = button_style | append: ' btn--text-no-underline'
+              endif
+
+              capture image_shape_class
+                case block.settings.image_shape
+                  when 'circle'
+                    echo ' column__image--circle'
+
+                  when 'rounded'
+                    echo ' column__image--rounded'
+
+                  when 'blob-one'
+                    echo ' column__image--blob-one'
+
+                  when 'blob-two'
+                    echo ' column__image--blob-two'
+
+                  when 'blob-three'
+                    echo ' column__image--blob-three'
+                endcase
+              endcapture
+
+              capture image_sizes
+                echo '(min-width: 990px) calc((100vw - 100px) * ' | append: column_width_multiplier | append: '), (min-width: 750px) calc((100vw - 60px) / 2), calc(100vw - 32px - 50px)'
+              endcapture
+
+              capture block_style
+                echo 'style="'
+
+                if multicolumn
+                  echo '--desktop-width: ' | append: column_width | append: '%;'
+                endif
+
+                if icon_color.alpha != 0.0 and icon_color != blank
+                  echo ' --icons: ' | append: icon_color | append: ';'
+                endif
+
+                echo '"'
+              endcapture
+            -%}
+
+            {%- case block.type -%}
+              {%- when 'image' -%}
+                <div class="grid-item"
+                  {{ block_style }}
+                  {% if enable_slider %}
+                    data-grid-item
+                  {% endif %}
+                  {{ block.shopify_attributes }}
+                >
+                  <div class="column__inner"
+                    data-aos="hero"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="{{ animation_order }}">
+                    <div class="column__image{{ image_shape_class }}" data-column-image>
+                      {%- liquid
+                        capture column_image
+                          assign class_desktop = ''
+                          assign class_mobile = ''
+
+                          if aspect_ratio != aspect_ratio_mobile
+                            assign class_desktop = 'desktop'
+                            assign class_mobile = 'mobile'
+                          endif
+
+                          if image
+                            render 'image' image: image, sizes: image_sizes, aspect_ratio: aspect_ratio, loading: loading, modifier: class_desktop
+
+                            if aspect_ratio != aspect_ratio_mobile
+                              render 'image' image: image, sizes: image_sizes, aspect_ratio: aspect_ratio_mobile, loading: loading, modifier: class_mobile
+                            endif
+                          else
+                            render 'image' placeholder: 'image', aspect_ratio: aspect_ratio, modifier: class_desktop
+
+                            if aspect_ratio != aspect_ratio_mobile
+                              render 'image' placeholder: 'image', aspect_ratio: aspect_ratio_mobile, modifier: class_mobile
+                            endif
+                          endif
+                        endcapture
+                      -%}
+
+                      {%- if block.settings.button_url != blank and button_text == blank -%}
+                        <a href="{{ block.settings.button_url }}" aria-label="{{ image.alt | default: title | default: text | strip_html | escape }}">
+                          {{ column_image }}
+                        </a>
+                      {%- else -%}
+                        {{ column_image }}
+                      {%- endif -%}
+                    </div>
+
+                    <div class="column__content">
+                      {%- if title != blank -%}
+                        {%- liquid
+                          assign heading_tag = 'h2'
+
+                          unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                            assign heading_tag = block.settings.heading_tag
+                          endunless
+                        -%}
+
+                        <{{ heading_tag }} class="column__heading {{ block.settings.heading_font_size }}">
+                          {{- title -}}
+                        </{{ heading_tag }}>
+                      {%- endif -%}
+
+                      {%- if text != blank -%}
+                        <div class="column__text rte {{ block.settings.text_font_size }}">
+                          {{- text -}}
+                        </div>
+                      {%- endif -%}
+
+                      {%- if button_text != blank -%}
+                        <div class="column__btn">
+                          <a href="{{ block.settings.button_url | default: '#!' }}" class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}" aria-label="{{ button_text }}">
+                            <span>{{ button_text }}</span>
+
+                            {%- if block.settings.show_arrow -%}
+                              {%- render 'icon-arrow-right' -%}
+                            {%- endif -%}
+                          </a>
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                </div>
+
+              {%- when 'icon' -%}
+                {%- capture icon_style -%}
+                  --icon-size: {{ icon_size }}px;
+
+                  {%- if title != blank -%}
+                    --icon-line-height: calc(1.2 * var(--font-{{ block.settings.heading_font_size }}));
+                  {%- elsif text != blank-%}
+                    --icon-line-height: calc(1.5 * var(--font-{{ block.settings.text_font_size }}));
+                  {%- endif -%}
+                {%- endcapture -%}
+
+                <div class="grid-item"
+                  {{ block_style }}
+                  {% if enable_slider %}
+                    data-grid-item
+                  {% endif %}
+                  {{ block.shopify_attributes }}
+                >
+                  <div class="column__inner"
+                    data-aos="hero"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="{{ animation_order }}">
+                    <div class="column__icon {{ block.settings.icon_alignment | default: section.settings.icon_alignment }}" style="{{ icon_style }}">
+                      <div class="icon__animated{% if image != blank %} icon__animated--image{% endif %}">
+                        {%- liquid
+                          if image
+                            assign icon_width = icon_size
+                            assign icon_width_retina = icon_width | times: 2
+                            assign icon_sizes = icon_width | append: 'px'
+                            assign icon_widths = icon_width | append: ', ' | append: icon_width_retina
+
+                            render 'image' image: image, width: icon_width_retina, sizes: icon_sizes, widths: icon_widths, loading: loading
+                          else
+                            render 'animated-icon', filename: block.settings.icon_name
+                          endif
+                        -%}
+                      </div>
+
+                      {%- if title != blank or text != blank -%}
+                        <div class="column__content">
+                          {%- if title != blank -%}
+                            {%- liquid
+                              assign heading_tag = 'h2'
+
+                              unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                                assign heading_tag = block.settings.heading_tag
+                              endunless
+                            -%}
+
+                            <{{ heading_tag }} class="column__heading {{ block.settings.heading_font_size }}">
+                              {{ title }}
+                            </{{ heading_tag }}>
+                          {%- endif -%}
+
+                          {%- if text != blank -%}
+                            <div class="column__text rte {{ block.settings.text_font_size }}">
+                              {{ text }}
+                            </div>
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                </div>
+
+              {%- when 'text' -%}
+                <div class="grid-item"
+                  {{ block_style }}
+                  {% if enable_slider %}
+                    data-grid-item
+                  {% endif %}
+                  {{ block.shopify_attributes }}
+                >
+                  <div class="column__inner"
+                    data-aos="hero"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="{{ animation_order }}">
+                    <div class="column__content">
+                      {%- if title != blank -%}
+                        {%- liquid
+                          assign heading_tag = 'h2'
+
+                          unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                            assign heading_tag = block.settings.heading_tag
+                          endunless
+                        -%}
+
+                        <{{ heading_tag }} class="column__heading {{ block.settings.heading_font_size }}">
+                          {{ title }}
+                        </{{ heading_tag }}>
+                      {%- endif -%}
+
+                      {%- if text != blank -%}
+                        <div class="column__text rte {{ block.settings.text_font_size }}">
+                          {{ text }}
+                        </div>
+                      {%- endif -%}
+
+                      {%- if button_text != blank -%}
+                        <div class="column__btn">
+                          <a href="{{ block.settings.button_url | default: '#!' }}" class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}" aria-label="{{ button_text }}">
+                            <span>{{ button_text }}</span>
+
+                            {%- if block.settings.show_arrow -%}
+                              {%- render 'icon-arrow-right' -%}
+                            {%- endif -%}
+                          </a>
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                </div>
+
+              {%- when 'menu' -%}
+                {%- assign menu_linklist = block.settings.menu | default: 'main-menu' -%}
+
+                <div class="grid-item" {{ block_style }} {{ block.shopify_attributes }}>
+                  <div class="column__inner"
+                    data-aos="hero"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="{{ animation_order }}">
+                    <div class="column__links font-heading">
+                      {%- for link in linklists[menu_linklist].links -%}
+                        <div class="column__links__item {{ block.settings.heading_font_size }}">
+                          <a href="{{ link.url }}">{{ link.title }}</a>
+                          {%- render 'superscript', link_collection: link -%}
+                        </div>
+                      {%- endfor -%}
+                    </div>
+                  </div>
+                </div>
+
+              {%- when 'product' -%}
+                {%- liquid
+                  capture product_attributes
+                    echo 'data-aos="hero" '
+                    echo 'data-aos-anchor="' | append: animation_anchor | append: '" '
+                    echo 'data-aos-order="' | append: animation_order | append: '" '
+                    echo block_style
+                    echo block.shopify_attributes
+                  endcapture
+
+                  assign product = all_products[block.settings.product]
+                  if product != blank
+                    render 'product-grid-item', product: product, index: forloop.index, attributes: product_attributes
+                  else
+                    render 'onboarding-product-grid-item', index: forloop.index, attributes: product_attributes
+                  endif
+                -%}
+
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      {%- endcapture -%}
+
+      {%- if enable_slider -%}
+        <grid-slider align-arrows>
+          {{ columns_content }}
+        </grid-slider>
+      {%- else -%}
+        {{ columns_content }}
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- if blocks_size == 0 -%}
+      {%- render 'no-blocks' -%}
+    {%- endif -%}
+  </div>
+</div>

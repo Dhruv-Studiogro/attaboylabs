@@ -1,0 +1,572 @@
+<!-- /sections/section-timeline.liquid -->
+
+{%- liquid
+  assign show_images = section.settings.show_images
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign dot_background = section.settings.dot_background
+  assign title = section.settings.title
+  assign text = section.settings.text
+  assign animation_anchor = '#IndexTimeline--' | append: section.id
+  assign animation_order = 0
+-%}
+
+<script src="{{ 'timeline.js' | asset_url }}" defer="defer"></script>
+
+<section
+  id="IndexTimeline--{{ section.id }}"
+  class="index-timeline timeline{% if show_images %} timeline--images{% endif %} section-padding {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="timeline"
+>
+  <div class="{% if show_images %}{{ section.settings.width }}{% else %}wrapper--narrow{% endif %}">
+    <div class="timeline__wrapper">
+      {%- if title != blank or text != blank -%}
+        <div class="timeline__head hero__content__wrapper {{ section.settings.text_alignment }}">
+          <div class="hero__content hero__content--compact">
+            {%- if title != blank -%}
+              {%- liquid
+                assign animation_order = animation_order | plus: 1
+                assign heading_tag = 'h2'
+
+                unless section.settings.heading_tag == 'automatic' or section.settings.heading_tag == blank
+                  assign heading_tag = section.settings.heading_tag
+                endunless
+              -%}
+
+              <{{ heading_tag }}
+                class="hero__title {{ section.settings.heading_font_size }}"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ animation_order }}"
+              >
+                {{ title }}
+              </{{ heading_tag }}>
+            {%- endif -%}
+
+            {%- if text != blank -%}
+              {%- assign animation_order = animation_order | plus: 1 -%}
+              <div
+                class="hero__rte {{ section.settings.text_font_size }}"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ animation_order }}"
+              >
+                {{ text }}
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      <timeline-component class="timeline__body">
+        {%- if request.design_mode -%}
+          {%- assign blocks_counter_design = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.settings.subheading != blank
+              or block.settings.title != blank
+              or block.settings.text != blank
+              or block.settings.button_text != blank
+            -%}
+              <div
+                class="timeline__row__editor"
+                data-timeline-row-editor
+                style="--row-count: {{ blocks_counter_design }};"
+                {{ block.shopify_attributes }}
+              >
+                &nbsp;
+              </div>
+              {%- assign blocks_counter_design = blocks_counter_design | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+
+        <div
+          class="timeline__inner"
+          data-timeline-rows
+          data-aos="hero"
+          data-aos-anchor="{{ animation_anchor }}"
+          data-aos-order="{{ animation_order }}"
+          {% if request.design_mode %}
+            data-block-scroll
+          {% endif %}
+        >
+          {%- assign blocks_counter = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.settings.subheading != blank
+              or block.settings.title != blank
+              or block.settings.text != blank
+              or block.settings.button_text != blank
+            -%}
+              {%- assign blocks_counter = blocks_counter | plus: 1 -%}
+              {%- assign animation_order = animation_order | plus: 1 -%}
+
+              <div class="timeline__row{% if blocks_counter == 1 %} is-selected{% endif %}" data-timeline-row>
+                {%- if show_images -%}
+                  <div class="timeline__image">
+                    <div class="timeline__image-inner">
+                      {%- liquid
+                        assign mobile_height = section.settings.mobile_height
+                        assign image_modifier = 'timeline__image-figure ' | append: mobile_height
+                        assign image_cover = true
+                        if mobile_height == 'image-height--mobile'
+                          assign image_cover = false
+                        endif
+
+                        render 'image', image: block.settings.image, sizes: '50vw, calc(100vw - 67px)', widths: '254, 308, 360, 462, 512, 620, 670, 720, 924, 1024, 1240, 1340, 1440, 1920, 2480', modifier: image_modifier, cover: image_cover
+                      -%}
+                    </div>
+                  </div>
+                {%- endif -%}
+
+                <div class="timeline__content">
+                  <div class="timeline__content__outer">
+                    <div
+                      class="timeline__content__inner"
+                      data-aos="hero"
+                      data-aos-anchor="{{ animation_anchor }}"
+                      data-aos-order="{{ animation_order }}"
+                      data-target-index="{{ blocks_counter }}"
+                    >
+                      {%- if block.settings.subheading != blank -%}
+                        <p class="hero__subheading">
+                          {{ block.settings.subheading }}
+                        </p>
+                      {%- endif -%}
+
+                      {%- if block.settings.title != blank -%}
+                        {%- liquid
+                          assign heading_tag = 'h2'
+
+                          unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                            assign heading_tag = block.settings.heading_tag
+                          endunless
+                        -%}
+
+                        <{{ heading_tag }} class="hero__title {{ block.settings.heading_font_size }}">
+                          {{ block.settings.title }}
+                        </{{ heading_tag }}>
+                      {%- endif -%}
+
+                      {%- if block.settings.text != blank -%}
+                        <div class="hero__rte {{ block.settings.text_font_size }}">
+                          {{ block.settings.text }}
+                        </div>
+                      {%- endif -%}
+
+                      {%- if block.settings.button_text != blank -%}
+                        {%- liquid
+                          assign button_style = block.settings.button_style
+                          if button_style == 'btn--text' and block.settings.show_arrow
+                            assign button_style = button_style | append: ' btn--text-no-underline'
+                          endif
+                        -%}
+
+                        <div class="hero__button">
+                          <a
+                            href="{{ block.settings.button_url | default: '#!' }}"
+                            class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}"
+                          >
+                            <span>{{ block.settings.button_text }}</span>
+
+                            {%- if block.settings.show_arrow -%}
+                              {%- render 'icon-arrow-right' -%}
+                            {%- endif -%}
+                          </a>
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  </div>
+
+                  <span
+                    class="timeline__indicator"
+                    data-aos="hero"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="{{ animation_order }}"
+                    data-target-index="{{ blocks_counter }}"
+                  >
+                    <span class="timeline__indicator__line">&nbsp;</span>
+                  </span>
+
+                  <div
+                    class="timeline__dot__wrapper"
+                    data-aos="hero"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="{{ animation_order }}"
+                    data-target-index="{{ blocks_counter }}"
+                  >
+                    <div class="timeline__dot__holder">
+                      <button
+                        type="button"
+                        class="timeline__dot__button"
+                        aria-label="{{ 'general.accessibility.scroll_to_product' | t }}"
+                        data-timeline-button
+                      >
+                        <span class="timeline__dot">&nbsp;</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </timeline-component>
+    </div>
+  </div>
+</section>
+
+{%- style -%}
+  #IndexTimeline--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+    --counter: {{ blocks_counter }};
+  }
+
+  {%- if dot_background != 'rgba(0,0,0,0)' and dot_background != '' -%}
+    #IndexTimeline--{{ section.id }} .timeline__indicator,
+    #IndexTimeline--{{ section.id }} .timeline__dot { --text: {{ dot_background }}; }
+  {%- endif -%}
+
+  {%- if request.visual_preview_mode -%}
+    .timeline__wrapper { max-height: 100vh; }
+  {%- endif -%}
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "Timeline",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_images",
+      "label": "Show images",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Timeline"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading size",
+      "default": "heading-large",
+      "options": [
+        {"value": "heading-mini", "label": "Mini"},
+        {"value": "heading-x-small", "label": "Extra small"},
+        {"value": "heading-small", "label": "Small"},
+        {"value": "heading-medium", "label": "Medium"},
+        {"value": "heading-large", "label": "Large"},
+        {"value": "heading-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Visually narrate your company's history and achievements. By offering a dynamic representation of events over time, it educates, captivates, and builds trust among customers.</p>"
+    },
+    {
+      "type": "select",
+      "id": "text_font_size",
+      "label": "Text size",
+      "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+      "default": "body-medium",
+      "options": [
+        {"value": "body-x-small", "label": "Extra small"},
+        {"value": "body-small", "label": "Small"},
+        {"value": "body-medium", "label": "Medium"},
+        {"value": "body-large", "label": "Large"},
+        {"value": "body-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Alignment",
+      "default": "text-left",
+      "options": [
+        {"value": "text-left", "label": "Left"},
+        {"value": "text-center", "label": "Centered"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full",
+      "options": [
+        {"value": "wrapper--full", "label": "Full width"},
+        {"value": "wrapper--full-padded", "label": "Full width padded"}
+      ],
+      "info": "Applies only when images are used"
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "select",
+      "id": "mobile_height",
+      "label": "Mobile height",
+      "default": "screen-height-one-third--mobile",
+      "options": [
+        {"value": "image-height--mobile", "label": "Image height"},
+        {"value": "screen-height-three-quarters--mobile", "label": "3/4 of screen"},
+        {"value": "screen-height-two-thirds--mobile", "label": "2/3 of screen"},
+        {"value": "screen-height-one-half--mobile", "label": "1/2 of screen"},
+        {"value": "screen-height-one-third--mobile", "label": "1/3 of screen"},
+        {"value": "five-fifty-height-hero--mobile", "label": "550px"},
+        {"value": "four-fifty-height-hero--mobile", "label": "450px"},
+        {"value": "three-fifty-height-hero--mobile", "label": "350px"},
+        {"value": "two-fifty-height-hero--mobile", "label": "250px"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "color",
+      "id": "dot_background",
+      "label": "Hotspot"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 32
+    },
+    {
+      "type": "header",
+      "content": "Advanced"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading SEO tag",
+      "default": "automatic",
+      "options": [
+        {"value": "automatic", "label": "Automatic"},
+        {"value": "h1", "label": "H1"},
+        {"value": "h2", "label": "H2"},
+        {"value": "h3", "label": "H3"},
+        {"value": "h4", "label": "H4"},
+        {"value": "h5", "label": "H5"},
+        {"value": "h6", "label": "H6"}
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "timeline",
+      "name": "Timeline",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "2000 x 1400px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "2010"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Launch day"
+        },
+        {
+          "type": "select",
+          "id": "heading_font_size",
+          "label": "Heading size",
+          "default": "heading-large",
+          "options": [
+            {"value": "heading-mini", "label": "Mini"},
+            {"value": "heading-x-small", "label": "Extra small"},
+            {"value": "heading-small", "label": "Small"},
+            {"value": "heading-medium", "label": "Medium"},
+            {"value": "heading-large", "label": "Large"},
+            {"value": "heading-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>We celebrated our first step in the ecommerce world by selling our very first product.</p>"
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+          "default": "body-medium",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Text",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_type",
+          "label": "Color",
+          "default": "btn--primary",
+          "options": [
+            {"value": "btn--black", "label": "Black"},
+            {"value": "btn--white", "label": "White"},
+            {"value": "btn--primary", "label": "Primary"},
+            {"value": "btn--secondary", "label": "Secondary"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "Size",
+          "default": "",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": ""},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Style",
+          "default": "btn--solid",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "show_arrow",
+          "label": "Show arrow",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Advanced"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "Heading SEO tag",
+          "default": "automatic",
+          "options": [
+            {"value": "automatic", "label": "Automatic"},
+            {"value": "h1", "label": "H1"},
+            {"value": "h2", "label": "H2"},
+            {"value": "h3", "label": "H3"},
+            {"value": "h4", "label": "H4"},
+            {"value": "h5", "label": "H5"},
+            {"value": "h6", "label": "H6"}
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Timeline",
+      "blocks": [
+        {
+          "type": "timeline",
+          "settings": {
+            "subheading": "2010",
+            "title": "Launch day",
+            "text": "<p>We celebrated our first step in the ecommerce world by selling our very first product.</p>"
+          }
+        },
+        {
+          "type": "timeline",
+          "settings": {
+            "subheading": "2015",
+            "title": "Introduced our flagship product",
+            "text": "<p>Our journey to success was defined by our flagship product. It shaped us into the industry leader we are today.</p>"
+          }
+        },
+        {
+          "type": "timeline",
+          "settings": {
+            "subheading": "2020",
+            "title": "Launched our partner program",
+            "text": "<p>You're what makes us great. With the exciting launch of our partner program you have the power to earn free products!</p>"
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "custom.pre_footer", "footer"]
+  }
+}
+{% endschema %}

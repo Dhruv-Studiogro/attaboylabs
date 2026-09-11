@@ -1,0 +1,427 @@
+<!-- /sections/text-promo.liquid -->
+
+{%- liquid
+  assign wrapper_width = section.settings.width
+  assign image = section.settings.image
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign overlay_opacity = section.settings.overlay_opacity | times: 0.01
+  assign show_overlay_text = section.settings.show_overlay_text
+  assign has_image = false
+  assign animation_anchor = '#TextPromo--' | append: section.id
+  assign animation_order = 0
+
+  if image != blank
+    assign has_image = true
+  endif
+
+  assign content_for_text_overlay = false
+
+  for block in section.blocks
+    case block.type
+      when 'button'
+        if block.settings.button_url != blank and block.settings.button_text != blank
+          assign content_for_text_overlay = true
+        endif
+      when 'heading'
+        if block.settings.title != blank
+          assign content_for_text_overlay = true
+        endif
+      when 'text'
+        if block.settings.text != blank
+          assign content_for_text_overlay = true
+        endif
+    endcase
+  endfor
+  if section.blocks.size == 0
+    assign content_for_text_overlay = true
+  endif
+
+  assign show_backdrop = false
+  if has_image and show_overlay_text and content_for_text_overlay
+    assign show_backdrop = true
+  endif
+-%}
+
+{%- style -%}
+  #TextPromo--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    --inner: {{ section.settings.inner_padding }}px;
+
+    {%- if has_image -%}
+      --overlay-opacity: {{ overlay_opacity }};
+    {%- endif -%}
+  }
+{%- endstyle -%}
+
+<section
+  id="TextPromo--{{ section.id }}"
+  class="text-promo section-padding {{ wrapper_width }}"
+  data-section-type="promo"
+  data-section-id="{{ section.id }}"
+>
+  <div class="text-promo-inner text-center{% if section.settings.border %} text-promo-inner--border{% endif %} {{ color_scheme }}">
+    {%- if has_image -%}
+      <div class="hero__image">
+        {%- liquid
+          if wrapper_width == ''
+            assign sizes = '100vw'
+          elsif wrapper_width == 'wrapper--narrow'
+            assign sizes = '670px'
+          elsif wrapper_width == 'wrapper--full'
+            assign sizes = '(min-width: 1400px) calc(100vw - 100px), (min-width: 750px) calc(100vw - 50px), calc(100vw - 32px)'
+          else
+            assign sizes = '(min-width: 1400px) 1100px, (min-width: 750px) calc(100vw - 50px), calc(100vw - 32px)'
+          endif
+
+          render 'image', image: image, sizes: sizes, cover: true
+        -%}
+
+        {%- unless show_overlay_text or overlay_opacity == 0.0 -%}
+          <div class="image-overlay" style="--overlay-opacity: {{ overlay_opacity }};"></div>
+        {%- endunless -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="hero__content hero__content--transparent{% if show_backdrop %} backdrop--radial{% endif %}">
+        {%- for block in section.blocks -%}
+          {%- assign animation_order = animation_order | plus: 1 -%}
+
+          {%- case block.type -%}
+            {%- when '@app' -%}
+              <div
+                class="hero__app"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ animation_order }}"
+                {{ block.shopify_attributes }}
+              >
+                {%- render block -%}
+              </div>
+
+            {%- when 'button' -%}
+              {%- if block.settings.button_text != blank -%}
+                {%- liquid
+                  assign button_style = block.settings.button_style
+
+                  if button_style == 'btn--text' and block.settings.show_arrow
+                    assign button_style = button_style | append: ' btn--text-no-underline'
+                  endif
+                -%}
+
+                <div
+                  class="hero__button"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="{{ animation_order }}"
+                >
+                  <a
+                    href="{{ block.settings.button_url | default: '#' }}"
+                    class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}"
+                    {{ block.shopify_attributes }}
+                  >
+                    <span>{{ block.settings.button_text }}</span>
+
+                    {%- if block.settings.show_arrow -%}
+                      {%- render 'icon-arrow-right' -%}
+                    {%- endif -%}
+                  </a>
+                </div>
+              {%- endif -%}
+
+            {%- when 'heading' -%}
+              {%- if block.settings.title != blank -%}
+                {%- liquid
+                  assign heading_tag = 'h2'
+
+                  unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                    assign heading_tag = block.settings.heading_tag
+                  endunless
+                -%}
+
+                <{{ heading_tag }}
+                  class="hero__title {{ block.settings.heading_font_size }}"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="{{ animation_order }}"
+                  {{ block.shopify_attributes }}
+                >
+                  {{ block.settings.title }}
+                </{{ heading_tag }}>
+              {%- endif -%}
+
+            {%- when 'text' -%}
+              {%- if block.settings.text != blank -%}
+                <div
+                  class="hero__rte {{ block.settings.text_font_size }}"
+                  data-aos="hero"
+                  data-aos-anchor="{{ animation_anchor }}"
+                  data-aos-order="{{ animation_order }}"
+                  {{ block.shopify_attributes }}
+                >
+                  {{ block.settings.text }}
+                </div>
+              {%- endif -%}
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      {%- render 'no-blocks' -%}
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Text promo",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Background image",
+      "info": "Optional. 3200 x 1200px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "checkbox",
+      "id": "border",
+      "label": "Show border",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full-padded",
+      "options": [
+        {"value": "wrapper--full", "label": "Full width"},
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Normal"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "info": "Increase contrast for legible text.",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay_text",
+      "label": "Overlay behind text only",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "inner_padding",
+      "label": "Inner padding",
+      "unit": "px",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 50
+    }
+  ],
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Text",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_type",
+          "label": "Color",
+          "default": "btn--primary",
+          "options": [
+            {"value": "btn--black", "label": "Black"},
+            {"value": "btn--white", "label": "White"},
+            {"value": "btn--primary", "label": "Primary"},
+            {"value": "btn--secondary", "label": "Secondary"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "Size",
+          "default": "",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": ""},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Style",
+          "default": "btn--solid",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "show_arrow",
+          "label": "Show arrow",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "title",
+          "label": "Heading",
+          "default": "Text promo"
+        },
+        {
+          "type": "select",
+          "id": "heading_font_size",
+          "label": "Heading size",
+          "default": "heading-medium",
+          "options": [
+            {"value": "heading-mini", "label": "Mini"},
+            {"value": "heading-x-small", "label": "Extra small"},
+            {"value": "heading-small", "label": "Small"},
+            {"value": "heading-medium", "label": "Medium"},
+            {"value": "heading-large", "label": "Large"},
+            {"value": "heading-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Advanced"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "Heading SEO tag",
+          "default": "automatic",
+          "options": [
+            {"value": "automatic", "label": "Automatic"},
+            {"value": "h1", "label": "H1"},
+            {"value": "h2", "label": "H2"},
+            {"value": "h3", "label": "H3"},
+            {"value": "h4", "label": "H4"},
+            {"value": "h5", "label": "H5"},
+            {"value": "h6", "label": "H6"}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Advertise a promotion or a sale</p>"
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+          "default": "body-medium",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text promo",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "button"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

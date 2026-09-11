@@ -1,0 +1,51 @@
+<!-- /snippets/products-recently-viewed.liquid -->
+{% comment %}
+  Renders list of recently viewed products in grid layout
+
+  Accepts:
+  - product: {Object} product (required)
+  - limit: {Integer} A maxmimum products to show
+  - product_recently_minimum: {Integer} A minimum products to show
+
+  Usage:
+  {% render 'products-recently-viewed', product: product, product_recently_minimum: product_recently_minimum %}
+{% endcomment %}
+
+{%- liquid
+  assign limit = limit | default: 4
+  assign column_count = limit
+  assign layout_mobile = section.settings.layout_mobile
+  assign columns_small = 2
+  assign columns_mobile = layout_mobile | plus: 0
+
+  if limit > 4
+    assign column_count = '4'
+  endif
+-%}
+
+<script src="{{ 'recently-viewed.js' | asset_url }}" defer="defer"></script>
+
+<recently-viewed
+  class="recent__wrapper fade-toggle is-hidden"
+  id="RecentlyViewed-{{ section.id }}"
+  data-wrapper-id="recently-viewed-products-{{ section.id }}"
+  data-limit="{{ limit }}"
+  data-target="api-product-grid-item"
+  data-minimum="{{ product_recently_minimum }}"
+  {% if block %}
+    {{ block.shopify_attributes -}}
+  {% endif %}
+>
+  <div
+    class="grid-outer"
+    style="--column-count: {{ column_count }}; --COLUMNS-SMALL: {{ columns_small }}; --COLUMNS-MOBILE: {{ columns_mobile }};"
+  >
+    <grid-slider align-arrows>
+      <div
+        class="recent__content grid grid--slider{% if layout_mobile == nil or layout_mobile == 'slider' %} grid--mobile-slider{% endif %}{% if limit <= 4 %} grid--slider-disabled{% endif %} hidden"
+        data-grid-slider
+        id="recently-viewed-products-{{ section.id }}"
+      ></div>
+    </grid-slider>
+  </div>
+</recently-viewed>

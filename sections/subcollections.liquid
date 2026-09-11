@@ -1,0 +1,209 @@
+{%- liquid
+  assign text_color = section.settings.color
+  assign bg_color = section.settings.bg_color
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign sub_collections = linklists[collection.handle].links
+  assign sub_collection_html = ''
+  assign sub_collection_counter = 0
+  assign sub_collection_limit = 6
+-%}
+{%- if linklists[collection.handle].links.size > 0 -%}
+  {%- style -%}
+    #Subcollections--{{ section.id }} {
+      --PT: {{ section.settings.padding_top }}px;
+      --PB: {{ section.settings.padding_bottom }}px;
+
+      {%- unless text_color == 'rgba(0,0,0,0)' or text_color == blank -%}
+        --text: {{ text_color }};
+      {%- endunless -%}
+
+      {%- unless bg_color == 'rgba(0,0,0,0)' or bg_color == blank -%}
+        --bg: {{ bg_color }};
+      {%- endunless -%}
+    }
+  {%- endstyle -%}
+
+  <section class="subcollections collection-{{ collection.handle }} section-padding {{ color_scheme }}"
+    id="Subcollections--{{ section.id }}">
+    {%- if sub_collections.size > 0 -%}
+      {%- for sublink in sub_collections -%}
+        {%- liquid
+          if sublink.type != 'collection_link' or sublink.object.handle == blank
+            continue
+          endif
+
+          assign sub_collection_handle = sublink.object.handle
+          assign sub_collection_handle_separator = sub_collection_handle | append: ',' | prepend: ','
+          assign sub_collection = collections[sub_collection_handle]
+
+          if sublink.object.handle contains sub_collection_handle_separator
+            continue
+          endif
+        -%}
+
+        {%- capture sub_collection_html -%}
+          {{ sub_collection_html }}
+
+          <div class="grid-item subcollection__item" data-grid-item>
+            <div class="subcollection__inner">
+              <a class="subcollection__link" href="{{ sub_collection.url }}">
+                <div class="subcollection__image">
+                  {%- assign image = sub_collection.image -%}
+
+                  {%- if section.settings.select_image == 'product' or image == blank -%}
+                    {%- assign image = sub_collection.products.first.featured_media.preview_image -%}
+                  {%- endif -%}
+
+                  {%- capture sizes -%}
+                    (min-width: 750px) (calc(100vw - 16px) / 3), calc(100vw - 32px)
+                  {%- endcapture -%}
+
+                  {%- render 'image' image: image, sizes: sizes, cover: true -%}
+                </div>
+                <div class="image-overlay-bottom"></div>
+                <div class="subcollection__text">
+                  <p class="subcollection__title h4">{{ sub_collection.title }}</p>
+                  {%- if sub_collection.description != '' and section.settings.subcollection_description -%}
+                    <div class="subcollection__description">{{ sub_collection.description }}</div>
+                  {%- endif -%}
+                </div>
+              </a>
+            </div>
+          </div>
+        {%- endcapture -%}
+
+        {%- assign sub_collection_counter = sub_collection_counter | plus: 1 -%}
+
+        {%- if sub_collection_counter >= sub_collection_limit -%}
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if sub_collection_html != '' -%}
+        {%- liquid
+          assign layout_slider = false
+          if section.settings.subcollection_layout == 'slider' and sub_collection_counter > 4
+            assign layout_slider = true
+          endif
+
+          assign columns_desktop = sub_collection_counter | at_most: 4
+          assign columns_medium = 3
+
+          if columns_desktop == 2 or columns_desktop == 4
+            assign columns_medium = 2
+          endif
+        -%}
+
+        {%- capture sub_collection_html -%}
+          <div class="grid{% if layout_slider %} grid--slider{% endif %} grid--mobile-slider"{% if layout_slider %} data-grid-slider{% endif %} style="--COLUMNS: {{ columns_desktop }}; --COLUMNS-MEDIUM: {{ columns_medium }};">
+            {{ sub_collection_html }}
+          </div>
+        {%- endcapture -%}
+
+        <div class="grid-outer">
+          {%- if layout_slider -%}
+            <grid-slider>
+              {{ sub_collection_html }}
+            </grid-slider>
+          {%- else -%}
+            {{ sub_collection_html }}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Subcollections",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Create a [navigation list](/admin/menus) with the same name as this collection and link to other collections. [Learn more](https://broadcast.invisiblethemes.com/collections/collection-pages/sub-collections)"
+    },
+    {
+      "type": "select",
+      "id": "subcollection_layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "slider",
+          "label": "Slider"
+        }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "checkbox",
+      "id": "subcollection_description",
+      "label": "Show description",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "select_image",
+      "label": "Select a photo to display",
+      "options": [
+        {
+          "value": "collection",
+          "label": "Collection image"
+        },
+        {
+          "value": "product",
+          "label": "Product image"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "color",
+      "id": "color",
+      "label": "Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 20
+    }
+  ]
+}
+{% endschema %}

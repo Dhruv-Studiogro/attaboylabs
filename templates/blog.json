@@ -1,0 +1,165 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "section_hero_YX8kB3": {
+      "type": "section-hero",
+      "blocks": {
+        "heading_ky9p4c": {
+          "type": "heading",
+          "settings": {
+            "title": "the outpost",
+            "heading_font_size": "heading-x-large",
+            "heading_tag": "automatic"
+          }
+        },
+        "text_Gkayya": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Your Field Guide to Performance, Simplicity, and Showing Up Strong.</p>",
+            "text_font_size": "body-large"
+          }
+        }
+      },
+      "block_order": [
+        "heading_ky9p4c",
+        "text_Gkayya"
+      ],
+      "custom_css": [
+        "h2 {font-family: \"NewScienceMonoBold\", monospace !important; font-size: 4.3vw; line-height: 1em;}",
+        "p {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 1.3vw; text-transform: uppercase;}",
+        ".btn {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 16px;}",
+        "@media screen and (max-width: 768px) {h2 {font-size: 9vw; } p {font-size: 3.2vw; line-height: 1.3; } .btn {font-size: 13px; }}"
+      ],
+      "name": "Image banner",
+      "settings": {
+        "image_1": "shopify://shop_images/camping.jpg",
+        "link": "",
+        "width": "wrapper--full",
+        "height": "screen-height-one-half",
+        "flex_align_desktop": "align--middle-center-desktop",
+        "content_width": 50,
+        "mobile_height": "screen-height-three-quarters--mobile",
+        "flex_align_mobile": "align--middle-center-mobile",
+        "color_scheme": "",
+        "show_text_background": false,
+        "overlay_opacity": 0,
+        "show_overlay_text": false,
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "show_placeholder": true
+      }
+    },
+    "section_blog_pK7Rtq": {
+      "type": "section-blog",
+      "custom_css": [
+        "h2 {font-family: \"NewScienceMonoBold\", monospace !important; font-size: 4.3vw; line-height: 1em;}",
+        "h4 {font-family: \"NewScienceMonoBold\", monospace !important;}",
+        "p {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 1.3vw; text-transform: uppercase;}",
+        ".btn {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 16px;}",
+        "@media screen and (max-width: 768px) {h2 {font-size: 9vw; } p {font-size: 3.2vw; line-height: 1.3; } .btn {font-size: 13px; }}"
+      ],
+      "name": "Blog posts",
+      "settings": {
+        "blog_name": "",
+        "aspect_ratio": 1.3,
+        "title": "field notes",
+        "heading_font_size": "heading-medium",
+        "title_font_size": "heading-small",
+        "show_tags": false,
+        "show_author": false,
+        "show_date": true,
+        "show_button": true,
+        "show_comments": false,
+        "width": "wrapper--full-padded",
+        "grid": 4,
+        "rows": 1,
+        "color_scheme": "scheme-3",
+        "padding_top": 32,
+        "padding_bottom": 40,
+        "heading_tag": "h2",
+        "title_tag": "h4"
+      }
+    },
+    "featured": {
+      "type": "featured-posts",
+      "blocks": {
+        "featured_post_QwRMLT": {
+          "type": "featured_post",
+          "settings": {
+            "featured_post": "",
+            "subheading": "Featured post"
+          }
+        },
+        "feat": {
+          "type": "featured_post",
+          "settings": {
+            "featured_post": "",
+            "subheading": "Featured post"
+          }
+        }
+      },
+      "block_order": [
+        "featured_post_QwRMLT",
+        "feat"
+      ],
+      "custom_css": [
+        "h2 {font-family: \"NewScienceMonoBold\", monospace !important; font-size: 4.3vw; line-height: 1em;}",
+        "p {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 1.3vw; text-transform: uppercase;}",
+        ".btn {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 16px;}",
+        "@media screen and (max-width: 768px) {h2 {font-size: 9vw; } p {font-size: 3.2vw; line-height: 1.3; } .btn {font-size: 13px; }}"
+      ],
+      "settings": {
+        "show_author": false,
+        "show_date": false,
+        "heading_font_size": "heading-large",
+        "show_button": true,
+        "button_text": "Read more",
+        "button_type": "btn--primary",
+        "button_size": "",
+        "button_style": "btn--text",
+        "show_arrow": false,
+        "width": "wrapper--full",
+        "height": "five-fifty-height-hero",
+        "mobile_height": "screen-height-one-half--mobile",
+        "color_scheme": "",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "main": {
+      "type": "blog",
+      "settings": {
+        "show_title": true,
+        "show_rss": false,
+        "show_tag_nav": false,
+        "aspect_ratio": 1,
+        "title_font_size": "heading-small",
+        "show_tags": false,
+        "show_author": false,
+        "show_date": false,
+        "show_button": false,
+        "show_comments": false,
+        "grid": 4,
+        "rows": 4,
+        "color_scheme": "",
+        "padding_top": 32,
+        "padding_bottom": 0,
+        "title_tag": "automatic"
+      }
+    }
+  },
+  "order": [
+    "section_hero_YX8kB3",
+    "section_blog_pK7Rtq",
+    "featured",
+    "main"
+  ]
+}

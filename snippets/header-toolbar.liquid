@@ -1,0 +1,143 @@
+{% comment %}
+    Renders header toolbar block
+
+    Accepts:
+    - block: {Object} Toolbar block object (required)
+
+    Usage:
+    {% render 'header-toolbar', block: toolbar_block %}
+{% endcomment %}
+
+{%- liquid
+  assign show_toolbar = false
+  assign show_utilities = false
+  assign show_toolbar_menu = false
+
+  if block
+    assign show_toolbar = true
+    assign text = block.settings.text
+    assign menu = block.settings.menu
+    assign menu_links = linklists[menu].links
+    assign languages = false
+    assign countries = false
+    assign show_locale_selector = block.settings.show_locale_selector
+    assign show_globe_icon = block.settings.show_globe_icon
+    assign show_country_selector = block.settings.show_country_selector
+    assign show_country_name = block.settings.show_country_name
+    assign show_country_flag = block.settings.show_country_flag
+    assign show_toolbar_socials = block.settings.show_social_links
+    assign show_toolbar_gift_card = block.settings.show_gift_card
+    assign show_border = block.settings.show_border
+    assign border_color = block.settings.border_color
+    assign border_opacity = block.settings.border_opacity | times: 0.01
+    assign color_scheme = 'color-' | append: block.settings.color_scheme
+    assign root_url = routes.root_url
+    if root_url != '/'
+      assign root_url = root_url | append: '/'
+    endif
+
+    if menu_links.size > 0
+      assign show_toolbar_menu = true
+    endif
+
+
+    if show_locale_selector and localization.available_languages.size > 1
+      assign languages = true
+    endif
+
+    if show_country_selector and localization.available_countries.size > 1
+      assign countries = true
+    endif
+
+    if languages or countries or show_toolbar_socials or show_toolbar_gift_card or show_toolbar_menu
+      assign show_utilities = true
+    endif
+
+    capture style
+      echo '--PT: ' | append: block.settings.padding_top | append: 'px;'
+      echo '--PB: ' | append: block.settings.padding_bottom | append: 'px;'
+
+      if show_border
+        unless border_color.alpha == 0.0 or border_color == blank
+          echo '--border-color: ' | append: border_color | append: ';'
+        endunless
+        echo '--border-opacity: ' | append: border_opacity  | append: ';'
+      endif
+    endcapture
+  endif
+-%}
+
+{%- capture toolbar_menu -%}
+  {%- if show_toolbar_menu -%}
+    {%- for link in menu_links -%}
+      <a href="{{ link.url }}" class="navlink navlink--toplevel">{{ link.title }}</a>
+    {%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture gift_card_link -%}
+  <div class="toolbar__utility">
+    <a class="gift-card-link" href="{{ root_url }}products/{{ 'layout.header.gift_card_url' | t }}">{{ 'layout.header.gift_card' | t }}</a>
+  </div>
+{%- endcapture -%}
+
+{%- capture utilities -%}
+  {%- if show_utilities -%}
+    {%- if show_toolbar_socials -%}
+      <div class="toolbar__utility">
+        {%- render 'social-icons' -%}
+      </div>
+    {%- endif -%}
+
+    {%- if show_toolbar_gift_card -%}
+      {{ gift_card_link }}
+    {%- endif -%}
+
+    {%- if languages or countries -%}
+      <div class="toolbar__utility">
+        {%- render 'localization' unique: block.id, show_locale_selector: show_locale_selector, show_globe_icon: show_globe_icon, show_country_selector: show_country_selector, show_country_flag: show_country_flag, show_country_name: show_country_name, class: 'header' -%}
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if show_toolbar -%}
+  {%- if show_utilities or text != blank -%}
+    <div class="toolbar{% if show_border %} has-border{% endif %} section-padding{% if text == blank %} toolbar--no-text{% endif %} {{ color_scheme }}"
+      {% if style != blank %}
+        style="{{ style }}"
+      {% endif %}
+      data-header-toolbar
+      {{ block.shopify_attributes }}>
+      <div class="wrapper--full-padded">
+        <div class="toolbar__inner{% if text == blank %} desktop{% endif %}">
+          {%- if show_toolbar_menu or text != blank -%}
+            <ticker-bar class="toolbar__text">
+              <div data-ticker-frame class="toolbar__text__frame">
+                <div data-ticker-scale class="toolbar__text__ticker announcement__scale ticker--unloaded">
+                  <div data-ticker-text class="announcement__text">
+                    {%- if text != blank -%}
+                      <div class="toolbar__text">{{ text }}</div>
+                    {%- endif -%}
+
+                    {%- if show_toolbar_menu -%}
+                      <div class="toolbar__menu desktop">
+                        {{ toolbar_menu }}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                </div>
+              </div>
+            </ticker-bar>
+          {%- endif -%}
+
+          {%- if show_utilities -%}
+            <div class="toolbar__utilities desktop">
+              {{ utilities }}
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+{%- endif -%}

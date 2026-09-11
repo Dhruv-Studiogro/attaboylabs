@@ -1,0 +1,602 @@
+<!-- /sections/section-text-with-products.liquid -->
+{%- liquid
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign subheading = section.settings.subheading
+  assign heading = section.settings.heading | strip_html | escape
+  assign heading_arr = ''
+  assign heading_arr_size = 0
+  assign animation_anchor = '#TextProducts--' | append: section.id
+  assign items_code = ''
+  assign items_index = ''
+  assign items_code_after_text = ''
+  assign empty_space = ' '
+  assign arr_separator = ','
+  assign prev_placeholder = '####'
+  assign next_placeholder = '@@@@'
+  assign sort_placeholder = '<div data-sort="'
+
+  if heading != blank
+    assign heading_arr = heading | split: ' '
+    assign heading_arr_size = heading_arr.size
+  endif
+-%}
+
+{%- style -%}
+  #TextProducts--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    --text-products-font-size-desktop: {{ section.settings.text_font_size_px_desktop }}px;
+    --text-products-font-size-mobile: {{ section.settings.text_font_size_px_mobile }}px;
+  }
+{%- endstyle -%}
+
+{%- if section.blocks.size > 0 -%}
+  {%- for block in section.blocks -%}
+    {%- liquid
+      assign width = block.settings.width
+      assign mobile_width = block.settings.mobile_width
+      assign image = block.settings.image
+      assign image_position = block.settings.image_position
+      assign aspect_ratio = block.settings.aspect_ratio
+      assign aspect_ratio = 1 | divided_by: aspect_ratio
+      assign aspect_ratio_mobile = block.settings.mobile_aspect_ratio
+      assign aspect_ratio_mobile = 1 | divided_by: aspect_ratio_mobile
+      assign items_index = items_index | append: arr_separator | append: image_position
+      assign link = block.settings.link
+
+      if block.settings.product != blank
+        assign product = all_products[block.settings.product]
+        assign image = image | default: product.featured_image
+        assign link = product.url
+      endif
+
+      if block.settings.collection != blank
+        assign collection = collections[block.settings.collection]
+        assign image = image | default: collection.image
+        assign link = collection.url
+      endif
+    -%}
+
+    {%- capture block_code -%}
+      {%- liquid
+        assign image_width = width | at_least: mobile_width
+        assign image_width_retina = image_width | times: 2
+        assign image_width_mobile_retina = mobile_width | times: 2
+        assign image_sizes = image_width | append: 'px'
+        capture image_widths
+          echo image_width
+          echo ', '
+          echo image_width_retina
+          echo ', '
+          echo mobile_width
+          echo ', '
+          echo image_width_mobile_retina
+        endcapture
+          -%}
+
+      <div data-sort="{{ image_position }}"
+        class="inline-image"
+        style="--image-width: {{ width }}px; --image-width-mobile: {{ mobile_width }}px;"
+        data-aos="zoom-in"
+        data-aos-duration="1000"
+        {{ block.shopify_attributes }}>
+        {%- if link != blank -%}
+          <a href="{{ link }}" class="inline-image__link">
+        {%- endif -%}
+
+        <div class="inline-image__inner">
+          {%- liquid
+            assign class_default = 'inline-image__image'
+            assign class_desktop = class_default
+            assign class_mobile = class_default
+
+            if aspect_ratio != aspect_ratio_mobile
+              assign class_desktop = class_desktop | append: ' desktop'
+              assign class_mobile = class_mobile | append: ' mobile'
+            endif
+
+            if image
+              render 'image' image: image, width: image_width_retina, sizes: image_sizes, widths: image_widths, aspect_ratio: aspect_ratio, modifier: class_desktop
+
+              if aspect_ratio != aspect_ratio_mobile
+                render 'image' image: image, width: image_width_retina, sizes: image_sizes, widths: image_widths, aspect_ratio: aspect_ratio_mobile, modifier: class_mobile
+              endif
+            else
+              render 'image' placeholder: 'image', aspect_ratio: aspect_ratio, modifier: class_desktop
+
+              if aspect_ratio != aspect_ratio_mobile
+                render 'image' placeholder: 'image', aspect_ratio: aspect_ratio_mobile, modifier: class_mobile
+              endif
+            endif
+          -%}
+        </div>
+
+        {%- if link != blank -%}
+          </a>
+        {%- endif -%}
+      </div>
+    {%- endcapture -%}
+
+    {%- liquid
+      if block_code != blank
+        if image_position > heading_arr_size
+          capture items_code_after_text
+            echo items_code_after_text
+            echo empty_space
+            echo block_code
+          endcapture
+        else
+          capture items_code
+            echo items_code
+            echo prev_placeholder
+            echo image_position
+            echo next_placeholder
+            echo block_code
+          endcapture
+        endif
+      endif
+    -%}
+  {%- endfor -%}
+{%- endif -%}
+
+<section
+  id="TextProducts--{{ section.id }}"
+  class="index-text-products section-padding {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+>
+  <div class="{{ section.settings.width }} {{ section.settings.text_align_desktop }} {{ section.settings.text_align_mobile }}">
+    {%- if subheading != blank -%}
+      <div
+        class="subheading"
+        data-aos="hero"
+        data-aos-anchor="{{ animation_anchor }}"
+      >
+        {{ subheading }}
+      </div>
+    {%- endif -%}
+
+    {%- if heading_arr_size > 0 or items_code_after_text != '' -%}
+      <div
+        class="h2 text-products__heading"
+        data-aos="hero"
+        data-aos-anchor="{{ animation_anchor }}"
+      >
+        {%- liquid
+          if heading_arr_size > 0 and items_code != ''
+            assign items_index_arr = items_index | remove_first: arr_separator | split: arr_separator
+
+            for heading_word in heading_arr
+              assign heading_index_string = forloop.index | append: ''
+              assign code_after_word = ''
+
+              unless forloop.first
+                echo empty_space
+              endunless
+
+              echo heading_word
+
+              if items_index_arr contains heading_index_string
+                assign word_check = forloop.index | prepend: prev_placeholder | append: next_placeholder
+                assign items_code_arr = items_code | split: word_check
+                assign item_code = items_code_arr | last | split: prev_placeholder | first
+
+                if items_code_arr.size > 2
+                  for item_code_multiple in items_code_arr
+                    assign item_code_multiple_element = item_code_multiple | split: prev_placeholder | first
+                    assign code_after_word = code_after_word | append: empty_space | append: item_code_multiple_element
+                  endfor
+                else
+                  assign code_after_word = item_code
+                endif
+
+                if code_after_word != ''
+                  echo empty_space
+                  echo code_after_word | strip
+                endif
+              endif
+            endfor
+          elsif heading_arr_size > 0
+            echo heading
+          endif
+
+          if items_code_after_text != ''
+            if heading_arr_size > 0
+              echo empty_space
+            endif
+
+            echo items_code_after_text | split: sort_placeholder | sort | join: sort_placeholder | strip
+          endif
+        -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Text with products",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Highlight products, a collection or images alongside a brand message"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper",
+      "options": [
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Normal"},
+        {"value": "wrapper--narrow", "label": "Narrow"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Desktop"
+    },
+    {
+      "type": "range",
+      "id": "text_font_size_px_desktop",
+      "label": "Text size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "select",
+      "id": "text_align_desktop",
+      "label": "Text alignment",
+      "default": "text-left",
+      "options": [
+        {"value": "text-left", "label": "Left"},
+        {"value": "text-center", "label": "Centered"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "range",
+      "id": "text_font_size_px_mobile",
+      "label": "Text size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "text_align_mobile",
+      "label": "Text alignment",
+      "default": "text-left--mobile",
+      "options": [
+        {"value": "text-left--mobile", "label": "Left"},
+        {"value": "text-center--mobile", "label": "Centered"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 32
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "label": "Collection",
+          "id": "collection",
+          "type": "collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Overrides default collection image. 600 x 600px recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "range",
+          "id": "image_position",
+          "min": 1,
+          "max": 30,
+          "step": 1,
+          "label": "Image position",
+          "default": 1,
+          "info": "Each image will appear within the text. To place an image after the 3rd word, choose 3."
+        },
+        {
+          "type": "header",
+          "content": "Desktop"
+        },
+        {
+          "type": "range",
+          "id": "aspect_ratio",
+          "min": 0.5,
+          "max": 1.5,
+          "step": 0.1,
+          "unit": ":1",
+          "label": "Image aspect ratio",
+          "info": "Wide to tall",
+          "default": 1
+        },
+        {
+          "type": "range",
+          "id": "width",
+          "label": "Width",
+          "unit": "px",
+          "min": 30,
+          "max": 300,
+          "step": 10,
+          "default": 80
+        },
+        {
+          "type": "header",
+          "content": "Mobile"
+        },
+        {
+          "type": "range",
+          "id": "mobile_aspect_ratio",
+          "min": 0.5,
+          "max": 1.5,
+          "step": 0.1,
+          "unit": ":1",
+          "label": "Image aspect ratio",
+          "info": "Wide to tall",
+          "default": 1
+        },
+        {
+          "type": "range",
+          "id": "mobile_width",
+          "label": "Width",
+          "unit": "px",
+          "min": 20,
+          "max": 200,
+          "step": 10,
+          "default": 60
+        }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "label": "Product",
+          "id": "product",
+          "type": "product"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Overrides default collection image. 600 x 600px recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "range",
+          "id": "image_position",
+          "min": 1,
+          "max": 30,
+          "step": 1,
+          "label": "Image position",
+          "default": 1,
+          "info": "Each image will appear within the text. To place an image after the 3rd word, choose 3."
+        },
+        {
+          "type": "header",
+          "content": "Desktop"
+        },
+        {
+          "type": "range",
+          "id": "aspect_ratio",
+          "min": 0.5,
+          "max": 1.5,
+          "step": 0.1,
+          "unit": ":1",
+          "label": "Image aspect ratio",
+          "info": "Wide to tall",
+          "default": 1
+        },
+        {
+          "type": "range",
+          "id": "width",
+          "label": "Width",
+          "unit": "px",
+          "min": 30,
+          "max": 300,
+          "step": 10,
+          "default": 80
+        },
+        {
+          "type": "header",
+          "content": "Mobile"
+        },
+        {
+          "type": "range",
+          "id": "mobile_aspect_ratio",
+          "min": 0.5,
+          "max": 1.5,
+          "step": 0.1,
+          "unit": ":1",
+          "label": "Image aspect ratio",
+          "info": "Wide to tall",
+          "default": 1
+        },
+        {
+          "type": "range",
+          "id": "mobile_width",
+          "label": "Width",
+          "unit": "px",
+          "min": 20,
+          "max": 200,
+          "step": 10,
+          "default": 60
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "600 x 600px recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "range",
+          "id": "image_position",
+          "min": 1,
+          "max": 30,
+          "step": 1,
+          "label": "Image position",
+          "default": 1,
+          "info": "Each image will appear within the text. To place an image after the 3rd word, choose 3."
+        },
+        {
+          "type": "header",
+          "content": "Desktop"
+        },
+        {
+          "type": "range",
+          "id": "aspect_ratio",
+          "min": 0.5,
+          "max": 1.5,
+          "step": 0.1,
+          "unit": ":1",
+          "label": "Image aspect ratio",
+          "info": "Wide to tall",
+          "default": 1
+        },
+        {
+          "type": "range",
+          "id": "width",
+          "label": "Width",
+          "unit": "px",
+          "min": 30,
+          "max": 300,
+          "step": 10,
+          "default": 80
+        },
+        {
+          "type": "header",
+          "content": "Mobile"
+        },
+        {
+          "type": "range",
+          "id": "mobile_aspect_ratio",
+          "min": 0.5,
+          "max": 1.5,
+          "step": 0.1,
+          "unit": ":1",
+          "label": "Image aspect ratio",
+          "info": "Wide to tall",
+          "default": 1
+        },
+        {
+          "type": "range",
+          "id": "mobile_width",
+          "label": "Width",
+          "unit": "px",
+          "min": 20,
+          "max": 200,
+          "step": 10,
+          "default": 60
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text with products",
+      "blocks": [
+        {
+          "type": "product",
+          "settings": {
+            "image_position": 1
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "image_position": 5
+          }
+        },
+        {
+          "type": "collection",
+          "settings": {
+            "image_position": 7
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

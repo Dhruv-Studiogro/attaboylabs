@@ -1,0 +1,97 @@
+{% comment %}
+    Renders Shipping calculator on Cart page and Cart drawer
+
+    Accepts:
+    - block: {Object} Block object (required)
+
+    Usage:
+    {% render 'cart-block-shipping-calculator', block: block %}
+{% endcomment %}
+
+<details class="cart__widget accordion js" data-collapsible>
+  <summary class="cart__widget__title" data-collapsible-trigger>
+    {{- 'cart.general.estimate_shipping_label' | t -}}
+
+    {%- render 'icon-plus' -%}
+    {%- render 'icon-minus' -%}
+  </summary>
+
+  <div class="cart__widget__content" data-collapsible-body>
+    <div class="cart__widget__content__inner" data-collapsible-content>
+      {% assign calculate_shipping_btn = 'cart.shipping_calculator.calculate_shipping' | t %}
+
+      <shipping-calculator>
+        <div id="shipping-calculator" class="shipping-calculator">
+          <div class="shipping-calculator__container" id="address_container">
+            <div class="is-hidden">
+              <label for="AddressFirstName">{{ 'customer.addresses.first_name' | t }}</label>
+              <input type="text" id="AddressFirstName" name="address[first_name]" value="{{ form.first_name }}">
+            </div>
+
+            <div class="is-hidden">
+              <label for="AddressLastName">{{ 'customer.addresses.last_name' | t }}</label>
+              <input type="text" id="AddressLastName" name="address[last_name]" value="{{ form.last_name }}">
+            </div>
+
+            <div class="is-hidden">
+              <label for="AddressCompany">{{ 'customer.addresses.company' | t }}</label>
+              <input type="text" id="AddressCompany" name="address[company]" value="{{ form.company }}">
+            </div>
+
+            <div class="is-hidden">
+              <label for="AddressAddress1">{{ 'customer.addresses.address1' | t }}</label>
+              <input type="text" id="AddressAddress1" name="address[address1]" value="{{ form.address1 }}">
+            </div>
+
+            <div class="is-hidden">
+              <label for="AddressAddress2">{{ 'customer.addresses.address2' | t }}</label>
+              <input type="text" id="AddressAddress2" name="address[address2]" value="{{ form.address2 }}">
+            </div>
+
+            <div class="is-hidden">
+              <label for="AddressCity">{{ 'customer.addresses.city' | t }}</label>
+              <input type="text" id="AddressCity" name="address[city]" value="{{ form.city }}">
+            </div>
+
+            <div class="p">
+              <label for="address_country">{{ 'customer.addresses.country' | t }}</label>
+              <select id="address_country" name="address[country]" class="cart__field" {% if shop.customer_accounts_enabled and customer %}data-default="{{ customer.default_address.country_code }}" data-default-fullname="{{ customer.default_address.country }}"{% elsif default_country != '' %}data-default="{{ default_country.iso_code }}" data-default-fullname="{{ default_country }}"{% endif %}></select>
+            </div>
+
+            <div id="address_province_container"  class="p shipping-calculator__province">
+              <label for="address_province" id="address_province_label">{{ 'customer.addresses.province' | t }}</label>
+              <select id="address_province" class="address_form cart__field" name="address[province]" {% if shop.customer_accounts_enabled and customer and customer.default_address.province != '' %}data-default="{{ customer.default_address.province_code }}" data-default-fullname="{{ customer.default_address.province }}"{% endif %}></select>
+            </div>
+
+            <div class="p">
+              <label for="address_zip">{{ 'customer.addresses.zip' | t }}</label>
+              <input type="text" id="address_zip" class="cart__field" name="address[zip]"{% if shop.customer_accounts_enabled and customer %} value="{{ customer.default_address.zip }}"{% endif %}>
+            </div>
+
+            <div class="is-hidden">
+              <label for="AddressPhone">{{ 'customer.addresses.phone' | t }}</label>
+              <input type="tel" id="AddressPhone" name="address[phone]" value="{{ form.phone }}">
+            </div>
+          </div>
+
+          <div id="wrapper-response" class="fade-toggle"></div>
+
+          <button type="button" class="get-rates{% if cart.item_count > 0 %} get-rates--trigger{% endif %} btn btn--outline btn--primary btn--full">{{ calculate_shipping_btn }}</button>
+        </div>
+
+        <script id="shipping-calculator-response-template" type="text/template">
+          <p id="shipping-rates-feedback" class="{% raw %}||successClass||{% endraw %}" data-template-no-shipping="{{ 'cart.shipping_calculator.no_shipping_available' | t }}">
+            {% raw %}||ratesText||{% endraw %}
+          </p>
+
+          <ul id="shipping-rates">
+            [<li><span>{% raw %}||rateName||{% endraw %}</span> <span>{% raw %}||ratePrice||{% endraw %}</span></li>]
+            {% raw %}||ratesList||{% endraw %}
+          </ul>
+        </script>
+      </shipping-calculator>
+
+      <script src="{{ 'shipping-calculator.js' | asset_url }}" defer="defer"></script>
+    </div>
+  </div>
+</details>

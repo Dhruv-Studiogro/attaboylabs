@@ -1,0 +1,77 @@
+/*================ Design mode ================*/
+html.iframe .timeline__row__editor {
+  --row-count: 0;
+  --row-height-min: 0px;
+  --row-height: max(var(--row-height-min), var(--height));
+
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  width: 100%;
+  height: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+html.iframe .shopify-section.hidden,
+html.iframe .countdown-block.hidden {
+  display: flex !important;
+  visibility: unset;
+  opacity: .35;
+}
+html.iframe .countdown-block.hidden .section-countdown { width: 100%; }
+
+html.iframe .drawer-editor-error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--inner);
+  z-index: auto;
+  backdrop-filter: blur(5px);
+}
+html.iframe .drawer-editor-error:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--COLOR-BG);
+  opacity: .5;
+  z-index: -1;
+}
+
+html.iframe .drawer--duplicate .drawer__head {
+  order: -1;
+  background: transparent;
+}
+
+@media screen and (min-width: 750px) {
+  html.iframe .timeline__row__editor {
+    top: calc(var(--row-count) * var(--row-height) + 1px);
+    height: var(--row-height);
+  }
+}
+
+/*================ Preview mode ================*/
+.preview-mode .popup-promo {
+  position: relative;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: 0 auto;
+}
+
+.preview-mode .modal__overlay--newsletter {
+  position: relative;
+  display: flex;
+  max-width: 100%;
+}

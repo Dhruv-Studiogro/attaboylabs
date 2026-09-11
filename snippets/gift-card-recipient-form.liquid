@@ -1,0 +1,134 @@
+{% comment %}
+  Renders gift card recipient form.
+  Accepts:
+  - product: {Object} product object.
+  - form: {Object} the product form object.
+  - section: {Object} section to which this snippet belongs.
+  Usage:
+  {% render 'gift-card-recipient-form', product: product, form: form, section: section %}
+{% endcomment %}
+
+<script src="{{ 'recipient-form.js' | asset_url }}" defer="defer"></script>
+
+<div class="customer">
+  {%- assign gift_card_recipient_control_flag = 'properties[__shopify_send_gift_card_to_recipient]' -%}
+  <recipient-form
+    class="recipient-form checkbox"
+    data-section-id-form="{{ section.id }}"
+    data-product-variant-id="{{ product.selected_or_first_available_variant.id }}"
+  >
+    <input
+      id="Recipient-Checkbox-{{ section.id }}-{{ product.id }}"
+      type="checkbox"
+      name="{{ gift_card_recipient_control_flag }}"
+    >
+    <label class="recipient-checkbox radio__fieldset__label" for="Recipient-Checkbox-{{ section.id }}-{{ product.id }}">
+      <span>{{ 'recipient.form.checkbox' | t }}</span>
+    </label>
+
+    <div class="recipient-fields">
+      <div class="recipient-fields__field">
+        <div class="field select__fieldset">
+          <label class="field__label select__label" for="Recipient-email-{{ section.id }}">
+            <span class="recipient-email-label required">{{ 'recipient.form.email_label' | t }}</span>
+          </label>
+
+          <input
+            class="field__input properties__input"
+            id="Recipient-email-{{ section.id }}"
+            type="email"
+            placeholder="{{ 'recipient.form.email' | t }}"
+            name="properties[Recipient email]"
+            {% if product_form_id %} form="{{ product_form_id }}"{% endif %}
+          >
+        </div>
+      </div>
+
+      <div class="recipient-fields__field">
+        <div class="field select__fieldset">
+          <label class="field__label select__label" for="Recipient-name-{{ section.id }}">
+            {{- 'recipient.form.name_label' | t -}}
+          </label>
+
+          <input
+            class="field__input properties__input"
+            autocomplete="name"
+            type="text"
+            id="Recipient-name-{{ section.id }}"
+            name="properties[Recipient name]"
+            placeholder="{{ 'recipient.form.name' | t }}"
+            {% if product_form_id %} form="{{ product_form_id }}"{% endif %}
+          >
+        </div>
+      </div>
+
+      <div class="recipient-fields__field">
+        {%- assign max_chars_message = 200 -%}
+        {%- assign max_chars_message_rendered = 'recipient.form.max_characters' | t: max_chars: max_chars_message -%}
+        {%- assign message_label_rendered = 'recipient.form.message_label' | t -%}
+        <div class="field select__fieldset">
+          <label class="form__label field__label select__label select__label--textarea" for="Recipient-message-{{ section.id }}">
+            {{ message_label_rendered }}
+          </label>
+
+          <textarea
+            rows="10"
+            id="Recipient-message-{{ section.id }}"
+            class="text-area field__input properties__input"
+            name="properties[Message]"
+            maxlength="{{ max_chars_message }}"
+            placeholder="{{ 'recipient.form.message' | t }}"
+            aria-label="{{ message_label_rendered }} {{ max_chars_message_rendered }}"
+            {% if product_form_id %} form="{{ product_form_id }}"{% endif %}
+          ></textarea>
+        </div>
+
+        <label class="form__label recipient-form-field-label recipient-form-field-label--space-between">
+          <small>{{ max_chars_message_rendered }}</small>
+        </label>
+      </div>
+
+      <div class="recipient-fields__field">
+        <div class="field select__fieldset">
+          {%- assign current_date = "now" | date: "%Y-%m-%d" -%}
+          {%- assign days = 90 -%}
+          {%- assign days_in_seconds = days | times: 24 | times: 60 | times: 60 -%}
+          {%- assign current_date_timestamp = "now" | date: '%s' -%}
+          {%- assign end_date = current_date_timestamp | plus: days_in_seconds | date: "%Y-%m-%d" -%}
+
+          <label class="form__label field__label select__label" for="Recipient-send_on-{{ section.id }}">
+            {{ 'recipient.form.send_on_label' | t }}
+          </label>
+
+          <input
+            class="field__input properties__input text-body"
+            autocomplete="send_on"
+            type="date"
+            id="Recipient-send_on-{{ section.id }}"
+            name="properties[Send on]"
+            placeholder="{{ 'recipient.form.send_on' | t }}"
+            pattern="\d{4}-\d{2}-\d{2}"
+            min="{{ current_date }}"
+            max="{{ end_date }}"
+            {% if product_form_id %} form="{{ product_form_id }}"{% endif %}
+          >
+        </div>
+      </div>
+    </div>
+    <input
+      type="hidden"
+      name="{{ gift_card_recipient_control_flag }}"
+      value="if_present"
+      id="Recipient-Control-{{ section.id }}"
+      {% if product_form_id %} form="{{ product_form_id }}"{% endif %}
+    >
+    <input
+      type="hidden"
+      name="properties[__shopify_offset]"
+      value=""
+      id="Recipient-Offset-{{ section.id }}"
+      disabled
+      {% if product_form_id %} form="{{ product_form_id }}"{% endif %}
+    >
+  </recipient-form>
+</div>

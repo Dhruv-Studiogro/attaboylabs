@@ -1,0 +1,233 @@
+<!-- /sections/section-product.liquid -->
+{%- liquid
+  assign product = all_products[section.settings.product]
+  assign unique = section.id
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign limit = section.settings.limit
+  assign featured_image = section.settings.image
+  assign featured_image_mobile = section.settings.image_mobile
+  assign product_images = product.media | where: 'media_type', 'image'
+  assign product_images_count = product_images.size | at_most: limit
+  assign offset = 1
+  if product_images_count < 2
+    assign offset = 0
+  endif
+
+  if product == blank
+    assign product_images_count = limit
+  endif
+
+  capture grid_item_sizes
+    echo '(min-width: 750px) 25vw, calc(100vw - 32px)'
+  endcapture
+
+  capture product_images_sizes
+    echo '(min-width: 990px) calc(50vw - 200px), (min-width: 750px) calc(50vw - 100px), calc(100vw - 100px)'
+  endcapture
+-%}
+
+<script src="{{ 'featured-product.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  {%- if request.visual_preview_mode -%}
+    .featured-product__body { min-height: initial; }
+    .featured-product__content { margin: auto; }
+    .featured-product__image:not(:first-child) { display: none; }
+  {%- endif -%}
+{%- endstyle -%}
+
+<featured-product
+  id="Product--{{ unique }}"
+  class="featured-product featured-product--{{ section.settings.scrolling_styles }} {% if section.settings.horizontal_scroll %} featured-product--full-width{% endif %} {{ section.settings.layout }} {{ color_scheme }}"
+  {% if section.settings.scrolling_styles == 'horizontal' %}
+    data-horizontal-scroll
+  {% endif %}
+  {% if section.settings.scrolling_styles == 'horizontal' and section.settings.layout == 'is-reversed' %}
+    data-horizontal-scroll-reversed
+  {% endif %}
+  data-section-id="{{ unique }}"
+  data-section-type="featured-product"
+>
+  <div class="featured-product__body" data-featured-wrapper>
+    {%- if featured_image_mobile != blank -%}
+      <div class="featured-product__bg mobile">
+        {%- render 'image',
+          image: featured_image_mobile,
+          widths: '365, 550, 730, 1100, 1460, 1640, 1920, 2200',
+          sizes: '100vw',
+          cover: true
+        -%}
+      </div>
+    {%- endif -%}
+
+    <div class="featured-product__content" data-featured-content>
+      <div class="featured-product__card">
+        {%- if product != blank -%}
+          {%- render 'product-grid-item',
+            product: product,
+            index: forloop.index,
+            show_product_card: section.settings.show_product_card,
+            sizes: grid_item_sizes
+          -%}
+        {%- else -%}
+          {%- render 'onboarding-product-grid-item',
+            show_product_card: section.settings.show_product_card,
+            index: forloop.index
+          -%}
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div
+      class="featured-product__aside{% if featured_image != blank %} featured-product__aside--bg{% endif %}"
+      {% if product_images_count > 1 %}
+        style="--images-count: {{ product_images_count }};"
+      {% endif %}
+      data-featured-aside
+    >
+      {%- if featured_image != blank -%}
+        <div class="featured-product__bg desktop">
+          {%- render 'image',
+            image: featured_image,
+            widths: '365, 550, 730, 1100, 1460, 1640, 1920, 2200',
+            sizes: '(min-width: 750px) 50vw, 100vw',
+            cover: true
+          -%}
+        </div>
+      {%- endif -%}
+
+      <div class="featured-product__inner">
+        <div class="featured-product__images" data-featured-images>
+          {%- if product != blank -%}
+            {%- for image in product_images offset: offset limit: limit -%}
+              <div class="featured-product__image" data-featured-image>
+                {%- render 'image', image: image, sizes: product_images_sizes -%}
+              </div>
+            {%- endfor -%}
+          {%- else -%}
+            {%- for index in (1..limit) -%}
+              <div class="featured-product__image" data-featured-image>
+                {%- assign placeholder = 'product-' | append: index -%}
+                {%- render 'image', placeholder: placeholder -%}
+              </div>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</featured-product>
+
+{% schema %}
+{
+  "name": "Featured product",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_card",
+      "label": "Show product card",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "default": "",
+      "options": [
+        {"value": "", "label": "Product left, image right"},
+        {"value": "is-reversed", "label": "Image left, product right"}
+      ]
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Images limit",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Desktop"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Background image",
+      "info": "2000 x 1400px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "select",
+      "id": "scrolling_styles",
+      "label": "Scrolling styles",
+      "options": [
+        {
+          "value": "vertical",
+          "label": "Vertical"
+        },
+        {
+          "value": "horizontal",
+          "label": "Horizontal"
+        }
+      ],
+      "default": "vertical"
+    },
+    {
+      "type": "header",
+      "content": "Horizontal"
+    },
+    {
+      "type": "paragraph",
+      "content": "Applies only if scrolling styles are set to horizontal and no background image is used"
+    },
+    {
+      "type": "checkbox",
+      "id": "horizontal_scroll",
+      "label": "Full-width scroll",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Background image",
+      "info": "1200 x 1600px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured product"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "custom.pre_footer", "footer"]
+  }
+}
+{% endschema %}

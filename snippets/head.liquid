@@ -1,0 +1,770 @@
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+{%- liquid
+  assign selected_color_scheme = settings.color_scheme | strip
+  assign scheme_accent = settings.color_schemes[selected_color_scheme].settings.accent
+-%}
+
+<meta name="theme-color" content="{{ scheme_accent }}">
+<link rel="canonical" href="{{ canonical_url }}">
+
+<!-- ======================= Broadcast Theme V6.1.0 ========================= -->
+
+{% if settings.favicon %}
+  <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+{% endif %}
+
+{%- unless settings.type_header_font.system?
+  and settings.type_base_font.system?
+  and settings.type_nav_font.system?
+  and settings.type_btn_font.system?
+  and settings.type_subheading_font.system?
+-%}
+  <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+{%- endunless -%}
+
+<!-- Title and description ================================================ -->
+{% capture seo_title %}
+    {% assign title_content = page_title %}
+    {% if template == 'password' %}
+      {% assign title_content = shop.name %}
+    {%- endif -%}
+    {{ title_content }}
+    {% if current_tags %}
+      {%- assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags -}}
+    {% endif %}
+    {% if current_page != 1 %}
+      &ndash; {{ 'general.meta.page' | t: page: current_page }}
+    {% endif %}
+    {% unless page_title contains shop.name %}
+      &ndash; {{ shop.name }}
+    {% endunless %}
+  {% endcapture %}
+
+<title>{{ seo_title }}</title>
+
+{% if page_description %}
+  <meta name="description" content="{{ page_description | escape }}">
+{% else %}
+  <meta name="description" content="{{ shop.description | escape }}">
+{% endif %}
+
+{% render 'social-meta' %}
+
+{%- if settings.loading_image_1 != blank or settings.loading_image_2 != blank -%}
+  {%- style -%}
+    .loading { position: fixed; top: 0; left: 0; z-index: 99999; width: 100%; height: 100%; background: var(--bg); transition: opacity 0.2s ease-out, visibility 0.2s ease-out; }
+    body.is-loaded .loading { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loading__image__holder { position: absolute; top: 0; left: 0; width: 100%; height: 100%; font-size: 0; display: flex; align-items: center; justify-content: center; }
+    .loading__image__holder:nth-child(2) { opacity: 0; }
+    .loading__image { max-width: {{ settings.loading_image_width }}px; max-height: {{ settings.loading_image_width }}px; object-fit: contain; }
+    .loading--animate .loading__image__holder:nth-child(1) { animation: pulse1 2s infinite ease-in-out; }
+    .loading--animate .loading__image__holder:nth-child(2) { animation: pulse2 2s infinite ease-in-out; }
+    @keyframes pulse1 {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes pulse2 {
+      0% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- liquid
+  assign heading_font = settings.type_header_font
+  assign subheading_font = settings.type_subheading_font
+  assign base_font = settings.type_base_font
+  assign nav_font = settings.type_nav_font
+  assign btn_font = settings.type_btn_font
+
+  assign base_font_bold = base_font | font_modify: 'weight', 'bolder'
+  assign base_font_100 = base_font | font_modify: 'weight', '+100'
+  assign base_font_200 = base_font | font_modify: 'weight', '+200'
+  assign base_font_300 = base_font | font_modify: 'weight', '+300'
+  assign base_font_400 = base_font | font_modify: 'weight', '+400'
+  if base_font_100 and base_font_100.weight > base_font.weight
+    assign base_font_bold = base_font_100
+  elsif base_font_200 and base_font_200.weight > base_font.weight
+    assign base_font_bold = base_font_200
+  elsif base_font_300 and base_font_300.weight > base_font.weight
+    assign base_font_bold = base_font_300
+  elsif base_font_400 and base_font_400.weight > base_font.weight
+    assign base_font_bold = base_font_400
+  endif
+
+  assign base_font_italic = settings.type_base_font | font_modify: 'style', 'italic'
+  assign base_font_bold_italic = base_font_bold | font_modify: 'style', 'italic'
+
+  assign nav_font_bold = nav_font | font_modify: 'weight', 'bolder'
+  assign nav_font_100 = nav_font | font_modify: 'weight', '+100'
+  assign nav_font_200 = nav_font | font_modify: 'weight', '+200'
+  assign nav_font_300 = nav_font | font_modify: 'weight', '+300'
+  assign nav_font_400 = nav_font | font_modify: 'weight', '+400'
+  if nav_font_100 and nav_font_100.weight > nav_font.weight
+    assign nav_font_bold = nav_font_100
+  elsif nav_font_200 and nav_font_200.weight > nav_font.weight
+    assign nav_font_bold = nav_font_200
+  elsif nav_font_300 and nav_font_300.weight > nav_font.weight
+    assign nav_font_bold = nav_font_300
+  elsif nav_font_400 and nav_font_400.weight > nav_font.weight
+    assign nav_font_bold = nav_font_400
+  endif
+
+  assign heading_font_uppercase = 'none'
+  if settings.type_header_uppercase
+    assign heading_font_uppercase = 'uppercase'
+  endif
+
+  assign subheading_font_uppercase = 'none'
+  if settings.type_sub_uppercase
+    assign subheading_font_uppercase = 'uppercase'
+  endif
+
+  case settings.swatch_size
+    when 'regular'
+      assign swatch_size_filters = '1.15'
+      assign swatch_size_product = '2.2'
+    when 'large'
+      assign swatch_size_filters = '1.5'
+      assign swatch_size_product = '3.0'
+  endcase
+
+  assign backdrop_bg = 'rgba(0,0,0,0.4)'
+  assign backdrop_opacity = 1
+
+  assign white = '#ffffff'
+  assign black = '#000000'
+-%}
+
+<!-- CSS ================================================================== -->
+{% style %}
+  {{ heading_font | font_face: font_display: 'swap' }}
+  {{ base_font | font_face: font_display: 'swap' }}
+  {{ nav_font | font_face: font_display: 'swap' }}
+  {{ btn_font | font_face: font_display: 'swap' }}
+  {{ subheading_font | font_face: font_display: 'swap' }}
+
+  {% if base_font_bold %}
+    {{ base_font_bold | font_face: font_display: 'swap' }}
+  {% endif %}
+
+  {% if base_font_italic %}
+    {{ base_font_italic | font_face: font_display: 'swap' }}
+  {% endif %}
+
+  {% if base_font_bold_italic %}
+    {{ base_font_bold_italic | font_face: font_display: 'swap' }}
+  {% endif %}
+
+  {% if nav_font_bold %}
+    {{ nav_font_bold | font_face: font_display: 'swap' }}
+  {% endif %}
+
+  {% comment %}
+    This is where CSS Variables are set with values from your theme settings.
+    These values are created in settings_schema.json and stored in settings_data.json.
+    CSS variables are used to remove liquid code from your CSS file, allowing CSS to load faster.
+
+
+    #Colors
+    --STATIC vars have uppercase letters
+    --dynamic vars have lowercase letters
+
+    A static var is set in theme settings and doesn't change in any context
+    A dynamic var is context dependent and can be overwritten by its wrapper
+
+    This file is primarily concerned with setting the values of dynamic color
+    variables depending on which container the text or background is inside.
+  {% endcomment %}
+
+  {% for scheme in settings.color_schemes -%}
+    {% assign scheme_classes = scheme_classes | append: ', .color-' | append: scheme.id %}
+    {% if scheme == settings.color_scheme -%}
+      :root,
+    {%- endif %}
+    .color-{{ scheme.id }} {
+      {%- liquid
+        assign hover_opacity = 0.70
+
+        assign link_opposite = '#ffffff'
+        assign contrast_limit = 2
+        assign contrast_white = scheme.settings.links | color_contrast: white
+        assign contrast_black = scheme.settings.links | color_contrast: black
+        if contrast_white < contrast_limit and contrast_black > contrast_white
+          assign link_opposite = '#000000'
+        endif
+      -%}
+
+      --COLOR-BG-GRADIENT: {{ scheme.settings.section_bg_gradient | default: scheme.settings.section_bg }};
+      --COLOR-BG: {{ scheme.settings.section_bg }};
+      --COLOR-BG-RGB: {{ scheme.settings.section_bg | color_extract: 'red' }}, {{ scheme.settings.section_bg | color_extract: 'green' }}, {{ scheme.settings.section_bg | color_extract: 'blue' }};
+
+      --COLOR-BG-ACCENT: {{ scheme.settings.section_bg_light }};
+      --COLOR-BG-ACCENT-LIGHTEN: {{ scheme.settings.section_bg_light | color_lighten: 15 }};
+
+      /* === Link Color ===*/
+
+      --COLOR-LINK: {{ scheme.settings.links }};
+      --COLOR-LINK-HOVER: {{ scheme.settings.links | color_modify: 'alpha', hover_opacity }};
+      --COLOR-LINK-OPPOSITE: {{ link_opposite }};
+
+      --COLOR-TEXT: {{ scheme.settings.section_text }};
+      --COLOR-TEXT-HOVER: {{ scheme.settings.section_text | color_modify: 'alpha', hover_opacity }};
+      --COLOR-TEXT-LIGHT: {{ scheme.settings.section_text | color_mix: scheme.settings.section_bg, 70 }};
+      --COLOR-TEXT-DARK: {{ scheme.settings.section_text | color_saturate: 10 | color_darken: 15 }};
+      --COLOR-TEXT-A5:  {{ scheme.settings.section_text | color_modify: 'alpha', 0.05 }};
+      --COLOR-TEXT-A35: {{ scheme.settings.section_text | color_modify: 'alpha', 0.35 }};
+      --COLOR-TEXT-A50: {{ scheme.settings.section_text | color_modify: 'alpha', 0.50 }};
+      --COLOR-TEXT-A80: {{ scheme.settings.section_text | color_modify: 'alpha', 0.80 }};
+
+
+      --COLOR-BORDER: {{ scheme.settings.lines_and_border | color_to_rgb }};
+      --COLOR-BORDER-LIGHT: {{ scheme.settings.lines_and_border | color_mix: scheme.settings.section_bg, 60 }};
+      --COLOR-BORDER-DARK: {{ scheme.settings.lines_and_border | color_darken: 20 }};
+      --COLOR-BORDER-HAIRLINE: {{ scheme.settings.section_bg | color_darken: 3 }};
+
+      --overlay-bg: {{ scheme.settings.overlay }};
+
+      /* === Bright color ===*/
+      --COLOR-ACCENT: {{ scheme.settings.accent }};
+      --COLOR-ACCENT-HOVER: {{ scheme.settings.accent | color_saturate: 10 | color_darken: 15 }};
+      --COLOR-ACCENT-FADE: {{ scheme.settings.accent | color_modify: 'alpha', 0.05 }};
+      --COLOR-ACCENT-LIGHT: {{ scheme.settings.accent | color_saturate: 20 | color_lighten: 30 }};
+
+      /* === Default Cart Gradient ===*/
+
+      --FREE-SHIPPING-GRADIENT: linear-gradient(to right, var(--COLOR-ACCENT-LIGHT) 0%, var(--accent) 100%);
+
+      /* === Buttons ===*/
+      --BTN-PRIMARY-BG: {{ scheme.settings.btn_primary_bg }};
+      --BTN-PRIMARY-TEXT: {{ scheme.settings.btn_primary_text }};
+      --BTN-PRIMARY-BORDER: {{ scheme.settings.btn_primary_border }};
+
+      {% assign btn_primary_brightness = scheme.settings.btn_primary_bg | color_brightness %}
+      {% if btn_primary_brightness <= 65 %}
+        --BTN-PRIMARY-BG-BRIGHTER: {{ scheme.settings.btn_primary_bg | color_lighten: 10 }};
+      {% else %}
+        --BTN-PRIMARY-BG-BRIGHTER: {{ scheme.settings.btn_primary_bg | color_darken: 5 }};
+      {% endif %}
+
+      --BTN-SECONDARY-BG: {{ scheme.settings.btn_secondary_bg }};
+      --BTN-SECONDARY-TEXT: {{ scheme.settings.btn_secondary_text }};
+      --BTN-SECONDARY-BORDER: {{ scheme.settings.btn_secondary_border }};
+
+      {% assign btn_secondary_brightness = scheme.settings.btn_secondary_bg | color_brightness %}
+      {% if btn_secondary_brightness <= 65 %}
+        --BTN-SECONDARY-BG-BRIGHTER: {{ scheme.settings.btn_secondary_bg | color_lighten: 10 }};
+      {% else %}
+        --BTN-SECONDARY-BG-BRIGHTER: {{ scheme.settings.btn_secondary_bg | color_darken: 5 }};
+      {% endif %}
+
+      {% comment %}
+        Create an appropriate poster background color
+        based on background color and brightness
+      {% endcomment %}
+      {%- assign color_body_bg = scheme.settings.section_bg -%}
+      {%- assign color_body_bg_brightness = color_body_bg | color_brightness -%}
+      {%- if color_body_bg_brightness <= 26 -%}
+        {%- assign color_bg_brighter = color_body_bg | color_lighten: 10 -%}
+      {%- elsif color_body_bg_brightness <= 65 -%}
+        {%- assign color_bg_brighter = color_body_bg | color_lighten: 5 -%}
+      {%- else -%}
+        {%- assign color_bg_brighter = color_body_bg | color_darken: 5 -%}
+      {%- endif -%}
+
+      --COLOR-BG-BRIGHTER: {{ color_bg_brighter }};
+
+      --COLOR-BG-ALPHA-25: {{ scheme.settings.section_bg | color_modify: 'alpha', 0.25 }};
+      --COLOR-BG-TRANSPARENT: {{ scheme.settings.section_bg | color_modify: 'alpha', 0 }};
+
+      {%- liquid
+        assign footer_bg_brightness = scheme.settings.section_bg | color_brightness
+        if footer_bg_brightness > 100
+          assign footer_bg_hairline = scheme.settings.section_bg | color_darken: 3
+        else
+          assign footer_bg_hairline = scheme.settings.section_bg | color_lighten: 3
+        endif
+      -%}
+
+      --COLOR-FOOTER-BG-HAIRLINE: {{ footer_bg_hairline }};
+
+      /* Dynamic color variables */
+      --accent: var(--COLOR-ACCENT);
+      --accent-fade: var(--COLOR-ACCENT-FADE);
+      --accent-hover: var(--COLOR-ACCENT-HOVER);
+      --border: var(--COLOR-BORDER);
+      --border-dark: var(--COLOR-BORDER-DARK);
+      --border-light: var(--COLOR-BORDER-LIGHT);
+      --border-hairline: var(--COLOR-BORDER-HAIRLINE);
+      --bg: var(--COLOR-BG-GRADIENT, var(--COLOR-BG));
+      --bg-accent: var(--COLOR-BG-ACCENT);
+      --bg-accent-lighten: var(--COLOR-BG-ACCENT-LIGHTEN);
+      --icons: var(--COLOR-TEXT);
+      --link: var(--COLOR-LINK);
+      --link-hover: var(--COLOR-LINK-HOVER);
+      --link-opposite: var(--COLOR-LINK-OPPOSITE);
+      --text: var(--COLOR-TEXT);
+      --text-dark: var(--COLOR-TEXT-DARK);
+      --text-light: var(--COLOR-TEXT-LIGHT);
+      --text-hover: var(--COLOR-TEXT-HOVER);
+      --text-a5: var(--COLOR-TEXT-A5);
+      --text-a35: var(--COLOR-TEXT-A35);
+      --text-a50: var(--COLOR-TEXT-A50);
+      --text-a80: var(--COLOR-TEXT-A80);
+    }
+  {% endfor %}
+
+  {{ scheme_classes | prepend: 'body' }} {
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  :root {
+    --scrollbar-width: 0px;
+
+    /* === Product grid sale tags ===*/
+    --COLOR-SALE-BG: {{ settings.sale_bg_color }};
+    --COLOR-SALE-TEXT: {{ settings.sale_text_color }};
+
+    /* === Product grid badges ===*/
+    --COLOR-BADGE-BG: {{ settings.badge_bg_color }};
+    --COLOR-BADGE-TEXT: {{ settings.badge_text_color }};
+
+    /* === Quick Add ===*/
+    --COLOR-QUICK-ADD-BG: {{ settings.quick_add_bg_color }};
+    --COLOR-QUICK-ADD-TEXT: {{ settings.quick_add_text_color }};
+
+    /* === Product sale color ===*/
+    --COLOR-SALE: {{ settings.sale_color }};
+
+    /* === Helper colors for form error states ===*/
+    --COLOR-ERROR: #721C24;
+    --COLOR-ERROR-BG: #F8D7DA;
+    --COLOR-ERROR-BORDER: #F5C6CB;
+
+    --COLOR-SUCCESS: #56AD6A;
+    --COLOR-SUCCESS-BG: rgba(86, 173, 106, 0.2);
+
+    {% if settings.btn_border_style == 'rounded' %}
+      --RADIUS: 3px;
+      --RADIUS-SELECT: 3px;
+    {% elsif settings.btn_border_style == 'pill' %}
+      --RADIUS: 300px;
+      --RADIUS-SELECT: 22px;
+    {% else %}
+      --RADIUS: 0px;
+      --RADIUS-SELECT: 0px;
+    {% endif %}
+
+    --COLOR-HEADER-LINK: {{ settings.header_link }};
+    --COLOR-HEADER-LINK-HOVER: {{ settings.header_link }};
+
+    --COLOR-MENU-BG: {{ settings.menu_bg_color }};
+    --COLOR-SUBMENU-BG: {{ settings.submenu_bg_color }};
+    --COLOR-SUBMENU-LINK: {{ settings.submenu_link_color }};
+    --COLOR-SUBMENU-LINK-HOVER: {{ settings.submenu_link_color | color_modify: 'alpha', hover_opacity }};
+    --COLOR-SUBMENU-TEXT-LIGHT: {{ settings.submenu_link_color | color_mix: settings.submenu_bg_color, 70 }};
+
+    {% unless template.name == 'product' %}
+      --COLOR-MENU-TRANSPARENT: {{ settings.menu_transparent_color }};
+      --COLOR-MENU-TRANSPARENT-HOVER: {{ settings.menu_transparent_color }};
+    {% else %}
+      --COLOR-MENU-TRANSPARENT: {{ settings.header_link }};
+      --COLOR-MENU-TRANSPARENT-HOVER: {{ settings.header_link }};
+    {% endunless %}
+
+    --TRANSPARENT: rgba(255, 255, 255, 0);
+
+    /* === Default overlay opacity ===*/
+    --overlay-opacity: 0;
+    --underlay-opacity: {{ backdrop_opacity }};
+    --underlay-bg: {{ backdrop_bg }};
+    --header-overlay-color: transparent;
+
+    /* === Custom Cursor ===*/
+    --ICON-ZOOM-IN: url( "{{ 'icon-zoom-in.svg' | asset_url }}" );
+    --ICON-ZOOM-OUT: url( "{{ 'icon-zoom-out.svg' | asset_url }}" );
+
+    /* === Custom Icons ===*/
+    {% assign icon_style = settings.icon_style %}
+    {% if icon_style == '2' %}
+      {% comment %} Icon style Bold {% endcomment %}
+      --ICON-ADD-BAG: url( "{{ 'icon-add-bag-bold.svg' | asset_url }}" );
+      --ICON-ADD-CART: url( "{{ 'icon-add-cart-bold.svg' | asset_url }}" );
+      --ICON-ARROW-LEFT: url( "{{ 'icon-arrow-left-bold.svg' | asset_url }}" );
+      --ICON-ARROW-RIGHT: url( "{{ 'icon-arrow-right-bold.svg' | asset_url }}" );
+      --ICON-SELECT: url("{{ 'icon-select-bold.svg' | asset_url }}");
+    {% elsif icon_style == '1.5' %}
+      {% comment %} Icon style Medium {% endcomment %}
+      --ICON-ADD-BAG: url( "{{ 'icon-add-bag-medium.svg' | asset_url }}" );
+      --ICON-ADD-CART: url( "{{ 'icon-add-cart-medium.svg' | asset_url }}" );
+      --ICON-ARROW-LEFT: url( "{{ 'icon-arrow-left-medium.svg' | asset_url }}" );
+      --ICON-ARROW-RIGHT: url( "{{ 'icon-arrow-right-medium.svg' | asset_url }}" );
+      --ICON-SELECT: url("{{ 'icon-select-medium.svg' | asset_url }}");
+    {% else %}
+      {% comment %} Icon style Regular {% endcomment %}
+      --ICON-ADD-BAG: url( "{{ 'icon-add-bag.svg' | asset_url }}" );
+      --ICON-ADD-CART: url( "{{ 'icon-add-cart.svg' | asset_url }}" );
+      --ICON-ARROW-LEFT: url( "{{ 'icon-arrow-left.svg' | asset_url }}" );
+      --ICON-ARROW-RIGHT: url( "{{ 'icon-arrow-right.svg' | asset_url }}" );
+      --ICON-SELECT: url("{{ 'icon-select.svg' | asset_url }}");
+    {% endif %}
+
+    --PRODUCT-GRID-ASPECT-RATIO: {{ settings.product_grid_aspect_ratio | times: 100 }}%;
+
+    /* === Typography ===*/
+    --FONT-HEADING-MINI: {{ settings.heading_mini | append: 'px' }};
+    --FONT-HEADING-X-SMALL: {{ settings.heading_x_small | append: 'px' }};
+    --FONT-HEADING-SMALL: {{ settings.heading_small | append: 'px' }};
+    --FONT-HEADING-MEDIUM: {{ settings.heading_medium | append: 'px' }};
+    --FONT-HEADING-LARGE: {{ settings.heading_large | append: 'px' }};
+    --FONT-HEADING-X-LARGE: {{ settings.heading_x_large | append: 'px' }};
+
+    --FONT-HEADING-MINI-MOBILE: {{ settings.heading_mini_mobile | append: 'px' }};
+    --FONT-HEADING-X-SMALL-MOBILE: {{ settings.heading_x_small_mobile | append: 'px' }};
+    --FONT-HEADING-SMALL-MOBILE: {{ settings.heading_small_mobile | append: 'px' }};
+    --FONT-HEADING-MEDIUM-MOBILE: {{ settings.heading_medium_mobile | append: 'px' }};
+    --FONT-HEADING-LARGE-MOBILE: {{ settings.heading_large_mobile | append: 'px' }};
+    --FONT-HEADING-X-LARGE-MOBILE: {{ settings.heading_x_large_mobile | append: 'px' }};
+
+    --FONT-STACK-BODY: {{ base_font.family }}, {{ base_font.fallback_families }};
+    --FONT-STYLE-BODY: {{ base_font.style }};
+    --FONT-WEIGHT-BODY: {{ base_font.weight }};
+    --FONT-WEIGHT-BODY-BOLD: {{ base_font_bold.weight | default: 700 }};
+
+    --LETTER-SPACING-BODY: {{ settings.body_letter_spacing | divided_by: 1000.0 | append: 'em' }};
+
+    --FONT-STACK-HEADING: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --FONT-WEIGHT-HEADING: {{ heading_font.weight }};
+    --FONT-STYLE-HEADING: {{ heading_font.style }};
+
+    --FONT-UPPERCASE-HEADING: {{ heading_font_uppercase }};
+    --LETTER-SPACING-HEADING: {{ settings.heading_letter_spacing | divided_by: 1000.0 | append: 'em' }};
+
+    --FONT-STACK-SUBHEADING: {{ subheading_font.family }}, {{ subheading_font.fallback_families }};
+    --FONT-WEIGHT-SUBHEADING: {{ subheading_font.weight }};
+    --FONT-STYLE-SUBHEADING: {{ subheading_font.style }};
+    --FONT-SIZE-SUBHEADING-DESKTOP: {{ settings.subheading_size_desktop | append: 'px' }};
+    --FONT-SIZE-SUBHEADING-MOBILE: {{ settings.subheading_size_mobile | append: 'px' }};
+
+    --FONT-UPPERCASE-SUBHEADING: {{ subheading_font_uppercase }};
+    --LETTER-SPACING-SUBHEADING: {{ settings.sub_letter_spacing | divided_by: 1000.0 | append: 'em' }};
+
+    --FONT-STACK-NAV: {{ nav_font.family }}, {{ nav_font.fallback_families }};
+    --FONT-WEIGHT-NAV: {{ nav_font.weight }};
+    --FONT-WEIGHT-NAV-BOLD: {{ nav_font_bold.weight | default: 700 }};
+    --FONT-STYLE-NAV: {{ nav_font.style }};
+    --FONT-SIZE-NAV: {{ settings.nav_font_size | append: 'px' }};
+
+
+    --LETTER-SPACING-NAV: {{ settings.nav_letter_spacing | divided_by: 1000.0 | append: 'em' }};
+
+    --FONT-SIZE-BASE: {{ settings.base_font_size | append: 'px' }};
+
+    /* === Parallax ===*/
+    --PARALLAX-STRENGTH-MIN: {{ settings.parallax_strength | plus: 100.0 | append: '%' }};
+    --PARALLAX-STRENGTH-MAX: {{ settings.parallax_strength | plus: 110.0 | append: '%' }};
+
+    {%- comment -%} Grid Variables {%- endcomment -%}
+
+    --COLUMNS: 4;
+    --COLUMNS-MEDIUM: 3;
+    --COLUMNS-SMALL: 2;
+    --COLUMNS-MOBILE: 1;
+
+    {%- if settings.grid_style == 'compact' -%}
+      --LAYOUT-OUTER: 32px;
+      --LAYOUT-GUTTER: 32px;
+      --LAYOUT-OUTER-MEDIUM: 22px;
+      --LAYOUT-GUTTER-MEDIUM: 22px;
+      --LAYOUT-OUTER-SMALL: 16px;
+      --LAYOUT-GUTTER-SMALL: 16px;
+    {%- else -%}
+      --LAYOUT-OUTER: 50px;
+      --LAYOUT-GUTTER: 32px;
+      --LAYOUT-OUTER-MEDIUM: 30px;
+      --LAYOUT-GUTTER-MEDIUM: 22px;
+      --LAYOUT-OUTER-SMALL: 16px;
+      --LAYOUT-GUTTER-SMALL: 16px;
+    {%- endif -%}
+
+    {%- comment -%} Custom variables {%- endcomment -%}
+    --base-animation-delay: 0ms;
+    --line-height-normal: 1.375; /* Equals to line-height: normal; */
+
+    {%- comment -%} Sidebar on Collection and Search {%- endcomment -%}
+    {%- if settings.grid_style == 'compact' -%}
+      --SIDEBAR-WIDTH: 270px;
+      --SIDEBAR-WIDTH-MEDIUM: 258px;
+    {%- else -%}
+      --SIDEBAR-WIDTH: 288px;
+      --SIDEBAR-WIDTH-MEDIUM: 258px;
+    {%- endif -%}
+
+    {%- comment -%} Drawers {%- endcomment -%}
+    --DRAWER-WIDTH: 380px;
+
+    {%- comment -%} Icon Variables {%- endcomment -%}
+    --ICON-STROKE-WIDTH: {{ settings.icon_style }}px;
+
+    /* === Button General ===*/
+    --BTN-FONT-STACK: {{ btn_font.family }}, {{ btn_font.fallback_families }};
+    --BTN-FONT-WEIGHT: {{ btn_font.weight }};
+    --BTN-FONT-STYLE: {{ btn_font.style }};
+    --BTN-FONT-SIZE: {{ settings.btn_size }}px;
+
+    {%- assign font_size_base_decimal = settings.base_font_size | append: '.0' -%}
+    --BTN-FONT-SIZE-BODY: {{ settings.btn_size | divided_by: font_size_base_decimal }}rem;
+
+    --BTN-LETTER-SPACING: {{ settings.btn_letter_spacing | divided_by: 1000.0 | append: 'em' }};
+    --BTN-UPPERCASE: {% if settings.btn_caps %}uppercase{% else %}none{% endif %};
+    --BTN-TEXT-ARROW-OFFSET: {% if settings.btn_caps %}-1px{% else %}0px{% endif %};
+
+    /* === Button White ===*/
+    --COLOR-TEXT-BTN-BG-WHITE: #fff;
+    --COLOR-TEXT-BTN-BORDER-WHITE: #fff;
+    --COLOR-TEXT-BTN-WHITE: #000;
+    --COLOR-TEXT-BTN-BG-WHITE-BRIGHTER: {{ '#fff' | color_darken: 5 }};
+
+    /* === Button Black ===*/
+    --COLOR-TEXT-BTN-BG-BLACK: #000;
+    --COLOR-TEXT-BTN-BORDER-BLACK: #000;
+    --COLOR-TEXT-BTN-BLACK: #fff;
+    --COLOR-TEXT-BTN-BG-BLACK-BRIGHTER: {{ '#000' | color_lighten: 10 }};
+
+    /* === Swatch Size ===*/
+    --swatch-size-filters: {{ swatch_size_filters }}rem;
+    --swatch-size-product: {{ swatch_size_product }}rem;
+  }
+
+  /* === Backdrop ===*/
+  ::backdrop {
+    --underlay-opacity: {{ backdrop_opacity }};
+    --underlay-bg: {{ backdrop_bg }};
+  }
+
+  /* === Gray background on Product grid items ===*/
+  {% if settings.show_image_gray_bg == 'front' or settings.show_image_gray_bg == 'behind' %}
+    .cart__item__image a::before,
+    .product__photo::before,
+    .product__thumb__link::before,
+    .product-item__image::before,
+    .product-upsell__image__thumb::before,
+    .pswp__img::before,
+    .pswp__thumb::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, .025);
+      pointer-events: none;
+      {% if settings.show_image_gray_bg == 'front' %}
+        z-index: 5;
+      {% endif %}
+    }
+  {% endif %}
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: inherit;
+  }
+
+  * { -webkit-font-smoothing: antialiased; }
+
+  html {
+    box-sizing: border-box;
+    font-size: var(--FONT-SIZE-BASE);
+  }
+
+  html,
+  body { min-height: 100%; }
+
+  body {
+    position: relative;
+    min-width: 320px;
+    font-size: var(--FONT-SIZE-BASE);
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+{% endstyle %}
+
+{%- unless settings.type_base_font.system? -%}
+  <link rel="preload" as="font" href="{{ settings.type_base_font | font_url }}" type="font/woff2" crossorigin>
+{%- endunless -%}
+{%- unless settings.type_header_font.system? -%}
+  <link rel="preload" as="font" href="{{ settings.type_header_font | font_url }}" type="font/woff2" crossorigin>
+{%- endunless -%}
+{%- unless settings.type_nav_font.system? -%}
+  <link rel="preload" as="font" href="{{ settings.type_nav_font | font_url }}" type="font/woff2" crossorigin>
+{%- endunless -%}
+{%- unless settings.type_btn_font.system? -%}
+  <link rel="preload" as="font" href="{{ settings.type_btn_font | font_url }}" type="font/woff2" crossorigin>
+{%- endunless -%}
+{%- unless settings.type_subheading_font.system? -%}
+  <link rel="preload" as="font" href="{{ settings.type_subheading_font | font_url }}" type="font/woff2" crossorigin>
+{%- endunless -%}
+
+{{ 'theme.css' | asset_url | stylesheet_tag }}
+
+{%- if settings.swatches_type != 'disabled' or settings.show_siblings -%}
+  {{ 'swatches.css' | asset_url | stylesheet_tag }}
+  {%- render 'swatch-color-list' -%}
+{%- endif %}
+
+{%- if request.design_mode -%}
+  {{ 'design-mode.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
+<script>
+    if (window.navigator.userAgent.indexOf('MSIE ') > 0 || window.navigator.userAgent.indexOf('Trident/') > 0) {
+      document.documentElement.className = document.documentElement.className + ' ie';
+
+      var scripts = document.getElementsByTagName('script')[0];
+      var polyfill = document.createElement("script");
+      polyfill.defer = true;
+      polyfill.src = "{{ 'ie11.js' | asset_url }}";
+
+      scripts.parentNode.insertBefore(polyfill, scripts);
+    } else {
+      document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+    }
+
+    document.documentElement.style.setProperty('--scrollbar-width', `${getScrollbarWidth()}px`);
+
+    function getScrollbarWidth() {
+      // Creating invisible container
+      const outer = document.createElement('div');
+      outer.style.visibility = 'hidden';
+      outer.style.overflow = 'scroll'; // forcing scrollbar to appear
+      outer.style.msOverflowStyle = 'scrollbar'; // needed for WinJS apps
+      document.documentElement.appendChild(outer);
+
+      // Creating inner element and placing it in the container
+      const inner = document.createElement('div');
+      outer.appendChild(inner);
+
+      // Calculating difference between container's full width and the child width
+      const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
+
+      // Removing temporary elements from the DOM
+      outer.parentNode.removeChild(outer);
+
+      return scrollbarWidth;
+    }
+
+    let root = '{{ routes.root_url }}';
+    if (root[root.length - 1] !== '/') {
+      root = root + '/';
+    }
+
+    window.theme = {
+      routes: {
+        root: root,
+        cart_url: '{{ routes.cart_url }}',
+        cart_add_url: '{{ routes.cart_add_url }}',
+        cart_change_url: '{{ routes.cart_change_url }}',
+        product_recommendations_url: '{{ routes.product_recommendations_url }}',
+        predictive_search_url: '{{ routes.predictive_search_url }}',
+        addresses_url: '{{ routes.account_addresses_url }}'
+      },
+      assets: {
+        photoswipe: '{{ "photoswipe.js" | asset_url }}',
+        rellax: '{{ "rellax.js" | asset_url }}',
+        smoothscroll: '{{ "smoothscroll.js" | asset_url }}',
+      },
+      strings: {
+        addToCart: {{ 'products.product.add_to_cart' | t | json }},
+        cartAcceptanceError: {{ 'cart.general.accept_terms' | t | json }},
+        soldOut: {{ 'products.product.sold_out' | t | json }},
+        from: {{ 'products.general.from' | t | json }},
+        preOrder: {{ 'products.product.pre_order' | t | json }},
+        sale: {{ 'products.product.on_sale' | t | json }},
+        subscription: {{ 'products.product.subscription' | t | json }},
+        unavailable: {{ 'products.product.unavailable' | t | json }},
+        unitPrice: {{ 'products.product.unit_price_label' | t | json }},
+        unitPriceSeparator: {{ 'general.accessibility.unit_price_separator' | t | json }},
+        shippingCalcSubmitButton: {{ 'cart.shipping_calculator.calculate_shipping' | t | json }},
+        shippingCalcSubmitButtonDisabled: {{ 'cart.shipping_calculator.calculating' | t | json }},
+        selectValue: {{ 'products.product.select_value' | t | json }},
+        selectColor: {{ 'products.product.select_color' | t | json }},
+        oneColor: {{ 'collections.general.colors_with_count.one' | t | json }},
+        otherColor: {{ 'collections.general.colors_with_count.other' | t | json }},
+        upsellAddToCart: {{ 'products.general.upsell_add_to_cart' | t | json }},
+        free: {{ 'general.money.free' | t | json }},
+        swatchesColor: {{ 'general.swatches.color' | t | json }},
+        sku: {{ 'products.product.sku' | t | json }},
+      },
+      settings: {
+        cartType: {{ settings.cart_type | json }},
+        customerLoggedIn: {{ customer | json }} ? true : false,
+        enableQuickAdd: {{ settings.quickview_enable | json }},
+        enableAnimations: {{ settings.animations_enable | json }},
+        variantOnSale: {{ settings.variant_on_sale | json }},
+        collectionSwatchStyle: {{ settings.collection_swatch_style | json }},
+        swatchesType: {{ settings.swatches_type | json }},
+        mobileMenuType: {{ settings.mobile_menu_type | json }},
+      },
+      variables: {
+        productPageSticky: false,
+      },
+      sliderArrows: {
+        prev: '<button type="button" class="slider__button slider__button--prev" data-button-arrow data-button-prev>' + {{ 'general.pagination.prev' | t | json }} + '</button>',
+        next: '<button type="button" class="slider__button slider__button--next" data-button-arrow data-button-next>' + {{ 'general.pagination.next' | t | json }} + '</button>',
+      },
+      moneyFormat: {{ settings.currency_code_enable | json }} ? {{ shop.money_with_currency_format | json }} : {{ shop.money_format | json }},
+      moneyWithoutCurrencyFormat: {{ shop.money_format | json }},
+      moneyWithCurrencyFormat: {{ shop.money_with_currency_format | json }},
+      subtotal: {{ cart.total_price | json }},
+      info: {
+        name: 'broadcast'
+      },
+      version: '6.1.0'
+    };
+
+    let windowInnerHeight = window.innerHeight;
+    document.documentElement.style.setProperty('--full-height', `${windowInnerHeight}px`);
+    document.documentElement.style.setProperty('--three-quarters', `${windowInnerHeight * 0.75}px`);
+    document.documentElement.style.setProperty('--two-thirds', `${windowInnerHeight * 0.66}px`);
+    document.documentElement.style.setProperty('--one-half', `${windowInnerHeight * 0.5}px`);
+    document.documentElement.style.setProperty('--one-third', `${windowInnerHeight * 0.33}px`);
+    document.documentElement.style.setProperty('--one-fifth', `${windowInnerHeight * 0.2}px`);
+</script>
+
+{% if template.directory == 'customers' or template contains 'cart' %}
+  <script src="{{ 'shopify_common.js' | shopify_asset_url }}" defer="defer"></script>
+{% endif %}
+
+<!-- Theme Javascript ============================================================== -->
+<script src="{{ 'vendor.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'cart-90-day-upsell.js' | asset_url }}" defer="defer"></script>
+
+{%- if request.design_mode -%}
+  <script
+    src="{{ 'theme-editor.js' | asset_url }}"
+    defer="defer"
+    data-owner-email="{{ shop.email }}"
+    data-owner-id="{{ shop.id }}"
+  ></script>
+{%- endif -%}
+
+{%- comment -%}
+  If you need to do some edits in Theme JS use theme.dev.js file
+
+  *** DO NOT EDIT theme.js file ***
+
+  Then call theme.dev.js file by editing the row above from:
+  <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+  to
+  <script src="{{ 'theme.dev.js' | asset_url }}" defer="defer"></script>
+{%- endcomment -%}
+
+<!-- Shopify app scripts =========================================================== -->

@@ -1,0 +1,601 @@
+<!-- /sections/section-logo-list.liquid -->
+
+{%- liquid
+  assign animation_anchor = '#Countdown--' | append: section.id
+  assign animation_order = 0
+  assign desktop_height = section.settings.height
+  assign mobile_height = section.settings.mobile_height
+  assign image_desktop = section.settings.image
+  assign image_mobile = section.settings.image_mobile
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign digits_gradient = section.settings.digits_gradient | default: 'none'
+  assign overlay_opacity = section.settings.overlay_opacity | times: 0.01
+  assign show_overlay_text = section.settings.show_overlay_text
+  assign text_align = section.settings.text_align
+  assign text_align_mobile = section.settings.text_align_mobile
+  assign section_width = section.settings.width
+  assign layout = ''
+
+  if section_width == 'wrapper--narrow'
+    assign text_align = 'text-center'
+  endif
+
+  assign boxed = false
+  unless digits_gradient == 'none'
+    assign boxed = true
+  endunless
+
+  if text_align == 'text-center'
+    assign layout = 'flex-align-center--desktop flex-column '
+  endif
+
+  if text_align_mobile == 'text-center--mobile'
+    assign layout = layout | append: 'flex-align-center--mobile '
+  endif
+
+  assign layout = layout | append: text_align | append: ' ' | append: text_align_mobile
+-%}
+
+{%- capture style -%}
+  --PT: {{ section.settings.padding_top }}px;
+  --PB: {{ section.settings.padding_bottom }}px;
+
+  {%- unless digits_gradient == 'none' -%}
+    --digits-gradient: {{ digits_gradient }};
+  {%- endunless -%}
+{%- endcapture -%}
+
+{%- if style != blank -%}
+  {%- style -%}
+    #Countdown--{{ section.id }} {
+      {{ style }}
+    }
+  {%- endstyle -%}
+{%- endif -%}
+
+<section
+  id="Countdown--{{ section.id }}"
+  class="section-countdown section-padding {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="countdown"
+>
+  <div class="{{ section_width }}">
+    {%- if image_desktop or image_mobile -%}
+      <div class="hero__bg">
+        <div class="hero__image">
+          {%- render 'image-hero', image_desktop: image_desktop, image_mobile: image_mobile -%}
+        </div>
+
+        {%- unless show_overlay_text or overlay_opacity == 0.0 -%}
+          <div class="image-overlay" style="--overlay-opacity: {{ overlay_opacity }};"></div>
+        {%- endunless -%}
+      </div>
+    {%- endif -%}
+
+    <div class="brick__section {{ layout }} {{ desktop_height }} {{ mobile_height }}">
+      {%- if section.blocks.size > 0 -%}
+        <div class="brick__block">
+          <div class="hero__content__wrapper">
+            <div
+              class="hero__content hero__content--compact{% if show_overlay_text %} backdrop--radial{% endif %}"
+              {% if show_overlay_text %}
+                style="--overlay-opacity: {{ overlay_opacity }};"
+              {% endif %}
+            >
+              {%- for block in section.blocks -%}
+                {%- case block.type -%}
+                  {%- when 'heading' -%}
+                    {%- if block.settings.title != blank -%}
+                      {%- liquid
+                        assign animation_order = animation_order | plus: 1
+                        assign heading_tag = 'h2'
+
+                        unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                          assign heading_tag = block.settings.heading_tag
+                        endunless
+                      -%}
+
+                      <{{ heading_tag }}
+                        class="hero__title {{ block.settings.heading_font_size }}"
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                        {{ block.shopify_attributes }}
+                      >
+                        {{ block.settings.title }}
+                      </{{ heading_tag }}>
+                    {%- endif -%}
+
+                  {%- when 'subheading' -%}
+                    {%- if block.settings.subheading != blank -%}
+                      {%- assign animation_order = animation_order | plus: 1 -%}
+                      <p
+                        class="hero__subheading"
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                        {{ block.shopify_attributes }}
+                      >
+                        {{ block.settings.subheading }}
+                      </p>
+                    {%- endif -%}
+
+                  {%- when 'text' -%}
+                    {%- if block.settings.text != blank -%}
+                      {%- assign animation_order = animation_order | plus: 1 -%}
+                      <div
+                        class="hero__rte {{ block.settings.text_font_size }}"
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                        {{ block.shopify_attributes }}
+                      >
+                        {{ block.settings.text }}
+                      </div>
+                    {%- endif -%}
+
+                  {%- when 'buttons' -%}
+                    {%- liquid
+                      assign button_style = block.settings.button_style
+                      if button_style == 'btn--text' and block.settings.show_arrow
+                        assign button_style = button_style | append: ' btn--text-no-underline'
+                      endif
+                    -%}
+
+                    {%- if block.settings.button_text != blank -%}
+                      {%- liquid
+                        assign prev_index = forloop.index0 | minus: 1
+                        assign next_index = forloop.index0 | plus: 1
+                        assign prev_block = section.blocks[prev_index]
+                        assign next_block = section.blocks[next_index]
+                        assign animation_order = animation_order | plus: 1
+                      -%}
+                      {%- if next_block.type == 'buttons'
+                        and forloop.index0 == 0
+                        or prev_block.type != 'buttons'
+                        and next_index != section.blocks.size
+                        and next_block.type == 'buttons'
+                      -%}
+                        <div class="hero__button-group">
+                      {%- endif -%}
+
+                      <div
+                        class="hero__button"
+                        data-aos="hero"
+                        data-aos-anchor="{{ animation_anchor }}"
+                        data-aos-order="{{ animation_order }}"
+                        {{ block.shopify_attributes }}
+                      >
+                        <a
+                          href="{{ block.settings.button_url | default: '#!' }}"
+                          class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}"
+                        >
+                          <span>{{ block.settings.button_text }}</span>
+
+                          {%- if block.settings.show_arrow -%}
+                            {%- render 'icon-arrow-right' -%}
+                          {%- endif -%}
+                        </a>
+                      </div>
+
+                      {%- if prev_block.type == 'buttons'
+                        and next_block.type != 'buttons'
+                        and prev_index != -1
+                        or forloop.index == section.blocks.size
+                        and prev_block.type == 'buttons'
+                        and prev_index != -1
+                      -%}
+                        </div>
+                      {%- endif -%}
+                    {%- endif -%}
+                {%- endcase -%}
+              {%- endfor -%}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="brick__block{% unless text_align == 'text-center' %} text-right{% endunless %} {{ text_align_mobile }}">
+        {%- render 'countdown-timer',
+          end_date: section.settings.end_date,
+          end_time: section.settings.end_time,
+          period: section.settings.period,
+          digits_font_size: section.settings.digits_font_size,
+          text_font_size: section.settings.text_font_size,
+          end_message: section.settings.end_message,
+          hide_on_complete: section.settings.hide_on_complete,
+          animation_order: animation_order,
+          animation_anchor: animation_anchor,
+          boxed: boxed
+        -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Countdown timer",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Background image",
+      "info": "Optional. 3200 x 1200px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "header",
+      "content": "Timer"
+    },
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "End date",
+      "placeholder": "2025-12-31",
+      "default": "2025-12-31",
+      "info": "Use format \"YYYY-MM-DD\". Expiration date is based on the [store primary timezone](/admin/settings/general)."
+    },
+    {
+      "type": "text",
+      "id": "end_time",
+      "label": "End time",
+      "default": "11:59",
+      "placeholder": "11:59",
+      "info": "Use 12-hour time convention in format \"HH:MM\""
+    },
+    {
+      "type": "radio",
+      "id": "period",
+      "label": "AM/PM",
+      "options": [
+        {"value": "am", "label": "AM"},
+        {"value": "pm", "label": "PM"}
+      ],
+      "default": "am"
+    },
+    {
+      "type": "richtext",
+      "id": "end_message",
+      "label": "End of timer message",
+      "default": "<p>Offer has expired</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_on_complete",
+      "label": "Hide section after end of timer",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "digits_font_size",
+      "label": "Digits size",
+      "default": "heading-x-large",
+      "options": [
+        {"value": "heading-mini", "label": "Mini"},
+        {"value": "heading-x-small", "label": "Extra small"},
+        {"value": "heading-small", "label": "Small"},
+        {"value": "heading-medium", "label": "Medium"},
+        {"value": "heading-large", "label": "Large"},
+        {"value": "heading-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "text_font_size",
+      "label": "Date size",
+      "info": "Automatically generated by the base size.",
+      "default": "body-small",
+      "options": [
+        {"value": "body-x-small", "label": "Extra small"},
+        {"value": "body-small", "label": "Small"},
+        {"value": "body-medium", "label": "Medium"},
+        {"value": "body-large", "label": "Large"},
+        {"value": "body-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper",
+      "options": [
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Normal"},
+        {"value": "wrapper--narrow", "label": "Narrow"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Style",
+      "default": "text-left",
+      "options": [
+        {"value": "text-left", "label": "Split"},
+        {"value": "text-center", "label": "Centered"}
+      ],
+      "info": "\"Split\" works with \"Normal\" and \"Full width padded\" layout only."
+    },
+    {
+      "type": "header",
+      "content": "Desktop"
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Height",
+      "default": "four-fifty-height-hero",
+      "options": [
+        {"value": "four-fifty-height-hero", "label": "450px"},
+        {"value": "four-hundred-height-hero", "label": "400px"},
+        {"value": "three-fifty-height-hero", "label": "350px"},
+        {"value": "three-hundred-height-hero", "label": "300px"},
+        {"value": "two-fifty-height-hero", "label": "250px"},
+        {"value": "two-hundred-height-hero", "label": "200px"},
+        {"value": "one-fifty-height-hero", "label": "150px"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Background image",
+      "info": "Optional. 1200 x 1600px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "select",
+      "id": "mobile_height",
+      "label": "Height",
+      "default": "four-fifty-height-hero--mobile",
+      "options": [
+        {"value": "four-fifty-height-hero--mobile", "label": "450px"},
+        {"value": "four-hundred-height-hero--mobile", "label": "400px"},
+        {"value": "three-fifty-height-hero--mobile", "label": "350px"},
+        {"value": "three-hundred-height-hero--mobile", "label": "300px"},
+        {"value": "two-fifty-height-hero--mobile", "label": "250px"},
+        {"value": "two-hundred-height-hero--mobile", "label": "200px"},
+        {"value": "one-fifty-height-hero--mobile", "label": "150px"}
+      ]
+    },
+
+    {
+      "type": "select",
+      "id": "text_align_mobile",
+      "label": "Text alignment",
+      "default": "text-left--mobile",
+      "options": [
+        {"value": "text-left--mobile", "label": "Left"},
+        {"value": "text-center--mobile", "label": "Centered"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "color_background",
+      "id": "digits_gradient",
+      "label": "Digits gradient"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "info": "Increase contrast for legible text.",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay_text",
+      "label": "Overlay behind text only",
+      "info": "Overlay opacity must be greater than 0.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "settings": [
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "Countdown is on"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Shop Before It Ends"
+        },
+        {
+          "type": "select",
+          "id": "heading_font_size",
+          "label": "Heading size",
+          "default": "heading-large",
+          "options": [
+            {"value": "heading-mini", "label": "Mini"},
+            {"value": "heading-x-small", "label": "Extra small"},
+            {"value": "heading-small", "label": "Small"},
+            {"value": "heading-medium", "label": "Medium"},
+            {"value": "heading-large", "label": "Large"},
+            {"value": "heading-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Advanced"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "Heading SEO tag",
+          "default": "automatic",
+          "options": [
+            {"value": "automatic", "label": "Automatic"},
+            {"value": "h1", "label": "H1"},
+            {"value": "h2", "label": "H2"},
+            {"value": "h3", "label": "H3"},
+            {"value": "h4", "label": "H4"},
+            {"value": "h5", "label": "H5"},
+            {"value": "h6", "label": "H6"}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Share information about your limited offer or temporary promotion.</p>"
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+          "default": "body-medium",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "buttons",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Text",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_type",
+          "label": "Color",
+          "default": "btn--primary",
+          "options": [
+            {"value": "btn--black", "label": "Black"},
+            {"value": "btn--white", "label": "White"},
+            {"value": "btn--primary", "label": "Primary"},
+            {"value": "btn--secondary", "label": "Secondary"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "Size",
+          "default": "",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": ""},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Style",
+          "default": "btn--solid",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "show_arrow",
+          "label": "Show arrow",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Countdown timer",
+      "blocks": [
+        {
+          "type": "subheading"
+        },
+        {
+          "type": "heading"
+        },
+        {
+          "type": "buttons"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer", "aside"]
+  }
+}
+{% endschema %}

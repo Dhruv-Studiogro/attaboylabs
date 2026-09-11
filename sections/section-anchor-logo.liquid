@@ -1,0 +1,94 @@
+<!-- /sections/section-anchor-logo.liquid -->
+{%- assign color_scheme = 'color-' | append: section.settings.color_scheme -%}
+
+{%- style -%}
+  #AnchorLogo--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  }
+{%- endstyle -%}
+
+<section
+  id="AnchorLogo--{{ section.id }}"
+  class="anchor-logo section-padding {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="anchor-logo"
+>
+  <div class="wrapper--full-padded">
+    <a
+      href="{{ routes.root_url }}"
+      class="anchor-logo__link"
+      data-aos="hero"
+      data-aos-duration="500"
+      data-aos-easing="ease-out-quart"
+    >
+      {%- if section.settings.logo -%}
+        {%- render 'image',
+          image: section.settings.logo,
+          sizes: '(min-width: 1400px) calc(100vw - 100px), (min-width: 750px) calc(100vw - 50px), calc(100vw - 32px)',
+          desktop_height: 'image-height',
+          mobile_height: 'image-height--mobile',
+          show_backfill: false
+        -%}
+      {%- else -%}
+        {{ 'logo' | placeholder_svg_tag: 'svg-placeholder' }}
+      {%- endif -%}
+    </a>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Logo",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Image",
+      "info": "3200 x 1200px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 30
+    }
+  ],
+  "presets": [
+    {
+      "name": "Logo"
+    }
+  ],
+  "enabled_on": {
+    "groups": ["footer"]
+  }
+}
+{% endschema %}

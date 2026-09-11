@@ -1,0 +1,30 @@
+<!-- /snippets/products-recommendation.liquid -->
+{%- if recommendations.performed -%}
+  {%- assign products_count = recommendations.products_count -%}
+
+  {%- if products_count > 0 -%}
+    <div class="grid-outer">
+      <grid-slider align-arrows>
+        <div class="grid grid--slider{% if products_count <= 4 %} grid--slider-disabled{% endif %}"
+          data-grid-slider
+          id="product-recommendations">
+          {%- liquid
+            for product in recommendations.products
+              assign hidden_product = false
+              if product.tags contains 'hide'
+                assign hidden_product = true
+              endif
+
+              unless hidden_product
+                assign animation_delay = forloop.index0 | times: 1
+                render 'product-grid-item', product: product, animation_delay: animation_delay, animation_anchor: '#product-recommendations', index: forloop.index
+              endunless
+            endfor
+          -%}
+        </div>
+      </grid-slider>
+    </div>
+  {%- endif -%}
+{%- else -%}
+  <div class="related__placeholder"></div>
+{%- endif -%}

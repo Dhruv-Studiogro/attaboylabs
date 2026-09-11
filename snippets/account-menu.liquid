@@ -1,0 +1,63 @@
+{%- capture links -%}
+  <ul>
+    {%- assign needs_completion = true -%}
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+
+        {%- when '@app' -%}
+          {% render block %}
+
+        {%- when 'link' -%}
+          <li {{ block.shopify_attributes }}><a href="{{ block.settings.link }}" rel="noopener" target="_blank">{{ block.settings.title }}</a></li>
+
+        {%- when 'email' -%}
+          {% assign default_text = 'customer.account.contact_store' | t %}
+          {% assign default_email = shop.email %}
+          <li {{ block.shopify_attributes }}><a href="mailto:{{ block.settings.email | default: default_email }}" rel="noopener" target="_blank">{{ block.settings.title | default: default_text }}</a></li>
+
+        {%- when 'account' -%}
+          {%- assign needs_completion = false -%}
+          <li {% if template == 'customers/account' %} class="is-current"{% endif %}><a href="{% if customer %}/a/account/shopify-login{% else %}/a/account/login{% endif %}">{{ 'customer.orders.title' | t }}</a></li>
+          <li {% if template contains 'addresses' %} class="is-current"{% endif %}><a href="{{ routes.account_addresses_url }}">{{ 'customer.account.view_addresses' | t }}</a></li>
+          <li>{{ 'layout.customer.log_out' | t | customer_logout_link }}</li>
+
+      {%- endcase -%}
+    {%- endfor -%}
+
+    {%- if needs_completion -%}
+      <li {% if template == 'customers/account' %} class="is-current"{% endif %}><a href="{% if customer %}/a/account/shopify-login{% else %}/a/account/login{% endif %}">{{ 'customer.orders.title' | t }}</a></li>
+      <li {% if template contains 'addresses' %} class="is-current"{% endif %}><a href="{{ routes.account_addresses_url }}">{{ 'customer.account.view_addresses' | t }}</a></li>
+      <li>{{ 'layout.customer.log_out' | t | customer_logout_link }}</li>
+    {%- endif -%}
+  </ul>
+{%- endcapture -%}
+
+<aside class="account-sidebar">
+  <div class="desktop">
+    <p class="account-sidebar__title strong">
+      {{ 'customer.account.title' | t }}
+    </p>
+
+    {{ links }}
+  </div>
+
+  <div class="mobile">
+    <collapsible-elements>
+      <details data-collapsible>
+        <summary data-collapsible-trigger>
+          <p class="account-sidebar__title strong">
+            {{ 'customer.account.title' | t }}
+
+            {%- render 'icon-plus' -%}
+            {%- render 'icon-minus' -%}
+          </p>
+        </summary>
+        <div data-collapsible-body>
+          <div data-collapsible-content>
+            {{ links }}
+          </div>
+        </div>
+      </details>
+    </collapsible-elements>
+  </div>
+</aside>

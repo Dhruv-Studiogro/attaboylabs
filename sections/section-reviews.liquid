@@ -1,0 +1,397 @@
+<!-- /sections/section-reviews.liquid -->
+
+{%- liquid
+  assign animation_anchor = '#Reviews--' | append: section.id
+  assign animation_order = 0
+  assign aspect_ratio = 1 | divided_by: section.settings.image_aspect_ratio
+  assign block_count = section.blocks.size | plus: 0
+  assign card_bg_color = section.settings.card_bg_color
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign columns_desktop = block_count | at_most: 4
+  assign columns_medium = 3
+  assign show_featured_image = section.settings.show_featured_image
+  assign show_quotation_marks = section.settings.show_quotation_marks
+  assign heading_size = section.settings.heading_font_size
+  assign widths = '240, 256, 296, 320, 360, 480, 512, 592, 640, 720, 960, 1024, 1080, 1184, 1280'
+
+  if columns_desktop == 2 or columns_desktop == 4
+    assign columns_medium = 2
+  endif
+
+  if show_featured_image
+    assign columns_desktop = 2
+    assign columns_medium = 2
+  endif
+
+  capture section_classes
+    echo 'reviews reviews--section '
+    echo section.settings.text_align
+
+    if show_featured_image
+      echo ' reviews--have-images'
+    else
+      echo ' reviews--no-images'
+    endif
+  endcapture
+
+  capture sizes
+    if settings.block.size == 1
+      echo '(min-width: 750px) 50vw, calc(100vw - 82px)'
+    else
+      echo '(min-width: 750px) 25vw, calc(100vw - 82px)'
+    endif
+  endcapture
+-%}
+
+{%- style -%}
+  #Reviews--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    {% unless card_bg_color.alpha == 0.0 or card_bg_color == blank %}
+      {%- assign card_background = true -%}
+      --card-bg: {{ card_bg_color }};
+    {% endunless %}
+
+    --COLUMNS: {{ columns_desktop }};
+    --COLUMNS-MEDIUM: {{ columns_medium }};
+  }
+{%- endstyle -%}
+
+<div
+  id="Reviews--{{ section.id }}"
+  class="{{ section_classes }} {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="reviews"
+>
+  <div class="wrapper--full-padded">
+    {%- if section.blocks.size > 0 -%}
+      <grid-slider>
+        <div
+          class="reviews__grid grid grid--slider section-padding"
+          data-grid-slider
+          {% if request.design_mode %}
+            data-block-scroll
+          {% endif %}
+        >
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign block_title = block.settings.title
+              assign review = block.settings.review_content
+              assign featured_image = block.settings.featured_image
+              assign bio_image = block.settings.bio_image
+              assign subheading = block.settings.subheading
+              assign review_url = block.settings.review_url
+              assign animation_order = animation_order | plus: 1
+
+              assign review_block_classes = 'review'
+              if show_featured_image
+                assign review_block_classes = review_block_classes | append: ' review--has-image'
+              endif
+              if card_background
+                assign review_block_classes = review_block_classes | append: ' review--has-card-bg'
+              endif
+
+              if forloop.index > 2
+                assign loading = 'lazy'
+              endif
+            -%}
+
+            <div class="reviews__grid-item" data-grid-item {{ block.shopify_attributes }}>
+              {%- if review_url != blank -%}
+                <a href="{{ review_url }}" class="{{ review_block_classes }}" rel="noopener" target="_blank">
+              {%- else -%}
+                <div class="{{ review_block_classes }}">
+              {%- endif -%}
+
+              {%- if show_featured_image -%}
+                <div class="review__image">
+                  {%- capture attributes -%}
+                    data-aos="img-in"
+                    data-aos-anchor="{{ animation_anchor }}"
+                    data-aos-order="{{ animation_order }}"
+                    data-aos-duration="800"
+                    data-aos-easing="ease-out-quart"
+                  {%- endcapture -%}
+
+                  {%- if featured_image -%}
+                    {%- render 'image',
+                      image: featured_image,
+                      sizes: sizes,
+                      widths: widths,
+                      attributes: attributes,
+                      aspect_ratio: aspect_ratio,
+                      loading: loading
+                    -%}
+                  {%- else -%}
+                    <div class="image-wrapper" style="--aspect-ratio: {{ aspect_ratio }};" {{ attributes }}>
+                      {{ 'image' | placeholder_svg_tag: 'svg-placeholder' }}
+                    </div>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+
+              <div
+                class="review__content"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ animation_order }}"
+                data-aos-duration="800"
+              >
+                {%- if review != blank -%}
+                  {%- liquid
+                    capture quotes_styles
+                      echo 'font-size: calc(var(--font-' | append: heading_size | append: ') * 2.5);'
+                      echo 'transform: translateY(calc((var(--font-' | append: heading_size | append: ') * 0.833) - (var(--font-' | append: heading_size | append: ') * 0.167)));'
+                    endcapture
+                  -%}
+
+                  <blockquote class="{{ heading_size }}">
+                    {%- if show_quotation_marks -%}
+                      <span class="review__quote review__quote--open{% if section.settings.padding_top > 9 %} review__quote--open-negative{% endif %}">
+                        <span class="review__quote-inner" style="{{ quotes_styles }}">&ldquo;</span>
+                      </span>
+                    {%- endif -%}
+
+                    <p>{{ review | truncatewords: 200 }}</p>
+
+                    {%- if show_quotation_marks -%}
+                      <span class="review__quote review__quote--close{% if section.settings.padding_bottom > 9 %} review__quote--close-negative{% endif %}">
+                        <span class="review__quote-inner" style="{{ quotes_styles }}">&rdquo;</span>
+                      </span>
+                    {%- endif -%}
+                  </blockquote>
+                {%- endif -%}
+
+                {%- if block_title != blank or subheading != blank or bio_image != blank -%}
+                  <div class="review__author">
+                    {%- if bio_image != blank -%}
+                      <div class="review__author__bio-image">
+                        {%- render 'image',
+                          image: bio_image,
+                          width: 68,
+                          height: 68,
+                          sizes: '34px',
+                          widths: '34, 68, 136, 272, 544, 1088',
+                          cover: true,
+                          loading: loading
+                        -%}
+                      </div>
+                    {%- endif -%}
+
+                    {%- if block_title != blank or subheading != blank -%}
+                      <div class="review__author__content">
+                        {%- if block_title != blank -%}
+                          <div class="review__author__name">{{ block_title }}</div>
+                        {%- endif -%}
+
+                        {%- if subheading != blank -%}
+                          <span class="review__author__subheading subheading">{{ subheading }}</span>
+                        {%- endif -%}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              </div>
+              {%- if review_url != blank -%}
+                </a>
+              {%- else -%}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      </grid-slider>
+    {%- else -%}
+      {%- render 'no-blocks' -%}
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_featured_image",
+      "label": "Show featured image",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "image_aspect_ratio",
+      "min": 0.5,
+      "max": 1.5,
+      "step": 0.1,
+      "unit": ":1",
+      "label": "Image height",
+      "info": "Wide to tall",
+      "default": 1.3
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quotation_marks",
+      "label": "Show quotation marks",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading size",
+      "default": "heading-small",
+      "options": [
+        {"value": "heading-mini", "label": "Mini"},
+        {"value": "heading-x-small", "label": "Extra small"},
+        {"value": "heading-small", "label": "Small"},
+        {"value": "heading-medium", "label": "Medium"},
+        {"value": "heading-large", "label": "Large"},
+        {"value": "heading-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "default": "text-left",
+      "options": [
+        {
+          "value": "text-left",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Centered"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Card background"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 50
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Customer name",
+          "default": "Example Customer"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "Industry Expert"
+        },
+        {
+          "type": "richtext",
+          "id": "review_content",
+          "label": "Testimonial",
+          "default": "<p>Use this text to showcase a review from one of your customers. A great review is honest and speaks to the concerns of your customers.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "featured_image",
+          "label": "Featured image",
+          "info": "1400 x 1400px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "type": "image_picker",
+          "id": "bio_image",
+          "label": "Bio image",
+          "info": "70 x 70px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "type": "header",
+          "content": "Review link",
+          "info": "Whole block turns into a link"
+        },
+        {
+          "type": "url",
+          "id": "review_url",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials",
+      "blocks": [
+        {
+          "type": "review",
+          "settings": {
+            "title": "Jeremy Usborne"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "title": "Willy Bridge"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "title": "Kenneth Powell"
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

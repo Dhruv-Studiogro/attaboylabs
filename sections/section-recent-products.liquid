@@ -1,0 +1,200 @@
+<!-- /sections/section-recent-products.liquid -->
+{%- assign color_scheme = 'color-' | append: section.settings.color_scheme -%}
+
+{%- style -%}
+  #RecentProducts--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  }
+{%- endstyle -%}
+
+<script src="{{ 'related-products.js' | asset_url }}" defer="defer"></script>
+
+<related-products
+  id="RecentProducts--{{ section.id }}"
+  class="recent__container section-padding js {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="related"
+>
+  <div class="recent__container__inner is-hidden" data-recently-viewed-wrapper>
+    <tabs-component class="tabs-wrapper related__products">
+      <div class="grid__heading-holder">
+        <div class="grid__heading-actions">
+          <native-scrollbar class="tabs__head">
+            {%- if section.settings.product_recently_heading != blank -%}
+              <ul class="tabs text-center" data-scrollbar data-scrollbar-slider>
+                <li class="tab-link tab-link-0 tab-link__recent current" data-tab="0" tabindex="0">
+                  {%- liquid
+                    assign heading_tag = 'span'
+
+                    unless section.settings.heading_tag == 'automatic' or section.settings.heading_tag == blank
+                      assign heading_tag = section.settings.heading_tag
+                    endunless
+                  -%}
+
+                  <{{ heading_tag }} class="{{ section.settings.heading_font_size }}">
+                    {{- section.settings.product_recently_heading -}}
+                  </{{ heading_tag }}>
+                </li>
+              </ul>
+            {%- endif -%}
+
+            <button type="button" class="tabs__arrow tabs__arrow--prev is-hidden" data-scrollbar-arrow-prev>
+              {%- render 'icon-nav-arrow-left' -%}
+              <span class="visually-hidden">{{ 'products.general.see_all' | t }}</span>
+            </button>
+
+            <button type="button" class="tabs__arrow tabs__arrow--next is-hidden" data-scrollbar-arrow-next>
+              {%- render 'icon-nav-arrow-right' -%}
+              <span class="visually-hidden">{{ 'products.general.see_all' | t }}</span>
+            </button>
+          </native-scrollbar>
+        </div>
+      </div>
+
+      <div class="tab-content tab-content-0 tabs__recently-viewed current" data-tab-index="0">
+        {%- render 'products-recently-viewed',
+          product: product,
+          limit: section.settings.product_recently_limit,
+          product_recently_minimum: section.settings.product_recently_minimum
+        -%}
+      </div>
+    </tabs-component>
+  </div>
+</related-products>
+
+{% schema %}
+{
+  "name": "Recently viewed products",
+  "settings": [
+    {
+      "type": "range",
+      "id": "product_recently_limit",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "label": "Product limit",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "product_recently_minimum",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "label": "Display threshold",
+      "info": "Hide section until a minimum of products can be shown.",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "text",
+      "id": "product_recently_heading",
+      "label": "Heading",
+      "default": "Recently viewed"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading size",
+      "default": "heading-x-small",
+      "options": [
+        {"value": "heading-mini", "label": "Mini"},
+        {"value": "heading-x-small", "label": "Extra small"},
+        {"value": "heading-small", "label": "Small"},
+        {"value": "heading-medium", "label": "Medium"},
+        {"value": "heading-large", "label": "Large"},
+        {"value": "heading-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "select",
+      "id": "layout_mobile",
+      "label": "Mobile layout",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 item per row"
+        },
+        {
+          "value": "2",
+          "label": "2 items per row"
+        },
+        {
+          "value": "slider",
+          "label": "Slider"
+        }
+      ],
+      "default": "slider"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Advanced"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading SEO tag",
+      "default": "automatic",
+      "options": [
+        {"value": "automatic", "label": "Automatic"},
+        {"value": "h1", "label": "H1"},
+        {"value": "h2", "label": "H2"},
+        {"value": "h3", "label": "H3"},
+        {"value": "h4", "label": "H4"},
+        {"value": "h5", "label": "H5"},
+        {"value": "h6", "label": "H6"}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Recently viewed products"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

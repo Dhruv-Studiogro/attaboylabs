@@ -1,0 +1,286 @@
+{%- liquid
+  assign enable_sort = section.settings.enable_sort
+  assign enable_filters = section.settings.enable_filters
+  assign filter_layout = section.settings.filter_layout
+  assign hidden_products_count = 0
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+
+  assign columns_desktop = 4
+  assign columns_medium = 3
+  assign columns_small = 2
+  assign columns_mobile = 1
+
+  if filter_layout == 'inline-open'
+    assign show_group_filters = true
+  endif
+-%}
+
+{%- capture collection_sidebar_class -%}
+  {%- if filter_layout == 'slide-out' -%}
+    collection__sidebar__slide-out
+    {%- else -%}
+    collection__sidebar__slider{% if show_group_filters %} expanded drawer--animated no-mobile-animation{% endif %}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- style -%}
+  .search-page {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+  }
+{%- endstyle -%}
+
+{%- capture image_sizes -%}
+  {%- if filter_layout == 'inline-open' and enable_filters -%}
+    {%- if settings.grid_style == 'compact' -%}
+      (min-width: 990px) calc((100vw - 288px) / {{ columns_desktop }}), (min-width: 750px) calc((100vw - 258px) / {{ columns_medium }}), (min-width: 480px) calc(100vw / {{ columns_small }}), calc(100vw / {{ columns_mobile }})
+    {%- else -%}
+      (min-width: 990px) calc((100vw - 288px - 100px) / {{ columns_desktop }} - 32px), (min-width: 750px) calc((100vw - 258px - 64px) / {{ columns_medium }} - 32px), (min-width: 480px) calc((100vw - 32px) / {{ columns_small }}), calc((100vw - 32px) / {{ columns_mobile }})
+    {%- endif -%}
+  {%- else-%}
+    {%- if settings.grid_style == 'compact' -%}
+      (min-width: 990px) calc((100vw) / {{ columns_desktop }}), (min-width: 750px) calc((100vw) / {{ columns_medium }}), (min-width: 480px) calc(100vw / {{ columns_small }}), calc(100vw / {{ columns_mobile }})
+    {%- else -%}
+      (min-width: 990px) calc((100vw - 100px) / {{ columns_desktop }} - 32px), (min-width: 750px) calc((100vw - 64px) / {{ columns_medium }} - 32px), (min-width: 480px) calc((100vw - 32px) / {{ columns_small }}), calc((100vw - 32px) / {{ columns_mobile }})
+    {%- endif -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+<collection-component
+  class="page search-page collection section-padding {{ color_scheme }}"
+  data-section-type="collection"
+  data-section-id="{{ section.id }}"
+  data-sort="{{ enable_sort }}"
+>
+  {%- render 'search-form' -%}
+
+  {%- if search.performed -%}
+    {%- capture search_results -%}
+      {%- paginate search.results by 36 -%}
+        <div class="grid-outer" data-products-grid>
+          <div class="grid" id="SearchLoop">
+            {%- if search.results == empty -%}
+              <div class="no-results">
+                <p><strong>{{ 'collections.general.no_matches' | t }}</strong></p>
+              </div>
+            {%- else -%}
+              {%- liquid
+                for item in search.results
+                  if item.tags contains 'hide'
+                    assign hidden_products_count = hidden_products_count | plus: 1
+                  endif
+
+                  if item.object_type == 'product'
+                    render 'product-grid-item', product: item, index: forloop.index, sizes: image_sizes
+                  else
+                    render 'search-results-item', item: item, tabindex: true
+                  endif
+                endfor
+              -%}
+            {%- endif -%}
+          </div>
+
+          {%- render 'pagination', paginate: paginate -%}
+
+          <div class="grid__loader">
+            <div class="loader grid__loader-line"><div class="loader-indeterminate"></div></div>
+          </div>
+        </div>
+      {%- endpaginate -%}
+    {%- endcapture -%}
+
+    {%- if search.results == empty -%}
+      <p class="search__caption caps">{{ 'general.search.no_results' | t: terms: search.terms }}</p>
+    {%- else -%}
+      {% assign search_results_count = search.results_count | minus: hidden_products_count %}
+      <p class="search__caption caps" data-results-count>
+        {{ 'general.search.results_with_count_and_term' | t: terms: search.terms, count: search_results_count }}
+      </p>
+    {%- endif -%}
+
+    {%- liquid
+      assign nav_classes = ''
+      if enable_sort
+        assign nav_classes = nav_classes | append: ' collection__nav--sort'
+      endif
+
+      if enable_filters
+        assign nav_classes = nav_classes | append: ' collection__nav--filter'
+      endif
+    -%}
+
+    {%- if enable_sort or enable_filters -%}
+      {%- liquid
+        assign filter_active_count = 0
+
+        for filter in search.filters
+          assign filter_active_count = filter_active_count | plus: filter.active_values.size
+        endfor
+      -%}
+      <nav class="collection__nav{{ nav_classes }}" data-collection-nav>
+        {%- if enable_filters -%}
+          <div class="popout--group">
+            <button
+              type="button"
+              class="popout__toggle{% unless filter_layout == 'slide-out' %} popout__toggle--filters{% endunless %}"
+              aria-expanded="{% if show_group_filters %}true{% else %}false{% endif %}"
+              aria-controls="filter-groups"
+              data-aria-toggle
+            >
+              {%- render 'icon-filter' -%}
+
+              {%- if filter_layout == 'slide-out' -%}
+                {{- 'collections.general.filters' | t -}}
+              {%- else -%}
+                <span class="popout__toggleable-text">
+                  <span class="popout__expanded-show">
+                    {{- 'collections.general.show_filters' | t -}}
+                    <span class="filter-count{% if filter_active_count < 1 %} hidden{% endif %}" data-active-filters>
+                      {{- filter_active_count -}}
+                    </span>
+                  </span>
+
+                  <span class="popout__expanded-hide">
+                    {{- 'collections.general.hide_filters' | t -}}
+                    <span class="filter-count{% if filter_active_count < 1 %} hidden{% endif %}" data-active-filters>
+                      {{- filter_active_count -}}
+                    </span>
+                  </span>
+                </span>
+              {%- endif -%}
+
+              {%- unless filter_layout == 'slide-out' -%}
+                {%- render 'icon-nav-arrow-down' -%}
+              {%- endunless -%}
+            </button>
+          </div>
+        {%- endif -%}
+
+        {%- if enable_sort -%}
+          {% render 'collection-sorting' %}
+        {%- endif -%}
+      </nav>
+    {%- endif -%}
+
+    <div class="collection__products">
+      {%- if enable_filters -%}
+        <div class="{{ collection_sidebar_class }}" id="filter-groups" data-collection-sidebar>
+          <div class="collection__sidebar__head{% unless filter_layout == 'slide-out' %} mobile{% endunless %}">
+            <h3>
+              {{- 'collections.general.filters' | t -}}
+
+              <span
+                class="filter-count{% if filter_active_count < 1 %} hidden{% endif %}"
+                data-active-filters
+              >
+                {{- filter_active_count -}}
+              </span>
+            </h3>
+
+            <a
+              href="#filters-group"
+              class="collection__sidebar__close"
+              data-collection-sidebar-close
+              aria-label="{{ 'collections.general.hide_filters' | t }}"
+            >
+              {%- render 'icon-cancel' -%}
+            </a>
+          </div>
+
+          {% render 'collection-filters-sidebar', section: section %}
+        </div>
+
+        <span
+          class="underlay{% unless filter_layout == 'slide-out' %} mobile{% endunless %}"
+          data-collection-sidebar-close
+        ></span>
+      {%- elsif enable_sort -%}
+        <collection-filters-form>
+          <form
+            data-collection-filters-form
+            class="collection__filters hidden"
+            id="{{ section.id }}-form-filter"
+          ></form>
+        </collection-filters-form>
+      {%- endif -%}
+
+      {{ search_results }}
+    </div>
+  {%- endif -%}
+</collection-component>
+
+{%- if search.performed and enable_sort or enable_filters -%}
+  <script src="{{ 'collection.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'collection-filters-form.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Search",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_sort",
+      "label": "Show sorting",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filters",
+      "label": "Enable filters",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "filter_layout",
+      "label": "Filter layout",
+      "default": "inline-open",
+      "options": [
+        {"label": "Slide out", "value": "slide-out"},
+        {"label": "Inline (closed)", "value": "inline-closed"},
+        {"label": "Inline (open)", "value": "inline-open"}
+      ]
+    },
+    {
+      "type": "link_list",
+      "id": "collection_linklist",
+      "label": "Sidebar navigation",
+      "info": "This menu won't show dropdown items."
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 50
+    }
+  ]
+}
+{% endschema %}

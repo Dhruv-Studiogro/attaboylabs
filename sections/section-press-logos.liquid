@@ -1,0 +1,373 @@
+<!-- /sections/section-logo-list.liquid -->
+
+{%- liquid
+  assign logo_opacity_default = section.settings.logo_opacity | default: 100
+  assign logo_opacity = logo_opacity_default | times: 0.01
+  assign show_slider_text = false
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign enable_slider = section.settings.enable_heading_slider
+  assign animation_anchor = '#Logos--' | append: section.id
+  assign animation_order = 1
+-%}
+
+<script src="{{ 'logos.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  #Logos--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    {%- if section.settings.enable_heading_slider -%}
+      --logo-opacity: {{ logo_opacity }};
+    {%- endif -%}
+  }
+
+  {%- if request.visual_preview_mode -%}
+    .logos__slide__text {
+      opacity: 1;
+      transform: translateY(0%);
+    }
+  {%- endif -%}
+{%- endstyle -%}
+
+{%- if section.settings.title != blank -%}
+  {%- capture heading -%}
+    <h2 class="logos__title subheading"
+      data-aos="hero"
+      data-aos-anchor="{{ animation_anchor }}"
+      data-aos-order="{{ animation_order }}"
+    >
+      {{ section.settings.title }}
+    </h2>
+  {%- endcapture -%}
+{%- endif -%}
+
+{%- for block in section.blocks -%}
+  {%- capture slides -%}
+    {{ slides }}
+    {%- liquid
+      assign logo = block.settings.logo
+      assign logo_width = block.settings.logo_width
+      assign sizes = logo_width | append: 'px'
+      assign width = logo_width | times: 2
+      assign width_retina = logo_width | times: 2
+      assign widths = '100, 120, 140, 160, 180, 200, 240, 280, 320, 360, ' | append: logo_width | append: ', ' | append: width_retina
+      assign link = block.settings.link
+
+      if block.settings.text != blank and section.settings.enable_heading_slider
+        assign show_slider_text = true
+      endif
+
+      case block.type
+        when 'logo-item-header'
+          assign font_style = 'font-heading'
+          assign font_size = block.settings.heading_font_size
+        when 'logo-item-text'
+          assign font_style = 'font-body'
+          assign font_size = block.settings.text_font_size
+      endcase
+    -%}
+
+    <div class="logos__slide{% if forloop.first and enable_slider %} is-selected{% endif %}"
+      data-slide="{{ block.id }}"
+      data-slide-index="{{ forloop.index0 }}"
+      {{ block.shopify_attributes }}>
+
+    {%- if enable_slider -%}
+      <button
+        class="logos__slide__link"
+        type="button"
+        aria-label="{{ 'general.accessibility.scroll_to_logo' | t }}">
+    {%- endif -%}
+
+      {%- if link != blank and enable_slider == false -%}
+        <a class="logos__slide__link" href="{{ link }}" aria-label="{{ logo.alt | strip_html | escape }}">
+      {%- endif -%}
+
+      <div class="logos__logo">
+        {%- if logo != blank -%}
+          <div class="logos__img" style="width: {{ logo_width }}px; height: {{ logo_width | divided_by: logo.aspect_ratio }}px;">
+            {%- render 'image' image: logo, sizes: sizes, width: width, widths: widths, show_backfill: false -%}
+          </div>
+        {%- else -%}
+          <div class="logos__img svg-placeholder" style="width: {{ logo_width }}px; height: {{ logo_width }}px;">
+            {{ 'logo' | placeholder_svg_tag: 'placeholder-svg' }}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- if link != blank and enable_slider == false -%}
+        </a>
+      {%- endif -%}
+
+      {%- if enable_slider -%}
+        </button>
+      {%- endif -%}
+    </div>
+  {%- endcapture -%}
+
+  {%- capture contents -%}
+    {{ contents }}
+
+    {%- assign text = block.settings.text -%}
+
+    <div class="logos__slide logos__slide--{{ block.id }}"
+      data-slide-index="{{ forloop.index0 }}"
+      data-slide="{{ block.id }}"
+      {{ block.shopify_attributes }}>
+      {%- if text != blank -%}
+        <div class="logos__slide__text {{ font_size }} {{ font_style }}">{{ text }}</div>
+      {%- endif -%}
+    </div>
+  {%- endcapture -%}
+{%- endfor -%}
+
+<div
+  id="Logos--{{ section.id }}"
+  class="logos section-padding{% if enable_slider %} logos-press{% endif %} {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="logos"
+>
+  <logos-component class="logos__wrapper">
+    {{ heading }}
+
+    {%- if section.blocks.size > 0 -%}
+      {%- assign animation_order = animation_order | plus: 1 -%}
+      <div
+        class="logos__slider__outer"
+        data-aos="hero"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-order="{{ animation_order }}"
+      >
+        <div
+          class="logos__slider"
+          data-slider-logos
+          {% if request.design_mode %}
+            data-block-scroll
+          {% endif %}
+        >
+          {{ slides }}
+        </div>
+      </div>
+    {%- else -%}
+      {%- render 'no-blocks' -%}
+    {%- endif -%}
+
+    {%- if show_slider_text -%}
+      {%- assign animation_order = animation_order | plus: 1 -%}
+
+      <div
+        class="logos__slider-text wrapper"
+        id="logos__slider-text--{{ section.id }}"
+        data-slider-text
+        data-aos="hero"
+        data-aos-anchor="{{ animation_anchor }}"
+        data-aos-order="{{ animation_order }}"
+      >
+        {{ contents }}
+      </div>
+    {%- endif -%}
+  </logos-component>
+</div>
+
+{% schema %}
+{
+  "name": "Press logos",
+  "max_blocks": 25,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_heading_slider",
+      "label": "Enable heading slider",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "logo_opacity",
+      "label": "Inactive logo opacity",
+      "unit": "%",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Subheading",
+      "default": "As seen in"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 50
+    }
+  ],
+  "blocks": [
+    {
+      "type": "logo-item-header",
+      "name": "Logo with header",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Logo",
+          "info": "360 x 360px .svg recommended"
+        },
+        {
+          "type": "range",
+          "id": "logo_width",
+          "label": "Width",
+          "unit": "px",
+          "min": 100,
+          "max": 180,
+          "step": 10,
+          "default": 100
+        },
+        {
+          "type": "header",
+          "content": "Link",
+          "info": "Applies if 'enable heading slider' is disabled"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "header",
+          "content": "Quote"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Header",
+          "default": "Include a brief quote from a brand that loves your products"
+        },
+        {
+          "type": "select",
+          "id": "heading_font_size",
+          "label": "Heading size",
+          "default": "heading-small",
+          "options": [
+            {"value": "heading-mini", "label": "Mini"},
+            {"value": "heading-x-small", "label": "Extra small"},
+            {"value": "heading-small", "label": "Small"},
+            {"value": "heading-medium", "label": "Medium"},
+            {"value": "heading-large", "label": "Large"},
+            {"value": "heading-x-large", "label": "Extra large"}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "logo-item-text",
+      "name": "Logo with text",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Logo",
+          "info": "360 x 360px .svg recommended"
+        },
+        {
+          "type": "range",
+          "id": "logo_width",
+          "label": "Width",
+          "unit": "px",
+          "min": 100,
+          "max": 180,
+          "step": 10,
+          "default": 100
+        },
+        {
+          "type": "header",
+          "content": "Link",
+          "info": "Applies if 'enable heading slider' is disabled"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "header",
+          "content": "Quote"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Include a brief quote from a brand that loves your products"
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+          "default": "body-x-large",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Press logos",
+      "blocks": [
+        {
+          "type": "logo-item-header"
+        },
+        {
+          "type": "logo-item-header"
+        },
+        {
+          "type": "logo-item-header"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

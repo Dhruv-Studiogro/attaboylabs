@@ -1,0 +1,14 @@
+{%- liquid
+  if settings.enable_superscript
+    assign link_collection = link_collection | default: false
+    assign superscript_collection = superscript_collection | default: false
+    if superscript_collection == false and link_collection and link_collection.type == 'collection_link'
+      assign link_collection_handle = link_collection.url | split: '/collections/' | last | split: '/' | first
+      assign superscript_collection = collections[link_collection_handle]
+    endif
+
+    if superscript_collection != empty and superscript_collection.all_products_count > 0
+      echo '<sup class="sup">' | append: superscript_collection.all_products_count | append: '</sup>'
+    endif
+  endif
+-%}

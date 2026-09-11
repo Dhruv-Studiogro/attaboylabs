@@ -1,0 +1,55 @@
+{% comment %}
+    Renders Price on product grid item
+
+    Accepts:
+    - product: {Object} product (required)
+    - current_variabt: {Object} Current variant (required)
+
+    Usage:
+    {% render 'product-grid-price', product: product, current_variant: current_variant %}
+{% endcomment %}
+
+{%- liquid
+  if settings.currency_code_enable
+    assign product_price_min = product.price_min | money_with_currency
+    assign product_compare_at_price = product.compare_at_price | money_with_currency
+  else
+    assign product_price_min = product.price_min | money
+    assign product_compare_at_price = product.compare_at_price | money
+  endif
+-%}
+
+<span class="price{% if product.compare_at_price > product.price %} sale{% endif %}">
+  {% if product.available or badge_soldout != '' %}
+    <span class="new-price">
+      {% if product.price_varies %}
+        <small>{{ 'products.general.from' | t }}</small>
+      {% endif %}
+      {%- if product.price == 0 and product.price_varies == false -%}
+        {{ 'general.money.free' | t }}
+      {%- else -%}
+        {{ product_price_min }}
+      {%- endif -%}
+    </span>
+    {% if product.compare_at_price > product.price %}
+      <span class="old-price">{{ product_compare_at_price }}</span>
+    {% endif %}
+  {% else %}
+    <span class="sold-out">{{ 'products.product.sold_out' | t }}</span>
+  {% endif %}
+</span>
+{% if current_variant.unit_price %}
+  {% capture unit_price_separator %}
+    <span aria-hidden="true">/</span>
+    <span class="visually-hidden">{{ 'general.accessibility.unit_price_separator' | t }}&nbsp;</span>
+  {% endcapture %}
+  {% capture unit_price_base_unit %}
+    {% if current_variant.unit_price_measurement.reference_value != 1 %}
+      {{ current_variant.unit_price_measurement.reference_value }}
+    {% endif %}
+    {{ current_variant.unit_price_measurement.reference_unit }}
+  {% endcapture %}
+  <br>
+  <span class="visually-hidden visually-hidden--inline">{{ 'products.product.unit_price_label' | t }}</span>
+  <span class="unit small">{% if settings.currency_code_enable %}{{ current_variant.unit_price | money_with_currency }}{% else %}{{ current_variant.unit_price | money }}{% endif %}{{ unit_price_separator }}{{ unit_price_base_unit }}</span>
+{% endif %}

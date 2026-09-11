@@ -1,0 +1,199 @@
+{%- liquid
+  assign buybutton_setting = false
+  assign current_variant = product.selected_or_first_available_variant
+  assign gift_card_recipient_feature_active = false
+  assign show_quantity = show_quantity | default: block.settings.show_quantity | default: false
+  assign is_quickview = quickview | default: false
+  assign show_newsletter = settings.show_newsletter
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+
+  if quickview
+    assign show_newsletter = false
+  endif
+
+  assign button_text = 'products.product.add_to_cart' | t
+  if preorder
+    assign button_text = 'products.product.pre_order' | t
+  endif
+
+  unless current_variant.available
+    assign button_text = 'products.product.sold_out' | t
+  endunless
+
+  if block.settings.show_gift_card_recipient and product.gift_card? and is_quickview != true
+    assign gift_card_recipient_feature_active = true
+  endif
+
+  if block.settings.show_payment_button and gift_card_recipient_feature_active == false and settings.enable_accept_terms == false
+    assign buybutton_setting = true
+  endif
+
+  comment
+    Override buy button setting if there are selling plan groups
+  endcomment
+  if product.selling_plan_groups.size > 0
+    assign buybutton_setting = false
+  endif
+-%}
+
+{%- capture quantity_selector -%}
+  {%- if show_quantity -%}
+    <script src="{{ 'quantity-counter.js' | asset_url }}" defer="defer"></script>
+    <quantity-counter>
+      {%- if settings.quantity_style == 'dropdown' -%}
+        <popout-select class="select-popout select-popout--quantity">
+          <button type="button"
+            class="select-popout__toggle"
+            aria-expanded="false"
+            aria-controls="{{ unique }}-select-quantity"
+            aria-labelledby="{{ unique }}-select-quantity-label"
+            data-popout-toggle>
+            <span data-popout-toggle-text>1</span>
+            {%- render 'icon-nav-arrow-down' -%}
+          </button>
+
+          <ul id="{{ unique }}-select-quantity" class="select-popout__list" data-popout-list data-scroll-lock-scrollable>
+            {%- for idx in (1..10) -%}
+              <li class="select-popout__item{% if forloop.index == 1 %} is-active{% endif %}">
+                <a class="select-popout__option" href="#" {% if forloop.index == 1 %}aria-current="true"{% endif %} data-value="{{ forloop.index }}" data-popout-option>
+                  <span>
+                    {{ forloop.index }} {% if forloop.last %}+{% endif %}
+                  </span>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </popout-select>
+      {%- endif -%}
+
+      <div class="quantity-selector">
+        <label for="product-quantity-buttons-{{ unique }}" class="label-hidden">{{ 'products.product.quantity' | t }}</label>
+
+        <button
+          class="quantity__minus"
+          type="button"
+          name="decrease"
+          title="{{ 'cart.general.decrease_quantity_label' | t }} - {{ product.title | strip_html }}">
+          {%- render 'icon-minus' -%}
+        </button>
+
+        <input
+          id="product-quantity-buttons-{{ unique }}"
+          class="quantity__input"
+          type="number"
+          name="quantity"
+          value="1"
+          min="1"
+          aria-label="quantity"
+          autocomplete="off"
+          title="{{ 'cart.general.quantity_field_label' | t }} - {{ product.title | strip_html }}"
+          pattern="[0-9]*"
+          data-popout-input>
+
+        <button
+          class="quantity__plus"
+          type="button"
+          name="increase"
+          title="{{ 'cart.general.increase_quantity_label' | t }} - {{ product.title | strip_html }}">
+          {%- render 'icon-plus' -%}
+        </button>
+      </div>
+    </quantity-counter>
+  {%- else -%}
+    <input type="hidden" name="quantity" value="1">
+  {%- endif -%}
+{%- endcapture -%}
+
+<div
+  class="product__block product__block--buttons block-padding {{ color_scheme }}"
+  {{ block_style }}
+  {{ block.shopify_attributes }}
+>
+  <product-form>
+    {%- form 'product', product, id: product_form_id, class: 'product-form', data-product-form: '' -%}
+      {%- if gift_card_recipient_feature_active -%}
+        {%- render 'gift-card-recipient-form', product: product, form: form -%}
+      {%- endif -%}
+
+      <div
+        class="product__submit{% if buybutton_setting %} product__submit--spb{% endif %}"
+        {% if animation_name %}
+          data-animation="{{ animation_name }}"
+          data-animation-duration="{{ animation_duration }}"
+          data-animation-delay="{{ animation_delay }}"
+        {% endif %}
+      >
+        <div class="product__form__errors" data-cart-errors-container></div>
+
+        <div class="product__submit__buttons{% if buybutton_setting and show_quantity == false %} product__submit__buttons--inline{% endif %}">
+          <div class="product__submit__item{% if show_quantity %} product__submit__item--inline{% endif %}">
+            {{ quantity_selector }}
+
+            {%- liquid
+              assign button_style = block.settings.button_style | default: 'btn--solid'
+              assign button_type = block.settings.button_type | default: 'btn--primary'
+            -%}
+
+            <button
+              type="submit"
+              name="add"
+              id="AddToCart--{{ section.id }}"
+              class="btn {{ button_style }} {{ button_type }}"
+              data-add-to-cart
+              {% unless current_variant.available %}
+                disabled="disabled"
+              {% endunless %}
+            >
+              <span class="btn__text" data-add-to-cart-text>{{ button_text }}</span>
+              <span class="btn__added">&nbsp;</span>
+
+              <span class="btn__loader">
+                <svg height="18" width="18" class=" svg-loader">
+                  <circle r="7" cx="9" cy="9" />
+                  <circle stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+                </svg>
+              </span>
+            </button>
+
+            {%- if show_newsletter -%}
+              {%- assign newsletter_text = 'general.newsletter_form.newsletter_product_availability' | t -%}
+              {%- assign button_text = 'products.product.sold_out' | t | append: ' - ' | append: newsletter_text -%}
+
+              <popup-component class="product-soldout-notification">
+                <button type="button" class="btn {{ button_style }} {{ button_type }}" data-popup-open>
+                  <span class="btn__text">{{ button_text }}</span>
+                </button>
+
+                <dialog class="product-modal" aria-hidden="true" inert data-scroll-lock-required>
+                  <form method="dialog">
+                    <button class="visually-hidden no-js" aria-label="{{ 'general.accessibility.close' | t }}"></button>
+                  </form>
+
+                  <div class="drawer__inner product-modal__notification">
+                    <div class="product-modal__content small" data-scroll-lock-scrollable>
+                      <button
+                        type="button"
+                        class="product-modal__close"
+                        data-popup-close
+                        aria-label="{{ 'general.accessibility.close' | t }}"
+                      >
+                        {%- render 'icon-cancel' -%}
+                      </button>
+
+                      {%- render 'notification-form', product_title: product.title, current_variant: current_variant -%}
+                    </div>
+                  </div>
+                </dialog>
+              </popup-component>
+            {%- endif -%}
+          </div>
+          {%- if buybutton_setting -%}
+            <div class="product__submit__item {{ block.settings.button_type_dynamic }} {{ block.settings.button_style_dynamic }}">
+              {{ form | payment_button }}
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endform -%}
+  </product-form>
+</div>

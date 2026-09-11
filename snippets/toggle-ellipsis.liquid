@@ -1,0 +1,21 @@
+{% comment %} Toggle ellipsis {% endcomment %}
+{%- liquid
+  assign content = content | default: '' | strip
+  assign show_read_more = show_read_more | default: false
+-%}
+
+{%- if content != blank and show_read_more -%}
+  <toggle-ellipsis data-height="175">
+    <div class="toggle-ellipsis__content" data-content>
+      {{ content }}
+    </div>
+
+    <div class="toggle-ellipsis__actions" data-actions>
+      <button type="button" class="caps--link" data-button>
+        <span>{{ 'products.general.read_more' | t }}</span>
+      </button>
+    </div>
+  </toggle-ellipsis>
+{%- elsif content != blank -%}
+  {{ content }}
+{%- endif -%}

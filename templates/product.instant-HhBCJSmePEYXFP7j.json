@@ -1,0 +1,31 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "instant-HhBCJSmePEYXFP7j": {
+      "type": "instant-HhBCJSmePEYXFP7j",
+      "blocks": {
+        "junip_junip_product_summary_U4qfEk": {
+          "type": "shopify://apps/junip/blocks/junip-product-summary/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
+          "settings": {
+            "product": "{{product}}"
+          }
+        }
+      },
+      "block_order": [
+        "junip_junip_product_summary_U4qfEk"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "instant-HhBCJSmePEYXFP7j"
+  ]
+}

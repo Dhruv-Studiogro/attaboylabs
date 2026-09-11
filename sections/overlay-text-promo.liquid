@@ -1,0 +1,308 @@
+<!-- /sections/overlay-text-promo.liquid -->
+
+{%- liquid
+  assign popup_classlist = 'popup-promo ' | append: section.settings.position
+
+  if section.settings.target_device_enabled
+    if section.settings.target_device == 'mobile'
+      assign popup_classlist = popup_classlist | append: ' mobile'
+    endif
+
+    if section.settings.target_device == 'desktop'
+      assign popup_classlist = popup_classlist | append: ' desktop'
+    endif
+  endif
+
+  assign show_popup = true
+
+  if section.settings.target_url_enabled and section.settings.target_url != blank
+    assign show_popup = false
+  endif
+
+  if section.settings.target_referrer_enabled and section.settings.target_referrer != blank
+    assign show_popup = false
+  endif
+
+  if section.settings.target_url_enabled and section.settings.target_url != blank
+    assign request_path = request.path
+
+    if request.page_type == 'product'
+      assign request_path = request_path | split: '/products/' | last | prepend: '/products/'
+    endif
+
+    if section.settings.target_url == request_path
+      assign show_popup = true
+    endif
+  endif
+
+  if section.settings.target_referrer_enabled and section.settings.target_referrer != blank
+    capture target_referrer_attribute
+      echo 'data-target-referrer="' | append: section.settings.target_referrer | append: '"'
+    endcapture
+
+    assign show_popup = true
+  endif
+
+  assign bg_color = section.settings.bg_color
+  assign text_color = section.settings.color
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+
+  assign button_style = section.settings.button_style
+  if button_style == 'btn--text' and section.settings.show_arrow
+    assign button_style = button_style | append: ' btn--text-no-underline'
+  endif
+-%}
+
+{%- style -%}
+  #Popup--{{ section.id }} {
+    {%- unless bg_color == 'rgba(0,0,0,0)' or bg_color == blank -%}
+      --bg: {{ bg_color }};
+    {%- endunless -%}
+
+    {%- unless text_color == 'rgba(0,0,0,0)' or text_color == blank -%}
+      --text: {{ text_color }};
+    {%- endunless -%}
+  }
+{%- endstyle -%}
+
+<section data-section-id="{{ section.id }}" data-section-type="popups">
+  {%- if show_popup -%}
+    <popup-component>
+      <dialog
+        class="{{ popup_classlist }} {{ color_scheme }}"
+        id="Popup--{{ section.id }}"
+        aria-modal="true"
+        aria-labelledby="Popup"
+        data-popup-delay="{{ section.settings.trigger }}"
+        data-cookie-name="popup-{{ section.id }}"
+        data-cookie-value="user_has_closed"
+        data-prevent-top-layer
+        {{ target_referrer_attribute }}
+      >
+        <form method="dialog">
+          <button class="visually-hidden no-js" aria-label="{{ 'general.accessibility.close' | t }}"></button>
+        </form>
+
+        <div class="popup-promo__inner">
+          {%- if section.settings.title != blank -%}
+            <p class="h4 popup__title">{{ section.settings.title | escape }}</p>
+          {%- endif -%}
+
+          <div class="popup__text">
+            {%- if section.settings.text != blank -%}
+              {{ section.settings.text }}
+            {%- endif -%}
+          </div>
+
+          {%- if section.settings.button_text != blank -%}
+            <a
+              href="{{ section.settings.button_url }}"
+              class="btn {{ button_style }} {{ section.settings.button_type }} {{ section.settings.button_size }}"
+            >
+              <span>{{ section.settings.button_text }}</span>
+
+              {%- if section.settings.show_arrow -%}
+                {%- render 'icon-arrow-right' -%}
+              {%- endif -%}
+            </a>
+          {%- endif -%}
+
+          <button data-popup-close class="close" title="{{ 'general.accessibility.close' | t }}">
+            {%- render 'icon-cancel' -%}
+          </button>
+        </div>
+      </dialog>
+    </popup-component>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Text promotion",
+  "class": "shopify-section-popups",
+  "settings": [
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Position",
+      "options": [
+        {
+          "value": "popup-promo--left",
+          "label": "Left"
+        },
+        {
+          "value": "popup-promo--right",
+          "label": "Right"
+        },
+        {
+          "value": "popup-promo--center",
+          "label": "Center"
+        }
+      ],
+      "default": "popup-promo--right"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Text block"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Use this text to share announcements or sales.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Text",
+      "default": "Learn more"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Link"
+    },
+    {
+      "type": "select",
+      "id": "button_type",
+      "label": "Color",
+      "default": "btn--primary",
+      "options": [
+        {"value": "btn--black", "label": "Black"},
+        {"value": "btn--white", "label": "White"},
+        {"value": "btn--primary", "label": "Primary"},
+        {"value": "btn--secondary", "label": "Secondary"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_size",
+      "label": "Size",
+      "default": "",
+      "options": [
+        {"label": "Small", "value": "btn--small"},
+        {"label": "Medium", "value": ""},
+        {"label": "Large", "value": "btn--large"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Style",
+      "default": "btn--solid",
+      "options": [
+        {"label": "Solid", "value": "btn--solid"},
+        {"label": "Outline", "value": "btn--outline"},
+        {"label": "Text", "value": "btn--text"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrow",
+      "label": "Show arrow",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "paragraph",
+      "content": "Overrides color scheme. Set to Transparent to revert back to using color schemes."
+    },
+    {
+      "type": "color",
+      "id": "color",
+      "label": "Text"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background"
+    },
+    {
+      "type": "header",
+      "content": "Popup behavior"
+    },
+    {
+      "type": "select",
+      "id": "trigger",
+      "label": "Delay appearance",
+      "default": "always",
+      "options": [
+        {"value": "always", "label": "Show immediately"},
+        {"value": "delayed_10", "label": "Show 10 seconds after page load"},
+        {"value": "bottom", "label": "Show after user scrolls to page bottom"},
+        {"value": "idle", "label": "Show after user has been idle for 1 minute"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Target page"
+    },
+    {
+      "id": "target_url_enabled",
+      "type": "checkbox",
+      "label": "Limit to specific page"
+    },
+    {
+      "id": "target_url",
+      "type": "url",
+      "label": "Targeted page"
+    },
+    {
+      "type": "header",
+      "content": "Target referrer"
+    },
+    {
+      "id": "target_referrer_enabled",
+      "type": "checkbox",
+      "label": "Limit to specific referrer path"
+    },
+    {
+      "id": "target_referrer",
+      "type": "text",
+      "label": "Targeted referrer"
+    },
+    {
+      "type": "header",
+      "content": "Target device"
+    },
+    {
+      "id": "target_device_enabled",
+      "type": "checkbox",
+      "label": "Limit to desktop or mobile"
+    },
+    {
+      "type": "select",
+      "id": "target_device",
+      "label": "Device ",
+      "default": "mobile",
+      "options": [
+        {"value": "mobile", "label": "Only show on mobile"},
+        {"value": "desktop", "label": "Only show on desktop"}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text promotion"
+    }
+  ],
+  "enabled_on": {
+    "groups": ["aside"]
+  }
+}
+{% endschema %}

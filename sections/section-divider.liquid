@@ -1,0 +1,95 @@
+<!-- /sections/section-divider.liquid -->
+{%- liquid
+  assign section_width = section.settings.width
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+-%}
+
+{%- capture style -%}
+  --PT: {{ section.settings.padding_top | append: 'px' }};
+  --PB: {{ section.settings.padding_bottom | append: 'px' }};
+{%- endcapture -%}
+
+<section id="Divider--{{ section.id }}"
+  class="divider-section section-padding {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="divider"
+  style="{{ style }}">
+  <div class="divider-holder {{ section_width }}">
+    {%- if section.settings.show_line -%}
+      <hr class="divider">
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+  {
+    "name": "Divider",
+    "class": "divider-container",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_line",
+        "label": "Show line",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Layout"
+      },
+      {
+        "type": "select",
+        "id": "width",
+        "label": "Width",
+        "default": "wrapper--full-padded",
+        "options": [
+          {"value": "wrapper--full", "label": "Full width"},
+          {"value": "wrapper--full-padded", "label": "Full width padded"},
+          {"value": "wrapper", "label": "Normal"},
+          {"value": "wrapper--narrow", "label": "Narrow"}
+        ]
+      },
+      {
+        "type": "header",
+        "content": "Colors"
+      },
+      {
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "default": "scheme_1",
+        "label": "Color scheme"
+      },
+      {
+        "type": "header",
+        "content": "Padding"
+      },
+      {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "unit": "px",
+        "label": "Top",
+        "default": 50
+      },
+      {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "unit": "px",
+        "label": "Bottom",
+        "default": 50
+      }
+    ],
+   "presets": [
+      {
+        "name":"Divider"
+      }
+    ],
+    "disabled_on": {
+      "groups": ["header", "aside"]
+    }
+  }
+{% endschema %}

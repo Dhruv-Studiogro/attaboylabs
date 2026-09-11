@@ -1,0 +1,142 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign price_font_size = block.settings.text_font_size
+  assign units = product.variants | map: 'unit_price' | compact
+  if units[0]
+    assign has_units = true
+  else
+    assign has_units = false
+  endif
+-%}
+
+<div
+  class="product__block block-padding"
+  {{ block_style }}
+  {% if animation_name %}
+    data-animation="{{ animation_name }}"
+    data-animation-duration="{{ animation_duration }}"
+    data-animation-delay="{{ animation_delay }}"
+  {% endif %}
+>
+  <div class="product__price__wrap">
+    <div
+      class="product__price{% if has_units %} product__price--has-units{% endif %}{% if price_font_size != blank %} {{ price_font_size }}{% endif %}"
+      data-price-wrapper
+    >
+      <span
+        data-product-price
+        {% if current_variant.compare_at_price > current_variant.price %}
+          class="product__price--sale"
+        {% endif %}
+      >
+        {%- if current_variant.price == 0 -%}
+          {{ 'general.money.free' | t }}
+        {%- else -%}
+          {{ current_variant.price | money }}
+        {%- endif -%}
+      </span>
+
+      {%- if product.compare_at_price_max > product.price -%}
+        <span class="visually-hidden" data-compare-text>{{ 'products.product.regular_price' | t }}</span>
+        <s class="product__price--strike" data-compare-price>
+          {%- if current_variant.compare_at_price > current_variant.price -%}
+            {{ current_variant.compare_at_price | money }}
+          {%- endif -%}
+        </s>
+      {%- endif -%}
+
+      {%- if has_units -%}
+        {%- capture show_units -%}
+          {%- unless current_variant.unit_price -%}style="display: none;"{%- endunless -%}
+        {%- endcapture -%}
+
+        {%- capture unit_price_separator -%}
+          <span aria-hidden="true">/</span><span class="visually-hidden">{{ 'general.accessibility.unit_price_separator' | t }}&nbsp;</span>
+        {%- endcapture -%}
+
+        {%- capture unit_price_base_unit -%}
+          <span>
+            {% if current_variant.unit_price_measurement %}
+              {% if current_variant.unit_price_measurement.reference_value != 1 %}
+                {{ current_variant.unit_price_measurement.reference_value }}
+              {%- endif -%}
+              {{ current_variant.unit_price_measurement.reference_unit }}
+            {% endif %}
+          </span>
+        {%- endcapture -%}
+
+        <div class="product__price__meta">
+          <span data-product-unit {{ show_units }} class="product__price--unit">
+            <span class="visually-hidden visually-hidden--inline">{{ 'products.product.unit_price_label' | t }}</span>
+            <span data-product-unit-price id="unit-price-{{ unique }}">{{ current_variant.unit_price | money }}</span>
+            {{ unit_price_separator }}
+            <span data-product-base id="unit-price-base-{{ unique }}">{{ unit_price_base_unit }}</span>
+          </span>
+          <span data-price-each class="product__price--unit hidden">
+            {{ 'products.product.each' | t }}
+            <span data-price-each-amount></span>
+          </span>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- liquid
+      assign sale_badge = settings.sale_badge
+      assign final_sale = settings.final_sale | default: product.metafields.theme.final_sale.value
+      assign final_sale_variant = false
+
+      for variant in product.variants
+        if variant.metafields.theme.final_sale.value == true
+          assign final_sale_variant = true
+        endif
+      endfor
+    -%}
+
+    {%- if sale_badge or final_sale or final_sale_variant -%}
+      <div
+        class="product__sale"
+        data-price-off
+        {% if final_sale %}
+          data-final-sale
+        {% endif %}
+      >
+        {%- if sale_badge -%}
+          <span class="product__price--off hidden" data-price-off-badge>
+            <span data-price-off-amount></span>
+            {{ 'products.product.off' | t }}
+          </span>
+        {%- endif -%}
+
+        {%- if final_sale or final_sale_variant -%}
+          <div class="product__final-sale-wrap hidden" data-final-sale-badge>
+            <div class="product__final-sale">{{ 'products.product.final_sale' | t }}</div>
+            <tooltip-component
+              class="product__final-sale-question"
+              data-tooltip="<div style='--text: var(--COLOR-SALE);'>{{ settings.final_sale_tooltip | replace: '"', "'" }}</div>"
+            >
+              {%- render 'icon-question' -%}
+            </tooltip-component>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+  {% comment %} Shop pay split payment terms {% endcomment %}
+  <div class="shop-pay-terms">
+    {%- assign product_form_installment_id = 'product-form-installment-'
+      | append: unique
+      | append: '-'
+      | append: product.id
+    -%}
+    {%- form 'product',
+      product,
+      id: product_form_installment_id,
+      class: 'installment',
+      data-product-form-installment: ''
+    -%}
+      <input type="hidden" name="id" value="{{ current_variant.id }}">
+      {{ form | payment_terms }}
+    {%- endform -%}
+  </div>
+</div>

@@ -1,0 +1,165 @@
+{%- liquid
+  assign animation_name = 'drawer-items-fade'
+  assign animation_name_images = 'drawer-images-fade'
+  assign animation_duration = 500
+  assign animation_delay = 200
+  assign animation_delay_increment = 50
+  assign unique = unique | default: section.id
+  assign current_variant = product.selected_or_first_available_variant
+  assign featured_media = current_variant.featured_media | default: product.featured_media
+  assign preorder = false
+  if product.metafields.theme.preorder.type == 'boolean' and product.metafields.theme.preorder.value == true
+    assign preorder = true
+  endif
+  assign sold_out = false
+  unless product.available
+    assign sold_out = true
+  endunless
+  assign product_tags = product.tags | join: ','
+  if product_tags contains '_preorder'
+    assign preorder = true
+  endif
+-%}
+
+<div data-api-content>
+  <product-images
+    class="product-quick-add__images product__images product__images--thumbs product__images--mobile-thumbs"
+    data-active-media="{{ section.id }}-{{ featured_media.id }}"
+    data-fader-desktop
+  >
+    <div
+      class="product__slides"
+      data-product-media-list
+      data-animation="{{ animation_name_images }}"
+      data-animation-duration="{{ animation_duration }}"
+      data-animation-delay="{{ animation_delay }}"
+      {%- assign animation_delay = animation_delay | plus: animation_delay_increment -%}
+    >
+      {%- if product.media.size > 0 -%}
+        {%- for media in product.media -%}
+          {%- render 'media',
+            media: media,
+            featured_media: featured_media,
+            enable_video_looping: true,
+            sectionkey: section.id,
+            product_api: true,
+            image_width: '365',
+            loading: 'eager',
+            fetchpriority: 'high',
+            cover: true
+          -%}
+        {%- endfor -%}
+
+        {%- assign first_3d_model = product.media | where: 'media_type', 'model' | first -%}
+        {%- if first_3d_model -%}
+          <button
+            class="btn btn--outline btn--black btn--ar product-quick-add__view-in-space"
+            data-shopify-xr
+            data-shopify-model3d-id="{{ first_3d_model.id }}"
+            data-shopify-title="{{ product.title | strip_html }}"
+            data-shopify-xr-hidden
+          >
+            {%- render 'icon-media-model' -%}
+            <span class="product-quick-add__view-in-space-text">{{ 'products.general.view_space' | t }}</span>
+          </button>
+        {%- endif -%}
+      {%- else -%}
+        <div class="product__slide">
+          <div class="product__photo">
+            {%- render 'image',
+              image: product.featured_image,
+              widths: '365, 550, 730, 1100, 1460',
+              loading: 'eager',
+              cover: true
+            -%}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  </product-images>
+
+  <div class="product-quick-add__form">
+    <div class="product-quick-add__form__inner" data-form-wrapper>
+      {%- liquid
+        assign product_form_id = 'product-form-upsell-' | append: section.id | append: '-' | append: product.id
+
+        render 'product-title', product: product, is_title_linked: true, animation_name: animation_name, animation_delay: animation_delay, animation_duration: animation_duration
+        assign animation_delay = animation_delay | plus: animation_delay_increment
+
+        render 'product-price', product: product, unique: unique, animation_name: animation_name, animation_delay: animation_delay, animation_duration: animation_duration
+        assign animation_delay = animation_delay | plus: animation_delay_increment
+
+        render 'product-siblings', product: product, product_form_id: product_form_id, block: block, metafields: true, product_api: true, animation_name: animation_name, animation_delay: animation_delay, animation_duration: animation_duration
+        assign animation_delay = animation_delay | plus: animation_delay_increment
+
+        render 'product-variant-options', product: product, unique: unique, product_form_id: product_form_id, enable_size_chart: false, animation_name: animation_name, animation_delay: animation_delay, animation_duration: animation_duration, quickview: true
+        assign animation_delay = animation_delay | plus: animation_delay_increment
+
+        render 'product-description', product: product, product_api: true, animation_name: animation_name, animation_delay: animation_delay, animation_duration: animation_duration
+        assign animation_delay = animation_delay | plus: animation_delay_increment
+      -%}
+
+      {%- comment -%}
+        Add a line item property called 'Preorder' to preorder products
+      {%- endcomment -%}
+      {%- if preorder -%}
+        <input
+          type="hidden"
+          name="properties[{{ 'products.product.sale_type' | t }}]"
+          value="{{ 'products.product.pre_order' | t }}"
+          form="{{ product_form_id }}"
+          data-product-preorder
+        >
+      {%- endif -%}
+
+      {%- if settings.show_gift_card_recipient and product.gift_card? -%}
+        <div
+          class="product__block block-padding"
+          {% if animation_name %}
+            data-animation="{{ animation_name }}"
+            data-animation-duration="{{ animation_duration }}"
+            data-animation-delay="{{ animation_delay }}"
+          {% endif %}
+        >
+          {%- render 'gift-card-recipient-form',
+            product: product,
+            form: form,
+            section: section,
+            product_form_id: product_form_id
+          -%}
+        </div>
+      {%- endif -%}
+
+      {%- render 'product-buttons',
+        product: product,
+        unique: unique,
+        product_form_id: product_form_id,
+        animation_name: animation_name,
+        animation_delay: animation_delay,
+        animation_duration: animation_duration,
+        quickview: true
+      -%}
+
+      {% comment %} The input with name="id" submits to cart {% endcomment %}
+      <input type="hidden" name="id" value="{{ current_variant.id }}" form="{{ product_form_id }}">
+    </div>
+  </div>
+
+  {% unless product == empty %}
+    <script type="application/json" data-product-json>
+      {{ product | json }}
+    </script>
+
+    {%- liquid
+      assign metafields_data = '['
+      for variant in product.variants
+        assign metafield_value = variant.metafields.theme.final_sale.value | replace: '"', "''"
+        assign metafields_data = metafields_data | append: '{"variant_id":"' | append: variant.id | append: '" , "metafield_value":"' | append: metafield_value | append: '"},'
+      endfor
+      assign metafields_data = metafields_data | append: ']'
+      assign metafields_data = metafields_data | replace: ',]', ']'
+    -%}
+
+    <span data-variant-final-sale-metafield style="display:none;">{{ metafields_data }}</span>
+  {% endunless %}
+</div>

@@ -1,0 +1,466 @@
+<!-- /sections/section-collections-list.liquid -->
+
+{%- liquid
+  assign title = section.settings.title
+  assign description = section.settings.description
+  assign button_text = section.settings.button_text
+  assign button_style = section.settings.button_style
+  if button_style == 'btn--text' and section.settings.show_arrow
+    assign button_style = button_style | append: ' btn--text-no-underline'
+  endif
+
+  assign has_content = false
+  if title != blank or description != blank or button_text != blank
+    assign has_content = true
+  endif
+
+  assign aspect_ratio = 1 | divided_by: section.settings.aspect_ratio
+
+  assign grid_columns = section.settings.grid
+  assign limit_onboarding = grid_columns
+  assign layout = section.settings.layout
+  assign layout_mobile = section.settings.layout_mobile
+  capture grid_classes
+    echo 'grid'
+
+    if layout == 'slider'
+      echo ' grid--slider'
+    endif
+
+    if layout_mobile == 'slider'
+      echo ' grid--mobile-slider'
+    endif
+  endcapture
+
+  assign columns_desktop = grid_columns | plus: 0
+  assign columns_medium = 3
+  assign columns_small = 2
+  assign columns_mobile = layout_mobile | plus: 0
+
+  if columns_desktop == 2 or columns_desktop == 4
+    assign columns_medium = 2
+  endif
+
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign animation_anchor = '#CollectionsList--' | append: section.id
+-%}
+
+{%- style -%}
+  #CollectionsList--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    --COLUMNS: {{ columns_desktop }};
+    --COLUMNS-MEDIUM: {{ columns_medium }};
+    --COLUMNS-SMALL: {{ columns_small }};
+    --COLUMNS-MOBILE: {{ columns_mobile }};
+
+    {%- if has_content -%}
+      --PT-MOBILE: max({{ section.settings.padding_top }}px, calc(var(--gutter) * 2));
+    {%- endif -%}
+  }
+{%- endstyle -%}
+
+<section
+  id="CollectionsList--{{ section.id }}"
+  class="index-collections-list section-padding {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="list-collections"
+>
+  <div class="grid-container{% if layout == 'slider' and has_content %} grid-container--inline{% endif %} {{ section.settings.width }}">
+    {%- if has_content -%}
+      <div class="grid__heading-holder{% if layout == 'grid' %} text-center{% else %} grid__heading-holder--sticky{% endif %}">
+        {%- if title != blank or description != blank -%}
+          <div class="grid__heading-text">
+            {%- if title != blank -%}
+              {%- liquid
+                assign animation_order = animation_order | plus: 1
+                assign heading_tag = 'h2'
+
+                unless section.settings.heading_tag == 'automatic' or section.settings.heading_tag == blank
+                  assign heading_tag = section.settings.heading_tag
+                endunless
+              -%}
+
+              <{{ heading_tag }}
+                class="grid__heading {{ section.settings.heading_font_size }}"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ animation_order }}"
+              >
+                {{- title -}}
+              </{{ heading_tag }}>
+            {%- endif -%}
+
+            {%- if description != blank -%}
+              {%- assign animation_order = animation_order | plus: 1 -%}
+              <div
+                class="grid__description {{ section.settings.text_font_size }}"
+                data-aos="hero"
+                data-aos-anchor="{{ animation_anchor }}"
+                data-aos-order="{{ animation_order }}"
+              >
+                {{ description }}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- if button_text != blank -%}
+          {%- assign animation_order = animation_order | plus: 1 -%}
+          <div
+            class="grid__heading-actions"
+            data-aos="hero"
+            data-aos-anchor="{{ animation_anchor }}"
+            data-aos-order="{{ animation_order }}"
+          >
+            <a
+              class="btn {{ button_style }} {{ section.settings.button_size }} {{ section.settings.button_type }}"
+              href="{{ section.settings.button_url }}"
+            >
+              <span>{{ button_text | escape }}</span>
+
+              {%- if section.settings.show_arrow -%}
+                {%- render 'icon-arrow-right' -%}
+              {%- endif -%}
+            </a>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="grid__items-holder">
+      <div class="grid-outer collection-list-outer">
+        {%- liquid
+          capture collection_items
+            if section.blocks.size > 0
+              for block in section.blocks
+                assign animation_delay = forloop.index0 | times: 1
+                capture placeholder_index
+                  cycle 1, 2, 3, 5, 6
+                endcapture
+                render 'collection-grid-item', block: block, aspect_ratio: aspect_ratio, animation_delay: animation_delay, animation_anchor: animation_anchor, index: forloop.index, placeholder_index: placeholder_index
+              endfor
+            else
+              for i in (1..limit_onboarding)
+                assign animation_delay = forloop.index0 | times: 1
+                capture index
+                  cycle 1, 2, 3, 5, 6
+                endcapture
+                render 'collection-grid-item', block: block, aspect_ratio: aspect_ratio, animation_delay: animation_delay, animation_anchor: animation_anchor, index: index
+              endfor
+            endif
+          endcapture
+        -%}
+
+        {%- if layout == 'slider' -%}
+          <grid-slider align-arrows>
+            <div
+              class="collection-list {{ grid_classes }}"
+              data-grid-slider
+              {% if request.design_mode %}
+                data-block-scroll
+              {% endif %}
+            >
+              {{ collection_items }}
+            </div>
+          </grid-slider>
+        {%- else -%}
+          <div class="collection-list {{ grid_classes }}">
+            {{ collection_items }}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Collection list",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Collection list"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading size",
+      "default": "heading-medium",
+      "options": [
+        {"value": "heading-mini", "label": "Mini"},
+        {"value": "heading-x-small", "label": "Extra small"},
+        {"value": "heading-small", "label": "Small"},
+        {"value": "heading-medium", "label": "Medium"},
+        {"value": "heading-large", "label": "Large"},
+        {"value": "heading-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Text"
+    },
+    {
+      "type": "select",
+      "id": "text_font_size",
+      "label": "Text size",
+      "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+      "default": "body-medium",
+      "options": [
+        {"value": "body-x-small", "label": "Extra small"},
+        {"value": "body-small", "label": "Small"},
+        {"value": "body-medium", "label": "Medium"},
+        {"value": "body-large", "label": "Large"},
+        {"value": "body-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Text"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Link",
+      "default": "/collections"
+    },
+    {
+      "type": "select",
+      "id": "button_type",
+      "label": "Color",
+      "default": "btn--primary",
+      "options": [
+        {"value": "btn--black", "label": "Black"},
+        {"value": "btn--white", "label": "White"},
+        {"value": "btn--primary", "label": "Primary"},
+        {"value": "btn--secondary", "label": "Secondary"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_size",
+      "label": "Size",
+      "default": "",
+      "options": [
+        {"label": "Small", "value": "btn--small"},
+        {"label": "Medium", "value": ""},
+        {"label": "Large", "value": "btn--large"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Style",
+      "default": "btn--solid",
+      "options": [
+        {"label": "Solid", "value": "btn--solid"},
+        {"label": "Outline", "value": "btn--outline"},
+        {"label": "Text", "value": "btn--text"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrow",
+      "label": "Show arrow",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "range",
+      "id": "aspect_ratio",
+      "min": 0.5,
+      "max": 1.5,
+      "step": 0.1,
+      "unit": ":1",
+      "label": "Image aspect ratio",
+      "info": "Wide to tall",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full-padded",
+      "options": [
+        {"value": "wrapper--full", "label": "Full width"},
+        {"value": "wrapper--full-padded", "label": "Full width padded"},
+        {"value": "wrapper", "label": "Normal"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "slider",
+          "label": "Slider"
+        }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "header",
+      "content": "Grid",
+      "info": "Applies only when layout is set to Grid"
+    },
+    {
+      "type": "range",
+      "id": "grid",
+      "label": "Collections per row",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "select",
+      "id": "layout_mobile",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 collection per row"
+        },
+        {
+          "value": "2",
+          "label": "2 collections per row"
+        },
+        {
+          "value": "slider",
+          "label": "Slider"
+        }
+      ],
+      "default": "slider"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 32
+    },
+    {
+      "type": "header",
+      "content": "Advanced"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading SEO tag",
+      "default": "automatic",
+      "options": [
+        {"value": "automatic", "label": "Automatic"},
+        {"value": "h1", "label": "H1"},
+        {"value": "h2", "label": "H2"},
+        {"value": "h3", "label": "H3"},
+        {"value": "h4", "label": "H4"},
+        {"value": "h5", "label": "H5"},
+        {"value": "h6", "label": "H6"}
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "limit": 12,
+      "settings": [
+        {
+          "label": "Collection",
+          "id": "collection",
+          "type": "collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "collection_image",
+          "label": "Image",
+          "info": "1400 x 1400px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "label": "Text",
+          "id": "title",
+          "type": "text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection list",
+      "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

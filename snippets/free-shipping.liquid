@@ -1,0 +1,102 @@
+{% comment %}
+  Renders Free shipping message
+
+  Accepts:
+  - message: {String} Free shipping text (required)
+  - gradient: {String} Progress bar gradient color
+  - show_wheel: {Boolean} Show progress wheel
+  - show_progress_bar: {Boolean} Show progress bar
+  - is_cart_drawer: {Boolean} Is cart drawer
+
+  Usage:
+  {% render 'free-shipping', message: block.settings.message, show_wheel: true, show_progress_bar: false, is_cart_drawer: false %}
+{% endcomment %}
+
+{%- liquid
+  assign free_shipping_limit = settings.free_shipping_limit
+  assign show_message = false
+  if message != blank
+    assign show_message = true
+  endif
+
+  if gradient != blank
+    assign style = '--FREE-SHIPPING-GRADIENT: ' | append: gradient | append: ';'
+  endif
+-%}
+
+{%- if show_message -%}
+  {%- liquid
+    assign limit = free_shipping_limit | plus: 0
+    assign limit_currency = limit | times: 100
+    assign subtotal_without_currency = cart.total_price | plus: 0 | divided_by: 100
+    assign percent = limit | minus: subtotal_without_currency | times: 100 | divided_by: limit
+    assign percent = 100 | minus: percent
+
+    if settings.currency_code_enable
+      assign limit_currency = limit_currency | minus: cart.total_price | money_with_currency
+    else
+      assign limit_currency = limit_currency | minus: cart.total_price | money_without_trailing_zeros
+    endif
+
+    capture left_to_spend
+      echo '<span data-left-to-spend>' | append: limit_currency | append: '</span>'
+    endcapture
+
+    assign message = message | replace: '||amount||', left_to_spend
+    assign qualified_shipping_message = 'cart.general.qualified_shipping_message' | t
+
+    capture free_shipping_classes
+      if is_cart_drawer
+        echo 'drawer__message '
+      endif
+
+      if template.name == 'cart'
+        echo 'cart__message '
+      endif
+
+      echo 'free-shipping'
+
+      if subtotal_without_currency >= limit and qualified_shipping_message != blank
+        echo ' is-success'
+      endif
+    endcapture
+  -%}
+
+  <div class="{{ free_shipping_classes }}"
+    data-free-shipping="{% if qualified_shipping_message != blank %}true{% else %}false{% endif %}"
+    data-free-shipping-limit="{{ limit }}"
+    {% if style != blank %}
+      style="{{ style }}"
+    {% endif %}
+  >
+    {%- if show_wheel -%}
+      <div class="free-shipping__graph" data-progress-graph style="--stroke-dashoffset: 87.96459430051421;">
+        <svg height="18" width="18" viewBox="0 0 18 18">
+          <circle r="7" cx="9" cy="9" />
+          <circle class="free-shipping__graph-progress" stroke-dasharray="87.96459430051421 87.96459430051421" r="7" cx="9" cy="9" />
+        </svg>
+      </div>
+    {%- endif -%}
+
+    {%- if qualified_shipping_message != blank -%}
+      <span class="free-shipping__success-message">{{ qualified_shipping_message }}</span>
+    {%- endif -%}
+
+    <span class="free-shipping__default-message">
+      {{ message }}
+    </span>
+
+    {%- if show_progress_bar -%}
+      <progress class="free-shipping__progress-bar" data-progress-bar value="{{ percent }}" max="100"></progress>
+    {%- endif -%}
+
+    <div class="confetti">
+      <span class="confetti__dot confetti__dot--1"></span>
+      <span class="confetti__dot confetti__dot--2"></span>
+      <span class="confetti__dot confetti__dot--3"></span>
+      <span class="confetti__dot confetti__dot--4"></span>
+      <span class="confetti__dot confetti__dot--5"></span>
+      <span class="confetti__dot confetti__dot--6"></span>
+    </div>
+  </div>
+{%- endif -%}

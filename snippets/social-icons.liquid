@@ -1,0 +1,50 @@
+{% comment %}
+    Renders social icons on newsletter, custom content and footer sections
+
+    Accepts:
+    - modifier: {String} Additional classes
+    - animation_anchor: {String} ID of the element that will trigger animations
+    - animation_order: {Integer} Animation order
+
+    Usage:
+    {% render 'social-icons', block: block, animation_anchor: animation_anchor, animation_order: animation_order %}
+{% endcomment %}
+
+{%- liquid
+  assign social_accounts = 'Instagram, Facebook, Twitter, TikTok, Pinterest, Tumblr, YouTube, Vimeo, Linkedin, Snapchat, Feed' | split: ', '
+  assign socials_size = settings.icon_style
+  assign modifier = modifier | default: ''
+  assign enable_follow_on_shop = enable_follow_on_shop | default: false
+
+  if modifier != ''
+    assign modifier = modifier | prepend: ' '
+  endif
+
+  capture socials_size_class
+    case socials_size
+      when '1'
+        echo 'socials--thin'
+      when '1.5'
+        echo 'socials--normal'
+      when '2'
+        echo 'socials--thick'
+    endcase
+  endcapture
+
+  assign modifier = modifier | append: ' ' | append: socials_size_class
+-%}
+
+<ul class="socials{{ modifier }}"
+  {% if animation_anchor %}
+    data-aos="hero"
+    data-aos-anchor="{{ animation_anchor }}"
+    data-aos-order="{{ animation_order | default: 1 }}"
+  {% endif %}>
+  {%- render 'social-icon' for social_accounts as social -%}
+
+  {%- if shop.features.follow_on_shop? and enable_follow_on_shop -%}
+    <li class="footer__follow-on-shop">
+      {{ shop | login_button: action: 'follow' }}
+    </li>
+  {%- endif -%}
+</ul>

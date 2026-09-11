@@ -1,0 +1,44 @@
+<div
+  class="hero__button-group"
+  data-aos="hero"
+  data-aos-order="auto"
+  data-aos-anchor="#{{ section.id }}"
+  {{ block.shopify_attributes }}
+>
+  {% content_for 'blocks' %}
+</div>
+
+{% schema %}
+{
+  "name": "Side by side buttons",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "To add or edit your buttons, use the individual block settings."
+    }
+  ],
+  "blocks": [{"type": "button"}],
+  "presets": [
+    {
+      "name": "Side by side buttons",
+      "blocks": [
+        {
+          "type": "button",
+          "settings": {
+            "text": "View products",
+            "type": "btn--primary"
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "text": "Shop sale",
+            "type": "btn--secondary"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

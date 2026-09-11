@@ -1,0 +1,33 @@
+{%- liquid
+  assign swatch_color_list = settings.swatch_color_list
+  assign lines = swatch_color_list | newline_to_br | split: '<br />'
+  assign image_extensions = 'jpg,jpeg,JPG,JPEG,png,PNG,gif,GIF,webp,WEBP,bmp,BMP,apng,APNG,avif,AVIF,svg,SVG' | split: ','
+
+  capture swatches
+    for line in lines
+      assign style_parts = line | split: ':'
+      assign swatch_class = style_parts[0] | handle
+      assign swatch_style = style_parts[1] | strip
+
+      for image_type in image_extensions
+        assign image_type = image_type | prepend: '.'
+        if swatch_style contains image_type
+          assign swatch_image = swatch_style | file_img_url
+          assign swatch_style = 'url(' | append: swatch_image | append: ')'
+
+          break
+        endif
+      endfor
+
+      if swatch_class != blank and swatch_style != blank
+        echo '--' | append: swatch_class | append: ': ' | append: swatch_style | append: ';'
+      endif
+    endfor
+  endcapture
+-%}
+
+{%- style -%}
+  .swatches {
+    {{ swatches }}
+  }
+{%- endstyle -%}

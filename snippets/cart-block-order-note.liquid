@@ -1,0 +1,30 @@
+{% comment %}
+    Renders order notes on Cart page and Cart drawer
+
+    Accepts:
+    - block: {Object} Block object (required)
+
+    Usage:
+    {% render 'cart-block-order-note', block: block %}
+{% endcomment %}
+
+<details
+  class="cart__widget accordion"
+  data-collapsible
+>
+  <summary class="cart__widget__title" data-collapsible-trigger>
+    {{- 'cart.general.cart_notes_label' | t -}}
+
+    {%- render 'icon-plus' -%}
+    {%- render 'icon-minus' -%}
+  </summary>
+
+  <div class="cart__widget__content" data-collapsible-body>
+    <div class="cart__widget__content__inner" data-collapsible-content>
+      <label for="note">{{ 'cart.general.customer_note' | t }}</label>
+      <textarea id="note" name="note" class="cart__field cart__field--textarea" form="cartForm" aria-label="{{ 'cart.general.customer_note' | t }}">
+        {{- cart.note -}}
+      </textarea>
+    </div>
+  </div>
+</details>

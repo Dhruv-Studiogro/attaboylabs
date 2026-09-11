@@ -1,0 +1,585 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "section_hero_HJ9Kjp": {
+      "type": "section-hero",
+      "blocks": {
+        "heading_7tjVM4": {
+          "type": "heading",
+          "settings": {
+            "title": "JOIN THE BROTHERHOOD. EARN EVERY DAMN DAY.",
+            "heading_font_size": "heading-large",
+            "heading_tag": "automatic"
+          }
+        },
+        "text_8CimXg": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "text": "<p>we built attaboy for one reason:</p><h5>to fix the supplement aisle.</h5>",
+            "text_font_size": "body-large"
+          }
+        }
+      },
+      "block_order": [
+        "heading_7tjVM4",
+        "text_8CimXg"
+      ],
+      "custom_css": [
+        "h2 {color: #f26729 !important; font-family: \"NewScienceMonoBold\", monospace !important; font-size: 5vw; line-height: 0.9em;}",
+        "h5 {font-family: \"NewScienceMonoBold\", monospace !important; font-size: 2vw; line-height: 0.9em;}",
+        "p,span,li {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 1.3vw; text-transform: uppercase;}",
+        ".btn {font-family: \"NewScienceMonoMedium\", monospace !important;}",
+        "@media screen and (max-width: 768px) {h2 {font-size: 13vw; } h5 {font-size: 7vw; } p, li, span {font-size: 4vw; line-height: 1.3; }}"
+      ],
+      "name": "Image banner",
+      "settings": {
+        "image_1": "shopify://shop_images/Attaboy-Locker-Hero.jpg",
+        "link": "",
+        "width": "wrapper--full",
+        "height": "screen-height-three-quarters",
+        "flex_align_desktop": "align--middle-center-desktop",
+        "content_width": 90,
+        "mobile_height": "screen-height-three-quarters--mobile",
+        "flex_align_mobile": "align--middle-center-mobile",
+        "color_scheme": "scheme-2",
+        "show_text_background": false,
+        "overlay_opacity": 80,
+        "show_overlay_text": false,
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "show_placeholder": true
+      }
+    },
+    "section_columns_gJbR4c": {
+      "type": "section-columns",
+      "blocks": {
+        "image_EE74LJ": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/beach-running.jpg",
+            "image_shape": "normal",
+            "title": "EARN POINTS",
+            "heading_font_size": "heading-medium",
+            "text": "<h5>GET REWARDED FOR WHAT YOU ALREADY DO.</h5><p>BUY, SUBSCRIBE, REFER, POST, AND MORE - IT ALL EARNS YOU POINTS.</p>",
+            "text_font_size": "body-small",
+            "button_text": "",
+            "button_url": "",
+            "button_type": "btn--primary",
+            "button_size": "",
+            "button_style": "btn--solid",
+            "show_arrow": false,
+            "image_aspect_ratio": 1.3,
+            "mobile_image_aspect_ratio": 1,
+            "heading_tag": "automatic"
+          }
+        },
+        "image_RRCY4z": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/man-staring.jpg",
+            "image_shape": "normal",
+            "title": "LEVEL UP",
+            "heading_font_size": "heading-medium",
+            "text": "<h5>THE MORE CONSISTENT YOU ARE, THE BETTER IT GETS.</h5><p>CLIMB TIERS TO UNLOCK PERKS, BONUS POINTS, AND REWARDS.</p>",
+            "text_font_size": "body-small",
+            "button_text": "",
+            "button_url": "",
+            "button_type": "btn--primary",
+            "button_size": "",
+            "button_style": "btn--solid",
+            "show_arrow": false,
+            "image_aspect_ratio": 1.3,
+            "mobile_image_aspect_ratio": 1,
+            "heading_tag": "automatic"
+          }
+        },
+        "image_GWW474": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/pouch-wood-table.jpg",
+            "image_shape": "normal",
+            "title": "REDEEM",
+            "heading_font_size": "heading-medium",
+            "text": "<h5>REDEEM WHAT YOU'VE EARNED. YOU PUT IN THE WORK.</h5><p>TRADE YOUR POINTS FOR DISCOUNTS, FREE GEAR, AND SERIOUS BRAGGING RIGHTS.</p>",
+            "text_font_size": "body-small",
+            "button_text": "",
+            "button_url": "",
+            "button_type": "btn--primary",
+            "button_size": "",
+            "button_style": "btn--solid",
+            "show_arrow": false,
+            "image_aspect_ratio": 1.3,
+            "mobile_image_aspect_ratio": 1,
+            "heading_tag": "automatic"
+          }
+        }
+      },
+      "block_order": [
+        "image_EE74LJ",
+        "image_RRCY4z",
+        "image_GWW474"
+      ],
+      "custom_css": [
+        "h2 {color: #f26729 !important; font-family: \"NewScienceMonoBold\", monospace !important; font-size: 1.8vw; line-height: 0.9em;}",
+        "p {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 1vw; text-transform: uppercase;}",
+        "h5 {font-family: \"NewScienceMonoBold\", monospace !important; font-size: 1.1vw;}",
+        "@media screen and (max-width: 768px) {h2 {font-size: 6vw; } h5 {font-size: 4vw; } p {font-size: 3.25vw; line-height: 1.3; }}"
+      ],
+      "name": "Text columns with images",
+      "settings": {
+        "title": "",
+        "heading_font_size": "heading-medium",
+        "align_heading": "text-left",
+        "align_text": "text-left",
+        "width": "wrapper",
+        "align_columns": "flex-align-top",
+        "layout": "grid",
+        "grid": 3,
+        "layout_mobile": "slider",
+        "color_scheme": "scheme-3",
+        "padding_top": 50,
+        "padding_bottom": 50,
+        "heading_tag": "automatic"
+      }
+    },
+    "section_rich_text_jgXcYJ": {
+      "type": "section-rich-text",
+      "blocks": {
+        "subheading_rGk4cC": {
+          "type": "subheading",
+          "disabled": true,
+          "settings": {
+            "subheading": "Introducing",
+            "padding_bottom": 16
+          }
+        },
+        "heading_x64fzH": {
+          "type": "heading",
+          "settings": {
+            "title": "TIERS THAT LEVEL WITH YOU.",
+            "heading_font_size": "heading-x-large",
+            "padding_bottom": 16,
+            "heading_tag": "automatic"
+          }
+        },
+        "text_Gaz6dL": {
+          "type": "text",
+          "settings": {
+            "text": "<p>THE MORE YOU SHOW UP, THE MORE WE SHOW UP FOR YOU.</p>",
+            "text_font_size": "body-medium",
+            "padding_bottom": 16
+          }
+        }
+      },
+      "block_order": [
+        "subheading_rGk4cC",
+        "heading_x64fzH",
+        "text_Gaz6dL"
+      ],
+      "custom_css": [
+        "h2 {color: #f26729 !important; font-family: \"NewScienceMonoBold\", monospace !important; font-size: 5.5vw; line-height: 0.9em;}",
+        "p,span,li {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 1.3vw; text-transform: uppercase;}",
+        ".btn {font-family: \"NewScienceMonoMedium\", monospace !important;}",
+        "@media screen and (max-width: 768px) {h2 {font-size: 10vw; } p, li, span {font-size: 5vw; line-height: 1.3; }}"
+      ],
+      "name": "BUILT TO LAST HEADING",
+      "settings": {
+        "align_text": "text-center",
+        "width": "wrapper",
+        "image": "shopify://shop_images/statement-bg_64fad84b-7c24-4e14-95be-352f31406a07.jpg",
+        "color_scheme": "scheme-3",
+        "overlay_opacity": 0,
+        "show_overlay_text": false,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "section_double_B4xyh6": {
+      "type": "section-double",
+      "blocks": {
+        "subheading_iyXdEE": {
+          "type": "subheading",
+          "settings": {
+            "subheading": "tier one",
+            "padding_bottom": 16
+          }
+        },
+        "heading_jpVcEK": {
+          "type": "heading",
+          "settings": {
+            "title": "step one",
+            "heading_font_size": "heading-large",
+            "padding_bottom": 16,
+            "heading_tag": "automatic"
+          }
+        },
+        "text_wihjwj": {
+          "type": "text",
+          "settings": {
+            "text": "<p>you're in. now show up.</p><p>Unlocked at: <em>create an account</em></p>",
+            "text_font_size": "body-medium",
+            "padding_bottom": 16
+          }
+        },
+        "accordion_aWJnXR": {
+          "type": "accordion",
+          "settings": {
+            "title": "PERKS",
+            "content": "<p>Earn points on all purchases</p><p>birthday bonus</p><p>rewards wallet access</p><p>exclusive offers</p>",
+            "show_icon": true,
+            "icon_name": "icon-discount",
+            "icon_image": "shopify://shop_images/buoy-icon.svg",
+            "icon_size": 40,
+            "icon_color": "#f26729",
+            "padding_bottom": 16
+          }
+        },
+        "buttons_pVjwfg": {
+          "type": "buttons",
+          "disabled": true,
+          "settings": {
+            "button_text": "Learn more",
+            "button_url": "",
+            "button_type": "btn--primary",
+            "button_size": "",
+            "button_style": "btn--solid",
+            "show_arrow": false,
+            "padding_bottom": 16
+          }
+        }
+      },
+      "block_order": [
+        "subheading_iyXdEE",
+        "heading_jpVcEK",
+        "text_wihjwj",
+        "accordion_aWJnXR",
+        "buttons_pVjwfg"
+      ],
+      "custom_css": [
+        "h2 {color: #f26729 !important; font-family: \"NewScienceMonoBold\", monospace !important; font-size: 4.5vw; line-height: 0.9em;}",
+        "p,span,li {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 1.3vw; text-transform: uppercase;}",
+        ".btn {font-family: \"NewScienceMonoMedium\", monospace !important;}",
+        "@media screen and (max-width: 768px) {h2 {font-size: 11vw; } p, li, span {font-size: 3.2vw; line-height: 1.1; }}"
+      ],
+      "name": "Image with text",
+      "settings": {
+        "image_1": "shopify://shop_images/marianne-bos-WV6hCFDT9Rg-unsplash.jpg",
+        "image_width": "one-half",
+        "text_alignment": "text-left",
+        "layout": "",
+        "width": "wrapper--full",
+        "height": "screen-height-three-quarters",
+        "mobile_height": "screen-height-one-half--mobile",
+        "reverse_blocks": false,
+        "color_scheme": "scheme-2",
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "show_placeholder": true
+      }
+    },
+    "section_double_rxzk47": {
+      "type": "section-double",
+      "blocks": {
+        "subheading_cGpy4d": {
+          "type": "subheading",
+          "settings": {
+            "subheading": "tier two",
+            "padding_bottom": 16
+          }
+        },
+        "heading_LXNfhd": {
+          "type": "heading",
+          "settings": {
+            "title": "dialed in",
+            "heading_font_size": "heading-large",
+            "padding_bottom": 16,
+            "heading_tag": "automatic"
+          }
+        },
+        "text_WWYpEJ": {
+          "type": "text",
+          "settings": {
+            "text": "<p>consistent. committed. climbing.</p><p>Unlocked at: <em>$150 spend or 3 purchases</em></p>",
+            "text_font_size": "body-medium",
+            "padding_bottom": 16
+          }
+        },
+        "accordion_e8EPrC": {
+          "type": "accordion",
+          "settings": {
+            "title": "PERKS",
+            "content": "<p>1.25x point multiplier</p><p>300 bonus points</p><p>early access to drops</p><p>exclusive offers</p>",
+            "show_icon": true,
+            "icon_name": "icon-discount",
+            "icon_image": "shopify://shop_images/buoy-icon.svg",
+            "icon_size": 40,
+            "icon_color": "#f26729",
+            "padding_bottom": 16
+          }
+        },
+        "buttons_XfpRdr": {
+          "type": "buttons",
+          "disabled": true,
+          "settings": {
+            "button_text": "Learn more",
+            "button_url": "",
+            "button_type": "btn--primary",
+            "button_size": "",
+            "button_style": "btn--solid",
+            "show_arrow": false,
+            "padding_bottom": 16
+          }
+        }
+      },
+      "block_order": [
+        "subheading_cGpy4d",
+        "heading_LXNfhd",
+        "text_WWYpEJ",
+        "accordion_e8EPrC",
+        "buttons_XfpRdr"
+      ],
+      "custom_css": [
+        "h2 {color: #f26729 !important; font-family: \"NewScienceMonoBold\", monospace !important; font-size: 4.5vw; line-height: 0.9em;}",
+        "p,span,li {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 1.3vw; text-transform: uppercase;}",
+        ".btn {font-family: \"NewScienceMonoMedium\", monospace !important;}",
+        "@media screen and (max-width: 768px) {h2 {font-size: 11vw; } p, li, span {font-size: 3.2vw; line-height: 1.1; }}"
+      ],
+      "name": "Image with text",
+      "settings": {
+        "image_1": "shopify://shop_images/rock-running.jpg",
+        "image_width": "one-half",
+        "text_alignment": "text-left",
+        "layout": "is-reversed",
+        "width": "wrapper--full",
+        "height": "screen-height-three-quarters",
+        "mobile_height": "screen-height-one-half--mobile",
+        "reverse_blocks": false,
+        "color_scheme": "scheme-2",
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "show_placeholder": true
+      }
+    },
+    "section_double_LxcXkK": {
+      "type": "section-double",
+      "blocks": {
+        "subheading_exBJ4k": {
+          "type": "subheading",
+          "settings": {
+            "subheading": "tier three",
+            "padding_bottom": 16
+          }
+        },
+        "heading_tJXdgp": {
+          "type": "heading",
+          "settings": {
+            "title": "official attaboy",
+            "heading_font_size": "heading-large",
+            "padding_bottom": 16,
+            "heading_tag": "automatic"
+          }
+        },
+        "text_RphQb7": {
+          "type": "text",
+          "settings": {
+            "text": "<p>this isn't a phase. it's a lifestyle.</p><p>Unlocked at: <em>$300 spent or 6+ purchases</em></p>",
+            "text_font_size": "body-medium",
+            "padding_bottom": 16
+          }
+        },
+        "accordion_zyJpxb": {
+          "type": "accordion",
+          "settings": {
+            "title": "PERKS",
+            "content": "<p>1.5x point multiplier</p><p>500 bonus points</p><p>free shipping always</p><p>vip-only gear</p><p>10% infinite discount</p><p>invite-only perks</p>",
+            "show_icon": true,
+            "icon_name": "icon-discount",
+            "icon_image": "shopify://shop_images/buoy-icon.svg",
+            "icon_size": 40,
+            "icon_color": "#f26729",
+            "padding_bottom": 16
+          }
+        },
+        "buttons_4cxfdN": {
+          "type": "buttons",
+          "disabled": true,
+          "settings": {
+            "button_text": "Learn more",
+            "button_url": "",
+            "button_type": "btn--primary",
+            "button_size": "",
+            "button_style": "btn--solid",
+            "show_arrow": false,
+            "padding_bottom": 16
+          }
+        }
+      },
+      "block_order": [
+        "subheading_exBJ4k",
+        "heading_tJXdgp",
+        "text_RphQb7",
+        "accordion_zyJpxb",
+        "buttons_4cxfdN"
+      ],
+      "custom_css": [
+        "h2 {color: #f26729 !important; font-family: \"NewScienceMonoBold\", monospace !important; font-size: 4.5vw; line-height: 0.9em;}",
+        "p,span,li {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 1.3vw; text-transform: uppercase;}",
+        ".btn {font-family: \"NewScienceMonoMedium\", monospace !important;}",
+        "@media screen and (max-width: 768px) {h2 {font-size: 11vw; } p, li, span {font-size: 3.2vw; line-height: 1.1; }}"
+      ],
+      "name": "Image with text",
+      "settings": {
+        "image_1": "shopify://shop_images/Dog-Teeth-SMS.jpg",
+        "image_width": "one-half",
+        "text_alignment": "text-left",
+        "layout": "",
+        "width": "wrapper--full",
+        "height": "screen-height-three-quarters",
+        "mobile_height": "screen-height-one-half--mobile",
+        "reverse_blocks": false,
+        "color_scheme": "scheme-2",
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "show_placeholder": true
+      }
+    },
+    "section_rich_text_w4Fd6E": {
+      "type": "section-rich-text",
+      "blocks": {
+        "heading_9AwpWX": {
+          "type": "heading",
+          "settings": {
+            "title": "ways to earn",
+            "heading_font_size": "heading-x-large",
+            "padding_bottom": 16,
+            "heading_tag": "automatic"
+          }
+        },
+        "text_4dBmpA": {
+          "type": "text",
+          "settings": {
+            "text": "<h5>one system. real rewards. stack 'em up:</h5>",
+            "text_font_size": "body-medium",
+            "padding_bottom": 16
+          }
+        },
+        "text_bKEyyJ": {
+          "type": "text",
+          "settings": {
+            "text": "<p>🛒 <strong>Make a Purchase</strong> — 100 points per order</p><p>🔁 <strong>Subscribe to Everydamnday</strong> — 300 points</p><p>🔂 <strong>Stick With It (Monthly)</strong> — 150 points</p><p>📝 <strong>Leave a Review w/ Photo</strong> — 100 points</p><p>🎥 <strong>Follow on TikTok</strong> — 100 points</p><p>📸 <strong>Post & Tag on IG</strong> — 200 points</p><p>🤝 <strong>Refer a Friend</strong> — 500 points when they order</p><p>🎉 +100 points for joining Attaboy Rewards</p><p>🎂 +300 points on your birthday — yeah, we celebrate that too</p>",
+            "text_font_size": "body-medium",
+            "padding_bottom": 16
+          }
+        },
+        "buttons_RBHiMN": {
+          "type": "buttons",
+          "settings": {
+            "button_text": "START EARNING",
+            "button_url": "",
+            "button_type": "btn--primary",
+            "button_size": "",
+            "button_style": "btn--solid",
+            "show_arrow": false,
+            "padding_bottom": 16
+          }
+        },
+        "buttons_GLw9h3": {
+          "type": "buttons",
+          "settings": {
+            "button_text": "LOG IN",
+            "button_url": "",
+            "button_type": "btn--primary",
+            "button_size": "",
+            "button_style": "btn--outline",
+            "show_arrow": false,
+            "padding_bottom": 16
+          }
+        }
+      },
+      "block_order": [
+        "heading_9AwpWX",
+        "text_4dBmpA",
+        "text_bKEyyJ",
+        "buttons_RBHiMN",
+        "buttons_GLw9h3"
+      ],
+      "custom_css": [
+        "h2 {color: #f26729 !important; font-family: \"NewScienceMonoBold\", monospace !important; font-size: 5.5vw; line-height: 0.9em;}",
+        "h5 {font-family: \"NewScienceMonoBold\", monospace !important; font-size: 2vw;}",
+        "p,.btn {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 1.3vw; text-transform: uppercase;}",
+        "@media screen and (max-width: 768px) {h2 {font-size: 10vw; } h5 {font-size: 5vw; } p, .btn {font-size: 3vw; line-height: 1.3; }}"
+      ],
+      "name": "BUILT TO LAST HEADING",
+      "settings": {
+        "align_text": "text-center",
+        "width": "wrapper",
+        "color_scheme": "scheme-3",
+        "overlay_opacity": 0,
+        "show_overlay_text": false,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "subheading": "",
+        "show_title": true,
+        "heading_font_size": "heading-large",
+        "show_content": true,
+        "text_font_size": "body-medium",
+        "align_text": "text-left",
+        "width": "wrapper",
+        "color_scheme": "",
+        "padding_top": 50,
+        "padding_bottom": 50,
+        "heading_tag": "automatic"
+      }
+    },
+    "section_divider_NaeyEm": {
+      "type": "section-divider",
+      "disabled": true,
+      "name": "Divider",
+      "settings": {
+        "show_line": false,
+        "width": "wrapper--full-padded",
+        "color_scheme": "",
+        "padding_top": 50,
+        "padding_bottom": 0
+      }
+    },
+    "174813782909e2297c": {
+      "type": "apps",
+      "custom_css": [
+        "h4 {color: #f26729 !important; font-family: \"NewScienceMonoBold\", monospace !important; font-size: 2vw; line-height: 0.9em;}",
+        " /* Body Text */body,p,span,li {font-family: \"NewScienceMonoMedium\", monospace !important; font-size: 1vw; text-transform: uppercase;}",
+        ".btn {font-family: \"NewScienceMonoMedium\", monospace !important;}"
+      ],
+      "settings": {
+        "include_margins": true
+      }
+    }
+  },
+  "order": [
+    "section_hero_HJ9Kjp",
+    "section_columns_gJbR4c",
+    "section_rich_text_jgXcYJ",
+    "section_double_B4xyh6",
+    "section_double_rxzk47",
+    "section_double_LxcXkK",
+    "section_rich_text_w4Fd6E",
+    "main",
+    "section_divider_NaeyEm",
+    "174813782909e2297c"
+  ]
+}

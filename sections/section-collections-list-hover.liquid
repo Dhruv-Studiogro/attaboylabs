@@ -1,0 +1,279 @@
+<!-- /sections/section-collections-list.liquid -->
+
+{%- liquid
+  assign animation_order = 0
+  assign animation_anchor = '#CollectionsListHover--' | append: section.id
+  assign block_count = section.blocks.size
+  assign overlay_opacity = section.settings.overlay_opacity | times: 0.01
+  assign show_overlay_text = section.settings.show_overlay_text
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign desktop_height = section.settings.height
+  if request.visual_preview_mode
+    assign desktop_height = ''
+  endif
+  assign mobile_height = section.settings.mobile_height
+  assign images = ''
+  assign links = ''
+
+  capture style
+    echo '--PT:' | append: section.settings.padding_top | append: 'px;'
+    echo '--PB:' | append: section.settings.padding_bottom | append: 'px;'
+  endcapture
+-%}
+
+{%- if block_count > 0 -%}
+  <script src="{{ 'collections-hover.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'scroll-spy.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- if request.visual_preview_mode -%}
+  {%- style -%}
+    #CollectionsListHover--{{ section.id }} .frame { height: 100vh; }
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- for block in section.blocks -%}
+  {%- liquid
+    assign animation_order = forloop.index
+    assign unique = 'CollectionImage--' | append: section.id | append: '-' | append: block.id
+    assign collection = collections[block.settings.collection]
+    assign title_default = 'collections.general.items.heading' | t
+    assign title = block.settings.title | default: collection.title | default: title_default
+    assign image = block.settings.image | default: collection.image | default: collection.products.first.featured_media.preview_image
+  -%}
+
+  {%- capture images -%}
+    {{ images }}
+
+    <div class="collections-hover__image {{ mobile_height }}{% if forloop.first %} is-visible{% endif %}" id="{{ unique }}" data-collection-image {{ block.shopify_attributes }}>
+      {%- liquid
+        if image != blank
+          render 'image' image: image, cover: true
+        else
+          capture count
+            cycle 1, 2, 3, 5, 6
+          endcapture
+          echo 'collection-' | append: count | placeholder_svg_tag: 'svg-placeholder'
+        endif
+      -%}
+    </div>
+  {%- endcapture -%}
+
+  {%- capture links -%}
+    {{ links }}
+
+    <div
+      data-aos="hero"
+      data-aos-order="{{ animation_order }}"
+      data-aos-anchor="{{ animation_anchor }}">
+      <scroll-spy data-scroll-spy-container="#CollectionsListHover--{{ section.id }}">
+        <a href="{{ collection.url | default: '#!' }}" class="collection-hover__button {{ section.settings.heading_font_size }}{% if forloop.first %} is-selected{% endif %}"
+          data-hover-target="{{ unique }}"
+          data-scroll-trigger-point="middle"
+          data-scroll-spy="#{{ unique }}"
+          data-scroll-spy-mobile>
+          {{- title -}}
+
+          {%- render 'superscript', superscript_collection: collection -%}
+        </a>
+      </scroll-spy>
+    </div>
+  {%- endcapture -%}
+{%- endfor -%}
+
+<section
+  id="CollectionsListHover--{{ section.id }}"
+  style="{{ style }}"
+  class="section-padding {{ color_scheme }}"
+  data-overlay-header
+  data-section-id="{{ section.id }}"
+  data-section-type="collections-hover"
+>
+  <collections-hover class="collections-hover{% if block_count == 0 %} collections-hover--empty{% endif %} frame {{ desktop_height }}">
+    {%- if block_count > 0 -%}
+      <div class="collections-hover__inner frame__item">
+        <div class="collections-hover__content wrapper--full-padded">
+          <div
+            class="collections-hover__actions{% if show_overlay_text %} backdrop--radial{% endif %}"
+            style="--overlay-opacity: {{ overlay_opacity }};"
+          >
+            {{ links }}
+          </div>
+        </div>
+      </div>
+
+      <div class="collections-hover__images frame__item">
+        {{ images }}
+
+        {%- unless show_overlay_text or overlay_opacity == 0.0 -%}
+          <div class="image-overlay" style="--overlay-opacity: {{ overlay_opacity }};"></div>
+        {%- endunless -%}
+      </div>
+    {%- else -%}
+      {%- render 'no-blocks' -%}
+    {%- endif -%}
+  </collections-hover>
+</section>
+
+{% schema %}
+{
+  "name": "Collection list hover",
+  "class": "section-overlay-header",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading size",
+      "default": "heading-large",
+      "options": [
+        {"value": "heading-mini", "label": "Mini"},
+        {"value": "heading-x-small", "label": "Extra small"},
+        {"value": "heading-small", "label": "Small"},
+        {"value": "heading-medium", "label": "Medium"},
+        {"value": "heading-large", "label": "Large"},
+        {"value": "heading-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Desktop"
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Height",
+      "default": "screen-height-three-quarters",
+      "options": [
+        {"value": "image-height", "label": "Image height"},
+        {"value": "screen-height-full", "label": "Full screen height"},
+        {"value": "screen-height-three-quarters", "label": "3/4 of screen"},
+        {"value": "screen-height-two-thirds", "label": "2/3 of screen"},
+        {"value": "screen-height-one-half", "label": "1/2 of screen"},
+        {"value": "screen-height-one-third", "label": "1/3 of screen"},
+        {"value": "seven-fifty-height-hero", "label": "750px"},
+        {"value": "sixty-fifty-height-hero", "label": "650px"},
+        {"value": "five-fifty-height-hero ", "label": "550px"},
+        {"value": "four-fifty-height-hero", "label": "450px"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "select",
+      "id": "mobile_height",
+      "label": "Height",
+      "default": "screen-height-three-quarters--mobile",
+      "options": [
+        {"value": "image-height--mobile", "label": "Image height"},
+        {"value": "screen-height-full--mobile", "label": "Full screen height"},
+        {"value": "screen-height-three-quarters--mobile", "label": "3/4 of screen"},
+        {"value": "screen-height-two-thirds--mobile", "label": "2/3 of screen"},
+        {"value": "screen-height-one-half--mobile", "label": "1/2 of screen"},
+        {"value": "screen-height-one-third--mobile", "label": "1/3 of screen"},
+        {"value": "seven-fifty-height-hero--mobile", "label": "750px"},
+        {"value": "sixty-fifty-height-hero--mobile", "label": "650px"},
+        {"value": "five-fifty-height-hero--mobile", "label": "550px"},
+        {"value": "four-fifty-height-hero--mobile", "label": "450px"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "info": "Increase contrast for legible text.",
+      "unit": "%",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay_text",
+      "label": "Overlay behind text only",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "limit": 5,
+      "settings": [
+        {
+          "label": "Collection",
+          "id": "collection",
+          "type": "collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "3200 x 1200px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "label": "Heading",
+          "id": "title",
+          "type": "text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection list hover",
+      "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "custom.pre_footer", "footer"]
+  }
+}
+{% endschema %}

@@ -1,0 +1,1316 @@
+{%- liquid
+  assign animation_name = 'drawer-items-fade'
+  assign animation_duration = 500
+  assign animation_delay = 0
+  assign animation_delay_initial = 200
+  assign animation_delay_increment = 50
+  assign block_index_pinned = 1
+  assign block_index_dynamic = 1
+  assign search_id = 'mobile--' | append: section.id
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+
+  capture section_style
+    echo '--COLUMNS: 2; --COLUMNS-MEDIUM: 2; --COLUMNS-SMALL: 2; --COLUMNS-MOBILE: 1;'
+  endcapture
+
+  assign logo = section.settings.logo
+  assign logo_width = section.settings.logo_max_limit
+  assign logo_width_15x = logo_width | times: 1.5 | round
+  assign logo_width_2x = logo_width | times: 2 | round
+  assign logo_widths = logo_width | append: ',' | append: logo_width_15x | append: ',' | append: logo_width_2x | append: ',' | append: logo_width | append: ',' | append: logo_width_15x | append: ',' | append: logo_width_2x
+-%}
+
+<mobile-menu
+  class="mobile-menu {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="mobile-menu"
+  style="{{ section_style }}"
+>
+  {%- assign search_block = section.blocks | where: 'type', 'search' -%}
+  {%- assign search_block = search_block[0] -%}
+
+  {%- if search_block -%}
+    {%- liquid
+      assign animation_delay = block_index_dynamic | times: animation_delay_increment | plus: animation_delay_initial
+      assign block_index_dynamic = block_index_dynamic | plus: 1
+
+      capture style
+        echo '--block-padding-bottom: ' | append: search_block.settings.padding_bottom | append: 'px;'
+      endcapture
+    -%}
+
+    {%- capture dynamic_blocks -%}
+      <div class="mobile-menu__block block-padding"
+        data-animation="{{ animation_name }}"
+        data-animation-duration="{{ animation_duration }}"
+        data-animation-delay="{{ animation_delay }}"
+        style="{{ style }}"
+        {{ block.shopify_attributes }}>
+
+        <div class="mobile-menu__block-search">
+          <header-search-popdown>
+            <details>
+              <summary class="navlink navlink--search" aria-haspopup="dialog" title="{{ 'general.search.search' | t }}">
+                {%- render 'icon-search' -%}
+                {%- render 'icon-cancel' -%}
+                <span class="visually-hidden">{{ 'layout.header.search' | t }}</span>
+              </summary>
+
+              {%- render 'header-search-popdown', unique: search_id -%}
+            </details>
+          </header-search-popdown>
+        </div>
+      </div>
+    {%- endcapture -%}
+  {%- endif -%}
+
+  {%- for block in section.blocks -%}
+    {%- liquid
+      assign bg_color = block.settings.bg_color
+      assign text_color = block.settings.color
+      assign has_background_color = false
+      assign block_padding = ''
+      assign pin_to_bottom = block.settings.pin_to_bottom
+
+      if pin_to_bottom
+        assign animation_delay = block_index_pinned | times: animation_delay_increment | plus: animation_delay_initial
+        assign block_index_pinned = block_index_pinned | plus: 1
+      else
+        assign animation_delay = block_index_dynamic | times: animation_delay_increment | plus: animation_delay_initial
+        assign block_index_dynamic = block_index_dynamic | plus: 1
+      endif
+
+      if block.type == 'collection' or block.type == 'product' or block.type == 'image'
+        assign container_width = 345
+        assign image_width_percent = block.settings.image_width
+        assign image_width = image_width_percent | times: 0.01 | times: container_width
+        assign image_width_x15 = image_width | times: 1.5
+        assign image_width_x2 = image_width | times: 2
+        assign width = image_width_x2
+        assign sizes = image_width | append: 'px'
+        assign widths = image_width | append: ', ' | append: image_width_x15 | append: ', ' | append: image_width_x2 | append: ', 350, 525, 700'
+      endif
+
+      capture style
+        unless bg_color.alpha == 0.0 or bg_color == blank
+          echo '--bg: ' | append: bg_color | append: ';'
+          assign has_background_color = true
+        else
+          echo '--bg: transparent;'
+        endunless
+
+        unless text_color.alpha == 0.0 or text_color == blank
+          echo '--text: ' | append: text_color | append: ';'
+        endunless
+
+        if block.type == 'review'
+          echo '--star-rating-clip:'
+          case block.settings.rating
+            when 4
+              echo '18px;'
+            when 4.5
+              echo '8px;'
+            when 5
+              echo '0px;'
+          endcase
+        endif
+
+        if block.type == 'collection' or block.type == 'product' or block.type == 'image'
+          echo '--image-size: ' | append: image_width_percent | append: '%;'
+        endif
+
+        echo '--block-padding-bottom: ' | append: block.settings.padding_bottom | append: 'px;'
+      endcapture
+
+      capture mobile_menu_logo_style
+        if logo != blank
+          echo '--logo-width-mobile:' | append: logo_width | append: 'px;'
+        endif
+      endcapture
+
+      assign block_inner_padding = ''
+      if block.type == 'collection' or block.type == 'product'
+        assign padding = block.settings.padding
+
+        capture block_inner_padding
+          if padding and has_background_color
+            echo ' mobile-menu__block-inner--padding'
+          elsif padding and has_background_color == false
+            echo ' mobile-menu__block-inner--padding-no-bg'
+          endif
+        endcapture
+      endif
+
+      if block.type == 'review' and has_background_color
+        capture block_inner_padding
+          echo ' mobile-menu__block-inner--padding'
+        endcapture
+      endif
+
+      if block.type == 'image'
+        assign image_alignment = block.settings.image_alignment
+        capture image_block_alignment
+          case image_alignment
+            when 'left'
+              echo ' justify-left'
+            when 'center'
+              echo ' justify-center'
+            when 'right'
+              echo ' justify-right'
+          endcase
+        endcapture
+      endif
+    -%}
+
+    {%- capture block_content -%}
+      {%- unless block.type == 'search' -%}
+        <div class="mobile-menu__block mobile-menu__block--{{ block.type }}{% if block.settings.width == 'half' %} mobile-menu__block--half{% endif %} block-padding"
+          data-mobile-menu-block
+          {{ block.shopify_attributes }}
+          style="{{ style }}">
+          <div class="mobile-menu__block-inner{{ block_inner_padding }}"
+            data-animation="{{ animation_name }}"
+            data-animation-duration="{{ animation_duration }}"
+            data-animation-delay="{{ animation_delay }}">
+            {%- case block.type -%}
+              {%- when 'menu' or 'menu-columns' -%}
+                {%- liquid
+                  assign menu = block.settings.mobile_menu_linklist | default: 'main-menu'
+                  assign linklist = linklists[menu].links
+                  assign highlight_item = block.settings.highlight_item
+                  assign highlight_item_color = block.settings.highlight_item_color
+
+                  capture menu_style
+                    echo 'style="'
+                    if highlight_item_color != 'rgba(0,0,0,0)' and highlight_item_color != ''
+                      echo '--highlight: ' | append: highlight_item_color | append: ';'
+                    endif
+
+                    echo '--icon-size: calc(var(--font-' | append: block.settings.text_font_size | append: ') * 1.5);'
+
+                    unless block.settings.padding
+                      echo '--item-height: 30px;'
+                    endunless
+                    echo '"'
+                  endcapture
+                -%}
+
+                <nav class="drawer__menu" data-sliderule-pane="0" data-scroll-lock-scrollable {{ menu_style }}>
+                  <div class="drawer__main-menu {{ block.settings.text_font_size }}">
+                    {%- for link in linklist -%}
+                      {%- assign item_animation_delay = animation_delay_increment | times: forloop.index | plus: animation_delay -%}
+                      {%- render 'nav-item-mobile', block: block,link: link, index: forloop.index, forloop_index: forloop.index, highlight_item: highlight_item, animation_delay: item_animation_delay, unique: 'new-mobile-menu--desktop' -%}
+                    {%- endfor -%}
+                  </div>
+                </nav>
+
+              {%- when 'image' -%}
+                {%- liquid
+                  assign image = block.settings.image
+                  assign image_url = block.settings.image_url
+                  assign image_alignment = block.settings.product.image_alignment
+                -%}
+                <a class="mobile-menu__image-link{{ image_block_alignment }}" href="{{ image_url | default: '#!' }}">
+                  <div class="mobile-menu__image">
+                    {%- render 'image' image: image, width: image_width, sizes: sizes, widths: widths, loading: 'lazy', fetchpriority: 'high' -%}
+                  </div>
+                </a>
+
+              {%- when 'icon' -%}
+                {%- render 'icon' block: block -%}
+
+              {%- when 'text' -%}
+                {%- if block.settings.text != '' -%}
+                  <p class="drawer__text {{ block.settings.align_text }} {{ block.settings.text_font_size }}">
+                    {{ block.settings.text }}
+                  </p>
+                {%- endif -%}
+
+              {%- when 'button' -%}
+                {%- liquid
+                  assign button_style = block.settings.button_style
+                  if button_style == 'btn--text' and block.settings.show_arrow
+                    assign button_style = button_style | append: ' btn--text-no-underline'
+                  endif
+                -%}
+
+                {%- if block.settings.button_text != blank -%}
+                  <div class="hero__button">
+                    <a href="{{ block.settings.button_url | default: '#!' }}" class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}">
+                      <span>{{ block.settings.button_text }}</span>
+
+                      {%- if block.settings.show_arrow -%}
+                        {%- render 'icon-arrow-right' -%}
+                      {%- endif -%}
+                    </a>
+                  </div>
+                {%- endif -%}
+
+              {%- when 'review' -%}
+                <div class="block-review frame">
+                  <div class="block-review__empty-stars frame__item">
+                    {%- for i in (1..5) -%}
+                      {% render 'icon-star' %}
+                    {%- endfor -%}
+                  </div>
+                  <div class="block-review__full-stars frame__item">
+                    {%- for i in (1..5) -%}
+                      {% render 'icon-star-full' %}
+                    {%- endfor -%}
+                  </div>
+                </div>
+
+                <blockquote class="block-review__text {{ block.settings.text_font_size }}">{{ block.settings.text }}</blockquote>
+
+                <p class="h4 block-review__author">{{ block.settings.title }}</p>
+
+              {%- when 'localization' -%}
+                {%- liquid
+                  assign show_locale_selector = block.settings.show_locale_selector
+                  assign show_globe_icon = block.settings.show_globe_icon
+                  assign show_country_selector = block.settings.show_country_selector
+                  assign show_country_flag = block.settings.show_country_flag
+                  assign show_country_name = block.settings.show_country_name
+                -%}
+
+                <div class="mobile-menu__block-localization">
+                  {%- render 'localization', unique: 'mobile-menu', show_locale_selector: show_locale_selector, show_globe_icon: show_globe_icon, show_country_selector: show_country_selector, show_country_flag: show_country_flag, show_country_name: show_country_name, short_country_name: true, class: 'header' -%}
+                </div>
+
+              {%- when 'socials' -%}
+                {%- render 'social-icons' modifier: 'socials--mobile-menu' -%}
+
+              {%- when 'collection' -%}
+                {%- liquid
+                  assign title_onboarding = 'home_page.onboarding.collection_title' | t
+                  assign collection_title = block.settings.collection.title | default: title_onboarding
+                  assign collection_image = block.settings.image | default: block.settings.collection.featured_image
+                -%}
+
+                <a href="{{ block.settings.collection.url | default: '#!' }}" class="mobile-menu__image-link">
+                  <div class="mobile-menu__image">
+                    {%- render 'image' image: collection_image, width: image_width, sizes: sizes, widths: widths, loading: 'lazy', fetchpriority: 'high' -%}
+                  </div>
+                  <div class="mobile-menu__title {{ block.settings.text_font_size }}">
+                    {{ collection_title }}
+                  </div>
+                </a>
+
+              {%- when 'product' -%}
+                {%- liquid
+                  assign title_onboarding = 'home_page.onboarding.product_title' | t
+                  assign product_title = block.settings.product.title | default: title_onboarding
+                  assign product_image = block.settings.image | default: block.settings.product.featured_image
+                -%}
+
+                <a href="{{ block.settings.product.url | default: '#!' }}" class="mobile-menu__image-link">
+                  <div class="mobile-menu__image">
+                    {%- render 'image' image: product_image, width: image_width, sizes: sizes, widths: widths, loading: 'lazy', fetchpriority: 'high' -%}
+                  </div>
+
+                  <div class="mobile-menu__title {{ block.settings.text_font_size }}">
+                    {{ product_title | strip_html | escape }}
+                  </div>
+                </a>
+
+              {%- when 'divider' -%}
+                {%- render 'divider' block: block -%}
+
+            {%- endcase -%}
+          </div>
+        </div>
+      {%- endunless -%}
+    {%- endcapture -%}
+
+    {%- liquid
+      if pin_to_bottom
+        capture pinned_blocks
+          echo pinned_blocks
+          echo block_content
+        endcapture
+      else
+        capture dynamic_blocks
+          echo dynamic_blocks
+          echo block_content
+        endcapture
+      endif
+    -%}
+  {%- endfor -%}
+
+  <header-drawer
+    class="drawer drawer--header{% if settings.type_nav_caps %} caps{% endif %}"
+    data-drawer="hamburger-{{ section.id }}"
+    aria-label="{{ 'layout.header.menu' | t }}"
+    id="mobile-menu-{{ section.id }}"
+  >
+    <div class="drawer__inner" data-drawer-inner>
+      <header class="drawer__head">
+        <button
+          class="drawer__close"
+          data-drawer-close
+          aria-label="{{ 'general.accessibility.show_menu' | t }}"
+          aria-haspopup="true"
+          aria-expanded="true"
+          aria-controls="mobile-menu-{{ section.id }}"
+        >
+          {%- render 'icon-cancel' -%}
+        </button>
+
+        {%- if logo != blank -%}
+          <a
+            class="header__logo__link header__logo__link--drawer"
+            href="{{ routes.root_url }}"
+            data-logo-link
+            style="{{ mobile_menu_logo_style }}"
+          >
+            {%- liquid
+              render 'image', image: logo, width: logo_width_2x, sizes: logo_width_2x, widths: logo_widths, show_backfill: false, loading: 'lazy', fetchpriority: 'high'
+            -%}
+          </a>
+        {%- endif -%}
+      </header>
+
+      <div class="drawer__body">
+        <div class="drawer__content" data-drawer-content>
+          <div class="drawer__content__scroll" data-scroll-lock-scrollable>
+            {{ dynamic_blocks }}
+          </div>
+        </div>
+      </div>
+
+      {%- if pinned_blocks != blank -%}
+        <div
+          class="drawer__foot"
+          style="--base-animation-delay: {{ block_index_dynamic | times: animation_delay_increment }}ms;"
+        >
+          <div class="drawer__foot__scroll" data-scroll-lock-scrollable>
+            {{ pinned_blocks }}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <span class="underlay drawer__underlay" data-drawer-underlay></span>
+  </header-drawer>
+</mobile-menu>
+
+{% schema %}
+{
+  "name": "Mobile menu",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo",
+      "info": "300 x 90px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "range",
+      "id": "logo_max_limit",
+      "min": 30,
+      "max": 250,
+      "step": 5,
+      "unit": "px",
+      "label": "Logo width",
+      "default": 120
+    },
+    {
+      "type": "header",
+      "content": "Color"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Menu",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "link_list",
+          "label": "Menu",
+          "id": "mobile_menu_linklist"
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size.",
+          "default": "body-large",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Highlight link"
+        },
+        {
+          "type": "text",
+          "id": "highlight_item",
+          "label": "Menu item",
+          "default": "Sale"
+        },
+        {
+          "type": "color",
+          "id": "highlight_item_color",
+          "label": "Color",
+          "default": "#D02E2E"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "padding",
+          "label": "Add padding",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    },
+    {
+      "type": "menu-columns",
+      "name": "Menu columns",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "link_list",
+          "label": "Menu",
+          "info": "This menu won't show dropdown items.",
+          "id": "mobile_menu_linklist"
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+          "default": "body-large",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Highlight link"
+        },
+        {
+          "type": "text",
+          "id": "highlight_item",
+          "label": "Menu item",
+          "default": "Sale"
+        },
+        {
+          "type": "color",
+          "id": "highlight_item_color",
+          "label": "Color",
+          "default": "#D02E2E"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "padding",
+          "label": "Add padding",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "700 x 700px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "type": "url",
+          "id": "image_url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "image_alignment",
+          "label": "Image alignment",
+          "default": "left",
+          "options": [
+            {"label": "Left", "value": "left"},
+            {"label": "Center", "value": "center"},
+            {"label": "Right", "value": "right"}
+          ]
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "label": "Image width",
+          "min": 5,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "default": 20
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    },
+    {
+      "type": "icon",
+      "name": "Icon",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon_name",
+          "label": "Icon",
+          "default": "icon-award",
+          "options": [
+            {"label": "Award", "value": "icon-award"},
+            {"label": "Box", "value": "icon-box"},
+            {"label": "Chat", "value": "icon-chat"},
+            {"label": "Check", "value": "icon-check"},
+            {"label": "Check circle", "value": "icon-check-circle"},
+            {"label": "Cloud", "value": "icon-cloud"},
+            {"label": "Diameter", "value": "icon-diameter"},
+            {"label": "Discount", "value": "icon-discount"},
+            {"label": "Donation", "value": "icon-donation"},
+            {"label": "Droplet", "value": "icon-droplet"},
+            {"label": "Info", "value": "icon-info-empty"},
+            {"label": "Email", "value": "icon-email"},
+            {"label": "Fast shipment", "value": "icon-fast-shipment"},
+            {"label": "Flare", "value": "icon-flare"},
+            {"label": "Flower", "value": "icon-flower"},
+            {"label": "Gift", "value": "icon-gift"},
+            {"label": "Green shipment", "value": "icon-green-shipment"},
+            {"label": "Heart", "value": "icon-heart"},
+            {"label": "Leaf", "value": "icon-leaf"},
+            {"label": "Lightening", "value": "icon-lightening"},
+            {"label": "Location", "value": "icon-location"},
+            {"label": "Mail", "value": "icon-mail"},
+            {"label": "Notes", "value": "icon-notes"},
+            {"label": "Pants", "value": "icon-pants"},
+            {"label": "Peace", "value": "icon-peace"},
+            {"label": "Pin", "value": "icon-pin"},
+            {"label": "Planet", "value": "icon-planet"},
+            {"label": "Phone", "value": "icon-phone"},
+            {"label": "Recycle", "value": "icon-recycle"},
+            {"label": "Ruler", "value": "icon-ruler"},
+            {"label": "Shield", "value": "icon-shield"},
+            {"label": "Smile", "value": "icon-smile"},
+            {"label": "Star", "value": "icon-star"},
+            {"label": "Tree", "value": "icon-tree"},
+            {"label": "Trophy", "value": "icon-trophy"},
+            {"label": "Truck", "value": "icon-truck"},
+            {"label": "Vegan", "value": "icon-vegan"},
+            {"label": "Wash", "value": "icon-wash"},
+            {"label": "Washing machine", "value": "icon-washing-machine"}
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Alternative icon/image",
+          "info": "160 x 160px .svg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "type": "range",
+          "id": "icon_size",
+          "label": "Size",
+          "unit": "px",
+          "min": 20,
+          "max": 80,
+          "step": 5,
+          "default": 20
+        },
+        {
+          "type": "color",
+          "id": "icon_color",
+          "label": "Icon color"
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Title<\/p>"
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+          "default": "body-medium",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Free shipping on orders over $100"
+        },
+        {
+          "type": "select",
+          "id": "align_text",
+          "label": "Text alignment",
+          "default": "text-left",
+          "options": [
+            {"value": "text-left", "label": "Left"},
+            {"value": "text-center", "label": "Centered"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+          "default": "body-large",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Text",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_type",
+          "label": "Color",
+          "default": "btn--primary",
+          "options": [
+            {"value": "btn--black", "label": "Black"},
+            {"value": "btn--white", "label": "White"},
+            {"value": "btn--primary", "label": "Primary"},
+            {"value": "btn--secondary", "label": "Secondary"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "Size",
+          "default": "",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": ""},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Style",
+          "default": "btn--solid",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "show_arrow",
+          "label": "Show arrow",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    },
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Star rating",
+          "min": 4,
+          "max": 5,
+          "step": 0.5,
+          "default": 5
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Testimonial",
+          "default": "Use this text to showcase a review from one of your customers. A great review is honest and speaks to the concerns of your customers."
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size.",
+          "default": "body-large",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Customer name",
+          "default": "Customer name"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "paragraph",
+          "content": "Overrides color scheme. Set to Transparent to revert back to using color schemes."
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background"
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Text"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    },
+    {
+      "type": "localization",
+      "name": "Language and currency",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Language selector",
+          "info": "To add a language, go to your [language settings.](/admin/settings/languages)"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_locale_selector",
+          "label": "Show language selector",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_globe_icon",
+          "label": "Show globe icon",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Country/Region selector",
+          "info": "To add a country/region, go to your [markets settings](/admin/settings/markets)."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_country_selector",
+          "label": "Show country/region selector",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_country_name",
+          "label": "Show country name",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_country_flag",
+          "label": "Show country flag",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "width",
+          "label": "Width",
+          "default": "full",
+          "options": [
+            {"label": "Full width", "value": "full"},
+            {"label": "Half", "value": "half"}
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    },
+    {
+      "type": "socials",
+      "name": "Social media",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "width",
+          "label": "Width",
+          "default": "full",
+          "options": [
+            {"label": "Full width", "value": "full"},
+            {"label": "Half", "value": "half"}
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    },
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Replace the collection image with a custom image. 100 x 100px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "label": "Image width",
+          "min": 5,
+          "max": 50,
+          "step": 5,
+          "unit": "%",
+          "default": 20
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size.",
+          "default": "body-medium",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Color"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "padding",
+          "label": "Add inner padding",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "label": "Product",
+          "id": "product",
+          "type": "product"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Replace the collection image with a custom image. 100 x 100px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "label": "Image width",
+          "min": 5,
+          "max": 50,
+          "step": 5,
+          "unit": "%",
+          "default": 20
+        },
+        {
+          "type": "header",
+          "content": "Typography"
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size.",
+          "default": "body-medium",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Color"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "checkbox",
+          "id": "padding",
+          "label": "Add inner padding",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "pin_to_bottom",
+          "label": "Pin to bottom",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    },
+    {
+      "type": "divider",
+      "name": "Divider",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_line",
+          "label": "Show line",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    },
+    {
+      "type": "search",
+      "name": "Search bar",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Block spacing"
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Padding bottom",
+          "default": 14
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Mobile menu",
+      "blocks": [
+        {
+          "type": "menu"
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  }
+}
+{% endschema %}

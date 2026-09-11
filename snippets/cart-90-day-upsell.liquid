@@ -1,0 +1,265 @@
+{%- liquid
+  assign render_gifts_only = render_gifts_only | default: false
+-%}
+
+{%- unless is_cart -%}
+  {%- liquid
+    comment
+      90-Day cart upsell experiment config
+    endcomment
+    assign cart_90_day_trigger_product_handle = 'every-damn-day-kit'
+    assign cart_90_day_trigger_product_id = '8458689478690'
+    assign cart_90_day_trigger_product_fallback_handle = 'starter-kit'
+    assign cart_90_day_trigger_product_fallback_id = '8156483026978'
+
+    assign cart_90_day_v1_product_handle = 'every-damn-day-90-day-kit-copy'
+    assign cart_90_day_v1_product_id = '8544909492258'
+    assign cart_90_day_v1_variant_id_coastal_lime = '46027092754466'
+    assign cart_90_day_v1_variant_id_attaboy_punch = '46027092787234'
+    assign cart_90_day_v1_selling_plan_id = '27223654434'
+
+    assign cart_90_day_display_billed_price = '$132.50'
+    assign cart_90_day_display_billing_note = 'Billed $132.50 every 12 weeks'
+    assign cart_90_day_display_image_alt = '90 Day Starter Kit'
+  -%}
+
+  {%- capture cart_90_day_included_items_markup -%}
+    <div class="cart-90-day-upsell__gifts">
+      <div class="cart-90-day-upsell__gifts-title">Free Gifts Included On Your Order:</div>
+
+      <div class="cart-90-day-upsell__gift-list">
+        <div class="cart-90-day-upsell__gift-item">
+          <div class="cart-90-day-upsell__gift-image">
+            <img src="https://cdn.shopify.com/s/files/1/0795/9012/9698/files/Frame_2147215362_3.png?v=1782919354" alt="Attaboy Water Bottle" loading="lazy" width="64" height="64">
+          </div>
+
+          <div class="cart-90-day-upsell__gift-copy">
+            <div class="cart-90-day-upsell__gift-name">ATTABOY WATER BOTTLE</div>
+            <div class="cart-90-day-upsell__gift-subtitle">30 oz / color may vary</div>
+          </div>
+
+          <div class="cart-90-day-upsell__gift-meta">
+            <span class="cart-90-day-upsell__gift-badge">FREE</span>
+            <span class="cart-90-day-upsell__gift-value">$20 value</span>
+          </div>
+        </div>
+
+        <div class="cart-90-day-upsell__gift-item">
+          <div class="cart-90-day-upsell__gift-image">
+            <img src="https://cdn.shopify.com/s/files/1/0795/9012/9698/files/Frame_2147215362_2.png?v=1782919353" alt="Sticker Pack" loading="lazy" width="64" height="64">
+          </div>
+
+          <div class="cart-90-day-upsell__gift-copy">
+            <div class="cart-90-day-upsell__gift-name">STICKER PACK</div>
+            <div class="cart-90-day-upsell__gift-subtitle">Die-cut Vinyl Stickers</div>
+          </div>
+
+          <div class="cart-90-day-upsell__gift-meta">
+            <span class="cart-90-day-upsell__gift-badge">FREE</span>
+            <span class="cart-90-day-upsell__gift-value">$4 value</span>
+          </div>
+        </div>
+
+        <div class="cart-90-day-upsell__gift-item">
+          <div class="cart-90-day-upsell__gift-image">
+            <img src="https://cdn.shopify.com/s/files/1/0795/9012/9698/files/Background_1.png?v=1782919354" alt="Priority Shipping" loading="lazy" width="64" height="64">
+          </div>
+
+          <div class="cart-90-day-upsell__gift-copy">
+            <div class="cart-90-day-upsell__gift-name">PRIORITY SHIPPING</div>
+          </div>
+
+          <div class="cart-90-day-upsell__gift-meta">
+            <span class="cart-90-day-upsell__gift-badge">FREE</span>
+            <span class="cart-90-day-upsell__gift-value">$8.99 value</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  {%- endcapture -%}
+
+  {%- if render_gifts_only -%}
+    {%- liquid
+      assign cart_has_trigger_item = false
+      assign cart_has_upgrade_item = false
+      assign render_global_gifts = false
+
+      for cart_item in cart.items
+        assign cart_item_product_handle = cart_item.product.handle | default: ''
+        assign cart_item_product_id = cart_item.product.id | append: ''
+
+        if cart_90_day_trigger_product_handle != blank and cart_item_product_handle == cart_90_day_trigger_product_handle
+          assign cart_has_trigger_item = true
+        endif
+
+        if cart_90_day_trigger_product_id != blank and cart_item_product_id == cart_90_day_trigger_product_id
+          assign cart_has_trigger_item = true
+        endif
+
+        if cart_90_day_trigger_product_fallback_handle != blank and cart_item_product_handle == cart_90_day_trigger_product_fallback_handle
+          assign cart_has_trigger_item = true
+        endif
+
+        if cart_90_day_trigger_product_fallback_id != blank and cart_item_product_id == cart_90_day_trigger_product_fallback_id
+          assign cart_has_trigger_item = true
+        endif
+
+        if cart_90_day_v1_product_handle != blank and cart_item_product_handle == cart_90_day_v1_product_handle
+          assign cart_has_upgrade_item = true
+        endif
+
+        if cart_90_day_v1_product_id != blank and cart_item_product_id == cart_90_day_v1_product_id
+          assign cart_has_upgrade_item = true
+        endif
+
+        if cart_has_trigger_item and cart_has_upgrade_item
+          break
+        endif
+      endfor
+
+      if cart_has_trigger_item or cart_has_upgrade_item
+        assign render_global_gifts = true
+      endif
+    -%}
+
+    {%- if render_global_gifts -%}
+      <div
+        class="cart-90-day-upsell cart-90-day-upsell--global-gifts"
+        data-cart-90-day-gifts-root
+        data-cart-90-day-has-trigger-item="{{ cart_has_trigger_item }}"
+        data-cart-90-day-has-upgrade-item="{{ cart_has_upgrade_item }}"
+        data-cart-90-day-active-variant="control"
+        data-cart-90-day-active-variant-source="default"
+        hidden
+        aria-hidden="true"
+      >
+        {{ cart_90_day_included_items_markup }}
+      </div>
+    {%- endif -%}
+  {%- else -%}
+    {%- liquid
+      assign line_product_handle = line_item.product.handle | default: ''
+      assign line_product_id = line_item.product.id | append: ''
+
+      assign cart_90_day_current_flavor = ''
+      for option in line_item.options_with_values
+        assign option_name_downcase = option.name | downcase
+
+        if cart_90_day_current_flavor == '' and option_name_downcase contains 'flavor'
+          assign cart_90_day_current_flavor = option.value
+        endif
+      endfor
+
+      if cart_90_day_current_flavor == '' and line_item.options_with_values.size > 0
+        assign cart_90_day_first_option = line_item.options_with_values | first
+        assign cart_90_day_current_flavor = cart_90_day_first_option.value
+      endif
+
+      assign is_trigger_line_item = false
+      if cart_90_day_trigger_product_handle != blank and line_product_handle == cart_90_day_trigger_product_handle
+        assign is_trigger_line_item = true
+      endif
+      if cart_90_day_trigger_product_id != blank and line_product_id == cart_90_day_trigger_product_id
+        assign is_trigger_line_item = true
+      endif
+      if cart_90_day_trigger_product_fallback_handle != blank and line_product_handle == cart_90_day_trigger_product_fallback_handle
+        assign is_trigger_line_item = true
+      endif
+      if cart_90_day_trigger_product_fallback_id != blank and line_product_id == cart_90_day_trigger_product_fallback_id
+        assign is_trigger_line_item = true
+      endif
+
+      assign render_upsell_block = false
+      if is_trigger_line_item
+        assign render_upsell_block = true
+      endif
+
+      assign cart_90_day_v1_product = blank
+      if cart_90_day_v1_product_handle != blank
+        assign cart_90_day_v1_product = all_products[cart_90_day_v1_product_handle]
+      endif
+
+      assign cart_90_day_v1_upgrade_variant = blank
+      if cart_90_day_v1_product != blank
+        for variant in cart_90_day_v1_product.variants
+          if cart_90_day_current_flavor != blank and variant.options contains cart_90_day_current_flavor
+            assign cart_90_day_v1_upgrade_variant = variant
+            break
+          endif
+        endfor
+
+        if cart_90_day_v1_upgrade_variant == blank
+          assign cart_90_day_v1_upgrade_variant = cart_90_day_v1_product.selected_or_first_available_variant
+        endif
+      endif
+
+      assign cart_90_day_v1_upgrade_image = blank
+      if cart_90_day_v1_upgrade_variant.featured_image
+        assign cart_90_day_v1_upgrade_image = cart_90_day_v1_upgrade_variant.featured_image
+      elsif cart_90_day_v1_product.featured_image
+        assign cart_90_day_v1_upgrade_image = cart_90_day_v1_product.featured_image
+      endif
+
+      assign cart_90_day_v1_upgrade_image_url = ''
+      if cart_90_day_v1_upgrade_image != blank
+        assign cart_90_day_v1_upgrade_image_url = cart_90_day_v1_upgrade_image | image_url: width: 96
+      endif
+
+      assign cart_90_day_default_image_url = cart_90_day_v1_upgrade_image_url
+    -%}
+
+    {%- if render_upsell_block -%}
+      <div
+        class="cart-90-day-upsell"
+        data-cart-90-day-upsell-root
+        data-cart-90-day-mode="upsell"
+        data-cart-90-day-line-key="{{ line_item.key | escape }}"
+        data-cart-90-day-current-flavor="{{ cart_90_day_current_flavor | escape }}"
+        data-cart-90-day-current-quantity="{{ line_item.quantity }}"
+        data-cart-90-day-active-variant="control"
+        data-cart-90-day-active-variant-source="default"
+        data-cart-90-day-v1-upgrade-handle="{{ cart_90_day_v1_product_handle }}"
+        data-cart-90-day-v1-upgrade-product-id="{{ cart_90_day_v1_product_id }}"
+        data-cart-90-day-v1-upgrade-variant-id-coastal-lime="{{ cart_90_day_v1_variant_id_coastal_lime }}"
+        data-cart-90-day-v1-upgrade-variant-id-attaboy-punch="{{ cart_90_day_v1_variant_id_attaboy_punch }}"
+        data-cart-90-day-v1-upgrade-selling-plan-id="{{ cart_90_day_v1_selling_plan_id }}"
+        data-cart-90-day-v1-billing-note="{{ cart_90_day_display_billing_note }}"
+        data-cart-90-day-v1-image-url="{{ cart_90_day_v1_upgrade_image_url }}"
+        data-cart-90-day-v1-image-alt="{{ cart_90_day_display_image_alt | escape }}"
+        hidden
+        aria-hidden="true"
+      >
+        <div class="cart-90-day-upsell__card">
+          <div class="cart-90-day-upsell__inner">
+            <div class="cart-90-day-upsell__badge-row">
+              <div class="cart-90-day-upsell__value-pill">Save&nbsp;<span class="cart-90-day-upsell__value-pill-highlight">15%</span>&nbsp;37% for life</div>
+              <div class="cart-90-day-upsell__best-value">Best value</div>
+            </div>
+            <h4 class="cart-90-day-upsell__title">Dial In For Longer Term Results</h4>
+
+            <div class="cart-90-day-upsell__product-row">
+              <div class="cart-90-day-upsell__product-image{% if cart_90_day_default_image_url == blank %} cart-90-day-upsell__product-image--empty{% endif %}">
+                <img
+                  {% if cart_90_day_default_image_url != blank %}src="{{ cart_90_day_default_image_url }}"{% endif %}
+                  alt="{{ cart_90_day_display_image_alt }}"
+                  loading="lazy"
+                  width="48"
+                  height="48"
+                >
+              </div>
+
+              <div class="cart-90-day-upsell__product-copy">
+                <div class="cart-90-day-upsell__product-name">Upgrade To 90-Day Supply</div>
+                <div class="cart-90-day-upsell__billing-note">{{ cart_90_day_display_billing_note }}</div>
+              </div>
+            </div>
+
+            <button type="button" class="cart-90-day-upsell__button" data-cart-90-day-upsell-button>
+              UPGRADE &amp; SAVE
+            </button>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+{%- endunless -%}

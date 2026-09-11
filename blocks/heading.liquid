@@ -1,0 +1,73 @@
+{%- liquid
+  assign heading_tag = 'h2'
+
+  unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+    assign heading_tag = block.settings.heading_tag
+  endunless
+-%}
+
+<{{ heading_tag }}
+  class="hero__title {{ block.settings.heading_font_size }}"
+  data-aos="hero"
+  data-aos-order="auto"
+  data-aos-anchor="{{ section.id }}"
+  {{ block.shopify_attributes }}
+>
+  {{ block.settings.text }}
+</{{ heading_tag }}>
+
+{% schema %}
+{
+  "name": "Heading",
+  "tag": null,
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Text",
+      "default": "Image slide"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_size",
+      "label": "Heading size",
+      "default": "heading-x-large",
+      "options": [
+        {"value": "heading-mini", "label": "Mini"},
+        {"value": "heading-x-small", "label": "Extra small"},
+        {"value": "heading-small", "label": "Small"},
+        {"value": "heading-medium", "label": "Medium"},
+        {"value": "heading-large", "label": "Large"},
+        {"value": "heading-x-large", "label": "Extra large"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Advanced"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading SEO tag",
+      "default": "automatic",
+      "options": [
+        {"value": "automatic", "label": "Automatic"},
+        {"value": "h1", "label": "H1"},
+        {"value": "h2", "label": "H2"},
+        {"value": "h3", "label": "H3"},
+        {"value": "h4", "label": "H4"},
+        {"value": "h5", "label": "H5"},
+        {"value": "h6", "label": "H6"}
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Heading",
+      "settings": {
+        "text": "Image slide"
+      }
+    }
+  ]
+}
+{% endschema %}

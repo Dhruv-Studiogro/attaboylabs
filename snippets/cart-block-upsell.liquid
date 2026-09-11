@@ -1,0 +1,63 @@
+{% comment %}
+    Renders order product list or upsell products on Cart page and Cart drawer
+
+    Accepts:
+    - block: {Object} Block object (required)
+
+    Usage:
+    {% render 'cart-block-upsell', block: block %}
+{% endcomment %}
+
+{%- liquid
+  assign upsell_auto_open = block.settings.upsell_auto_open
+  assign is_product_list = false
+  if block.type == 'product-list'
+    assign is_product_list = true
+  endif
+
+  capture upsell_products
+    render 'cart-line-items', part: 'upsell-items'
+  endcapture
+
+  capture product_list
+    for product in block.settings.product_list
+      render 'upsell-product' upsell_product: product, is_product_list: true, is_cart: true
+    endfor
+  endcapture
+-%}
+
+{%- if request.design_mode or is_product_list == false or block.settings.product_list.count > 0 and product_list != blank and is_product_list or upsell_products != blank-%}
+  <details
+    class="cart__widget cart__widget--products accordion"
+    {% if upsell_auto_open and product_list != blank or upsell_products != blank %}
+      open="true"
+    {% endif %}
+    data-collapsible
+    data-upsell-widget
+    {% if upsell_auto_open %}
+      data-upsell-auto-open
+    {% endif %}>
+    <summary class="cart__widget__title" data-collapsible-trigger>
+      {%- if is_product_list -%}
+        {{ block.settings.title }}
+      {%- else -%}
+        {{- 'cart.general.pair_products' | t -}}
+      {%- endif -%}
+
+      {%- render 'icon-plus' -%}
+      {%- render 'icon-minus' -%}
+    </summary>
+
+    <div class="cart__widget__content"{% if upsell_auto_open and product_list != blank or upsell_products != blank %} style="height: auto;"{% endif %} data-collapsible-body>
+      <div class="cart__widget__content__inner" data-collapsible-content>
+        <div class="cart__widget__products" {% unless is_product_list %}data-upsell-products{% endunless %}>
+          {%- if is_product_list -%}
+            {{ product_list }}
+          {%- else -%}
+            {{ upsell_products }}
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </details>
+{%- endif -%}

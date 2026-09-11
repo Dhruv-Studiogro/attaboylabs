@@ -1,0 +1,377 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {
+        "subheading": "",
+        "show_title": true,
+        "heading_font_size": "heading-large",
+        "show_content": true,
+        "text_font_size": "body-medium",
+        "align_text": "text-left",
+        "width": "wrapper",
+        "padding_top": 50,
+        "padding_bottom": 50
+      }
+    },
+    "double-first": {
+      "type": "section-double",
+      "blocks": {
+        "double-heading": {
+          "type": "heading",
+          "settings": {
+            "title": "Image with text",
+            "heading_font_size": "heading-x-large"
+          }
+        },
+        "double-text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+            "text_font_size": "body-medium"
+          }
+        },
+        "double-buttons": {
+          "type": "buttons",
+          "settings": {
+            "button_text": "Learn more",
+            "button_url": "",
+            "button_style": "btn--text"
+          }
+        }
+      },
+      "block_order": [
+        "double-heading",
+        "double-text",
+        "double-buttons"
+      ],
+      "settings": {
+        "text_alignment": "text-left",
+        "layout": "",
+        "height": "screen-height-three-quarters",
+        "mobile_height": "screen-height-one-half--mobile",
+        "padding_top": 0,
+        "padding_bottom": 60
+      }
+    },
+    "double-second": {
+      "type": "section-double",
+      "blocks": {
+        "double-heading": {
+          "type": "heading",
+          "settings": {
+            "title": "Image with text",
+            "heading_font_size": "heading-x-large"
+          }
+        },
+        "double-text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+            "text_font_size": "body-medium"
+          }
+        },
+        "double-buttons": {
+          "type": "buttons",
+          "settings": {
+            "button_text": "Learn more",
+            "button_url": "",
+            "button_style": "btn--text"
+          }
+        }
+      },
+      "block_order": [
+        "double-heading",
+        "double-text",
+        "double-buttons"
+      ],
+      "settings": {
+        "text_alignment": "text-left",
+        "layout": "is-reversed",
+        "height": "screen-height-three-quarters",
+        "mobile_height": "screen-height-one-half--mobile",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "collection-first": {
+      "type": "section-collection",
+      "settings": {
+        "featured_collection": "",
+        "heading": "",
+        "description": "",
+        "link_text": "",
+        "link_url": "",
+        "button_style": "btn--outline",
+        "layout_desktop": "grid",
+        "grid": 4,
+        "rows": 1,
+        "layout_mobile": "slider",
+        "padding_top": 60,
+        "padding_bottom": 0
+      }
+    },
+    "look": {
+      "type": "section-look",
+      "blocks": {
+        "product-1": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "position_x": 14,
+            "position_y": 37
+          }
+        },
+        "product-2": {
+          "type": "product",
+          "settings": {
+            "product": "",
+            "position_x": 45,
+            "position_y": 60
+          }
+        }
+      },
+      "block_order": [
+        "product-1",
+        "product-2"
+      ],
+      "settings": {
+        "title": "Shop the look",
+        "enable_aspect_ratio": true,
+        "image_aspect_ratio": 1,
+        "dot_color": "",
+        "dot_background": "",
+        "padding_top": 40,
+        "padding_bottom": 60
+      }
+    },
+    "double-third": {
+      "type": "section-double",
+      "blocks": {
+        "double-heading": {
+          "type": "heading",
+          "settings": {
+            "title": "Image with text",
+            "heading_font_size": "heading-x-large"
+          }
+        },
+        "double-text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+            "text_font_size": "body-medium"
+          }
+        },
+        "double-buttons": {
+          "type": "buttons",
+          "settings": {
+            "button_text": "Learn more",
+            "button_url": "",
+            "button_style": "btn--text"
+          }
+        }
+      },
+      "block_order": [
+        "double-heading",
+        "double-text",
+        "double-buttons"
+      ],
+      "settings": {
+        "text_alignment": "text-left",
+        "layout": "is-reversed",
+        "height": "screen-height-three-quarters",
+        "mobile_height": "screen-height-one-half--mobile",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "collection-second": {
+      "type": "section-collection",
+      "settings": {
+        "featured_collection": "",
+        "heading": "",
+        "description": "",
+        "link_text": "",
+        "link_url": "",
+        "button_style": "btn--outline",
+        "layout_desktop": "grid",
+        "grid": 4,
+        "rows": 1,
+        "layout_mobile": "slider",
+        "padding_top": 60,
+        "padding_bottom": 0
+      }
+    },
+    "double-fourth": {
+      "type": "section-double",
+      "blocks": {
+        "double-heading": {
+          "type": "heading",
+          "settings": {
+            "title": "Image with text",
+            "heading_font_size": "heading-x-large"
+          }
+        },
+        "double-text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+            "text_font_size": "body-medium"
+          }
+        },
+        "double-buttons": {
+          "type": "buttons",
+          "settings": {
+            "button_text": "Learn more",
+            "button_url": "",
+            "button_style": "btn--text"
+          }
+        }
+      },
+      "block_order": [
+        "double-heading",
+        "double-text",
+        "double-buttons"
+      ],
+      "settings": {
+        "text_alignment": "text-left",
+        "layout": "",
+        "height": "screen-height-three-quarters",
+        "mobile_height": "screen-height-one-half--mobile",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "double-fifth": {
+      "type": "section-double",
+      "blocks": {
+        "double-heading": {
+          "type": "heading",
+          "settings": {
+            "title": "Image with text",
+            "heading_font_size": "heading-x-large"
+          }
+        },
+        "double-text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>",
+            "text_font_size": "body-medium"
+          }
+        },
+        "double-buttons": {
+          "type": "buttons",
+          "settings": {
+            "button_text": "Learn more",
+            "button_url": "",
+            "button_style": "btn--text"
+          }
+        }
+      },
+      "block_order": [
+        "double-heading",
+        "double-text",
+        "double-buttons"
+      ],
+      "settings": {
+        "text_alignment": "text-left",
+        "layout": "is-reversed",
+        "height": "screen-height-three-quarters",
+        "mobile_height": "screen-height-one-half--mobile",
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "collection-third": {
+      "type": "section-collection",
+      "settings": {
+        "featured_collection": "",
+        "heading": "",
+        "description": "",
+        "link_text": "",
+        "link_url": "",
+        "button_style": "btn--outline",
+        "layout_desktop": "grid",
+        "grid": 4,
+        "rows": 1,
+        "layout_mobile": "slider",
+        "padding_top": 60,
+        "padding_bottom": 0
+      }
+    },
+    "custom-content": {
+      "type": "section-custom-content",
+      "blocks": {
+        "image-1": {
+          "type": "image",
+          "settings": {
+            "title": "Bestsellers",
+            "heading_font_size": "heading-large",
+            "text_font_size": "body-medium",
+            "flex_align": "align--middle-center",
+            "bg_color": "",
+            "color": "#FFFFFF",
+            "overlay_opacity": 0,
+            "overlay_color": "#000",
+            "show_overlay_text": false,
+            "link_text": "Shop now",
+            "link": "#",
+            "button_style": "btn--text"
+          }
+        },
+        "image-2": {
+          "type": "image",
+          "settings": {
+            "title": "Clearance",
+            "heading_font_size": "heading-large",
+            "text_font_size": "body-medium",
+            "flex_align": "align--middle-center",
+            "bg_color": "",
+            "color": "#FFFFFF",
+            "overlay_opacity": 0,
+            "overlay_color": "#000",
+            "show_overlay_text": false,
+            "link_text": "Shop now",
+            "link": "#",
+            "button_style": "btn--text"
+          }
+        }
+      },
+      "block_order": [
+        "image-1",
+        "image-2"
+      ],
+      "settings": {
+        "borders": false,
+        "width": "wrapper--full",
+        "height": "sixty-fifty-height-hero",
+        "mobile_height": "four-fifty-height-hero--mobile",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    }
+  },
+  "order": [
+    "main",
+    "double-first",
+    "double-second",
+    "collection-first",
+    "look",
+    "double-third",
+    "collection-second",
+    "double-fourth",
+    "double-fifth",
+    "collection-third",
+    "custom-content"
+  ]
+}

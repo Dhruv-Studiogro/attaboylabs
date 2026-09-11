@@ -1,0 +1,721 @@
+<!-- /sections/section-hero.liquid -->
+{%- liquid
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+  assign overlay_opacity = section.settings.overlay_opacity | times: 0.01
+  assign show_overlay_text = section.settings.show_overlay_text
+  assign show_text_background = section.settings.show_text_background
+  assign animation_anchor = '#Hero--' | append: section.id
+  assign desktop_height = section.settings.height
+  assign mobile_height = section.settings.mobile_height
+  assign image_1 = section.settings.image_1
+  assign show_placeholder = section.settings.show_placeholder
+  assign mobile_image = section.settings.mobile_image
+  assign banner_link = section.settings.link
+  assign section_content = ''
+  assign section_scrolling = ''
+  assign text_align = section.settings.flex_align
+  assign scrolling_align = section.settings.scrolling_align
+  assign scrolling_blocks = section.blocks | where: 'type', 'scrolling_text'
+  assign sizes = '100vw'
+
+  if scrolling_blocks.size > 0
+    assign scrolling_font = section.settings.type_font
+  endif
+
+  comment
+    100px going to move for 1.63s
+  endcomment
+  assign marquee_time = 1.63
+
+  assign selected_color_scheme = section.settings.color_scheme | strip
+  assign scheme_bg_color = settings.color_schemes[selected_color_scheme].settings.section_bg
+
+  assign hero_transparent = true
+  if show_text_background and scheme_bg_color.alpha != 0.0 or scheme_bg_color != blank
+    assign hero_transparent = false
+  endif
+
+  assign show_header_backdrop = false
+  if hero_transparent and show_overlay_text
+    assign show_header_backdrop = true
+  endif
+
+  assign animation_order = 0
+-%}
+
+{%- if request.visual_preview_mode -%}
+  {%- style -%}
+    .index-hero--scrolling .hero__content__wrapper {
+      display: block;
+    }
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- style -%}
+  #Hero--{{ section.id }} {
+    --PT: {{ section.settings.padding_top }}px;
+    --PB: {{ section.settings.padding_bottom }}px;
+
+    {%- if scrolling_blocks.size > 0 -%}
+      --padding-scrolling: {{ section.settings.message_spacing }}px;
+      --ticker-direction: {{ section.settings.direction | default: 'ticker-rtl' }};
+      --scrolling-font-family: {{ scrolling_font.family }}, {{ scrolling_font.fallback_families }};
+      --scrolling-font-size: {{ section.settings.text_font_size_px }}px;
+      --scrolling-font-style: {{ scrolling_font.style }};
+      --scrolling-font-weight: {{ scrolling_font.weight }};
+      --scrolling-letter-spacing: {{ section.settings.type_letter_spacing | divided_by: 1000.0 | append: 'em' }};
+    {%- endif -%}
+  }
+
+  {%- if scrolling_blocks.size > 0 -%}
+    {{ scrolling_font | font_face: font_display: 'swap' }}
+  {%- endif -%}
+{%- endstyle -%}
+
+{%- if section.blocks.size > 0 and image_1 != blank or show_placeholder == true -%}
+  {%- for block in section.blocks -%}
+    {%- case block.type -%}
+      {%- when 'heading' -%}
+        {%- if block.settings.title != '' -%}
+          {%- capture section_content -%}
+            {{ section_content }}
+
+            {%- liquid
+              assign animation_order = animation_order | plus: 1
+              assign heading_tag = 'h2'
+
+              unless block.settings.heading_tag == 'automatic' or block.settings.heading_tag == blank
+                assign heading_tag = block.settings.heading_tag
+              endunless
+            -%}
+
+            <{{ heading_tag }} class="hero__title {{ block.settings.heading_font_size }}"
+              data-aos="hero"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="{{ animation_order }}"
+              {{ block.shopify_attributes }}>
+            {{ block.settings.title | escape }}</{{ heading_tag }}>
+          {%- endcapture -%}
+        {%- endif -%}
+
+      {%- when 'text' -%}
+        {%- if block.settings.description != '' -%}
+          {%- liquid
+            assign color = block.settings.color
+            assign block_style = ''
+
+            unless color == 'rgba(0,0,0,0)' or color == blank
+              capture block_style
+                echo '--text:' | append: color | append: ';'
+              endcapture
+            endunless
+          -%}
+          {%- capture section_content -%}
+            {{ section_content }}
+
+            {%- assign animation_order = animation_order | plus: 1 -%}
+            <p class="hero__description {{ block.settings.text_font_size }}"
+              data-aos="hero"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="{{ animation_order }}"
+              {% if block_style != '' %}
+                style="{{ block_style }}"
+              {% endif %}
+              {{ block.shopify_attributes }}>
+              {{ block.settings.description }}
+            </p>
+          {%- endcapture -%}
+        {%- endif -%}
+
+      {%- when 'button' -%}
+        {%- capture section_content -%}
+          {{ section_content }}
+
+          {%- liquid
+            assign prev_index = forloop.index0 | minus: 1
+            assign next_index = forloop.index0 | plus: 1
+            assign prev_block = section.blocks[prev_index]
+            assign next_block = section.blocks[next_index]
+            assign link_url = block.settings.link
+            assign link_text = block.settings.link_text
+            assign animation_order = animation_order | plus: 1
+
+            assign button_style = block.settings.button_style
+            if button_style == 'btn--text' and block.settings.show_arrow
+              assign button_style = button_style | append: ' btn--text-no-underline'
+            endif
+          -%}
+
+          {%- if next_block.type == 'button' and next_index != section.blocks.size -%}
+            <div class="hero__button-group">
+          {%- endif -%}
+
+          {%- if link_text != '' -%}
+            <div class="hero__button"
+              data-aos="hero"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="{{ animation_order }}"
+              {{ block.shopify_attributes }}>
+              <a class="btn {{ button_style }} {{ block.settings.button_size }} {{ block.settings.button_type }}" href="{{ link_url | default: '#!' }}">
+                <span>{{ link_text | escape }}</span>
+
+                {%- if block.settings.show_arrow -%}
+                  {% render 'icon-arrow-right' %}
+                {%- endif -%}
+              </a>
+            </div>
+          {%- endif -%}
+
+          {%- if prev_block.type == 'button' and prev_index != -1 -%}
+            </div>
+          {%- endif -%}
+        {%- endcapture -%}
+
+      {%- when 'scrolling_text' -%}
+        {%- if block.settings.text != blank -%}
+          {%- liquid
+            assign color = block.settings.color
+            assign block_style = ''
+
+            unless color == 'rgba(0,0,0,0)' or color == blank
+              capture block_style
+                echo '--text:' | append: color | append: ';'
+              endcapture
+            endunless
+          -%}
+
+          {%- capture section_scrolling -%}
+            {{ section_scrolling }}
+
+            <div class="announcement__slide"
+              {% if block_style != '' %}
+                style="{{ block_style }}"
+              {% endif %}
+              {{ block.shopify_attributes }}>
+              <div class="announcement__content{% if section.settings.type_font_caps %} uppercase{% endif %}">
+                {{ block.settings.text | replace: '|', '<span class="announcement__divider"></span>' }}
+              </div>
+            </div>
+          {%- endcapture -%}
+        {%- endif -%}
+    {%- endcase -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- if section_scrolling != '' -%}
+  <script src="{{ 'ticker.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+<div
+  class="index-hero{% if section_content != '' and section_scrolling != '' %} index-hero--scrolling{% endif %} section-padding {{ color_scheme }}"
+  id="Hero--{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="hero"
+  data-overlay-header
+>
+  {%- if image_1 != blank or mobile_image != blank or show_placeholder or request.design_mode -%}
+    <div class="hero__wrapper frame wrapper--full">
+      {%- if banner_link != blank -%}
+        <a class="hero__images frame__item" href="{{ banner_link }}">
+      {%- else -%}
+        <div class="hero__images frame__item">
+      {%- endif -%}
+
+      {%- if image_1 != blank or show_placeholder -%}
+        <div class="hero__split-image">
+          {%- render 'image-hero',
+            image_desktop: image_1,
+            image_mobile: mobile_image,
+            sizes: sizes,
+            desktop_height: desktop_height,
+            mobile_height: mobile_height,
+            show_placeholder: show_placeholder
+          -%}
+        </div>
+      {%- endif -%}
+
+      {%- if image_1 == blank and show_placeholder == false -%}
+        <div class="image__hero__missing-metafield-image">{{ 'products.general.missing_metafield_image' | t }}</div>
+      {%- endif -%}
+
+      {%- unless show_overlay_text or overlay_opacity == 0.0 -%}
+        <div class="image-overlay" style="--overlay-opacity: {{ overlay_opacity }};"></div>
+      {%- endunless -%}
+
+      {%- if banner_link != blank -%}
+        </a>
+      {%- else -%}
+        </div>
+      {%- endif -%}
+
+      {%- if section_content != '' or section_scrolling != '' -%}
+        <div
+          class="hero__content__wrapper frame__item{% if show_header_backdrop %} backdrop--linear{% endif %}{% if section_content != '' and section_scrolling != '' %} content-{{ text_align }} scrolling-{{ scrolling_align }}{% elsif section_content != '' %} {{ text_align }}{% elsif section_scrolling != '' %} {{ scrolling_align }}{% endif %}"
+          {% if show_header_backdrop %}
+            style="--header-overlay-color: var(--overlay-bg); --header-overlay-opacity: {{ overlay_opacity }};"
+          {% endif %}
+        >
+          {%- if section_scrolling != '' -%}
+            <div
+              class="announcement__bar-outer"
+              data-aos="fade"
+              data-aos-anchor="{{ animation_anchor }}"
+              data-aos-order="1"
+            >
+              <ticker-bar
+                autoplay
+                speed="{{ 100.0 | divided_by: section.settings.marquee_speed | times: marquee_time }}"
+                style="--padding: var(--padding-scrolling, var(--outer));"
+              >
+                <div data-ticker-frame class="announcement__message">
+                  <div data-ticker-scale class="announcement__scale ticker--unloaded">
+                    <div data-ticker-text class="announcement__text">
+                      {%- if request.visual_preview_mode -%}
+                        {%- for i in (1..5) -%}
+                          {{ section_scrolling }}
+                        {%- endfor -%}
+                      {%- else -%}
+                        {{ section_scrolling }}
+                      {%- endif -%}
+                    </div>
+                  </div>
+                </div>
+              </ticker-bar>
+            </div>
+          {%- endif -%}
+
+          {%- if section_content != '' -%}
+            <div
+              class="hero__content{% if hero_transparent %} hero__content--transparent{% endif %}{% if show_overlay_text %} backdrop--radial{% endif %}"
+              {% if overlay_opacity != 0.0 %}
+                style="--overlay-opacity: {{ overlay_opacity }};"
+              {% endif %}
+            >
+              {{ section_content }}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Image with scrolling text",
+  "class": "section-overlay-header",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_1",
+      "label": "Image",
+      "info": "3200 x 1200px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Image link"
+    },
+    {
+      "type": "range",
+      "id": "message_spacing",
+      "label": "Space between messages",
+      "default": 10,
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "marquee_speed",
+      "label": "Autoplay speed",
+      "unit": "%",
+      "min": 50,
+      "max": 300,
+      "step": 25,
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Text typography"
+    },
+    {
+      "type": "select",
+      "id": "flex_align",
+      "label": "Text alignment",
+      "default": "align--middle-center",
+      "options": [
+        {"value": "align--top-center", "label": "Top"},
+        {"value": "align--middle-center", "label": "Center"},
+        {"value": "align--bottom-center", "label": "Bottom"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Scrolling text typography"
+    },
+    {
+      "type": "font_picker",
+      "id": "type_font",
+      "label": "Font",
+      "default": "poppins_n4"
+    },
+    {
+      "type": "range",
+      "id": "text_font_size_px",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "type_letter_spacing",
+      "min": -25,
+      "max": 200,
+      "step": 25,
+      "unit": "%",
+      "label": "Letter spacing",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "type_font_caps",
+      "label": "Uppercase",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "scrolling_align",
+      "label": "Position",
+      "default": "align--middle-center",
+      "options": [
+        {"value": "align--top-center", "label": "Top"},
+        {"value": "align--middle-center", "label": "Center"},
+        {"value": "align--bottom-center", "label": "Bottom"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Text direction",
+      "default": "ticker-rtl",
+      "options": [
+        {"value": "ticker-ltr", "label": "Left to right"},
+        {"value": "ticker-rtl", "label": "Right to left"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Desktop"
+    },
+
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Height",
+      "default": "screen-height-three-quarters",
+      "options": [
+        {"value": "image-height", "label": "Image height"},
+        {"value": "screen-height-full", "label": "Full screen height"},
+        {"value": "screen-height-three-quarters", "label": "3/4 of screen"},
+        {"value": "screen-height-two-thirds", "label": "2/3 of screen"},
+        {"value": "screen-height-one-half", "label": "1/2 of screen"},
+        {"value": "screen-height-one-third", "label": "1/3 of screen"},
+        {"value": "seven-fifty-height-hero", "label": "750px"},
+        {"value": "sixty-fifty-height-hero", "label": "650px"},
+        {"value": "five-fifty-height-hero ", "label": "550px"},
+        {"value": "four-fifty-height-hero", "label": "450px"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Image",
+      "info": "1200 x 1600px .jpg recommended. [Learn more](https://invisiblethemes.com/link/broadcast/images)"
+    },
+    {
+      "type": "select",
+      "id": "mobile_height",
+      "label": "Height",
+      "default": "screen-height-three-quarters--mobile",
+      "options": [
+        {"value": "image-height--mobile", "label": "Image height"},
+        {"value": "screen-height-full--mobile", "label": "Full screen height"},
+        {"value": "screen-height-three-quarters--mobile", "label": "3/4 of screen"},
+        {"value": "screen-height-two-thirds--mobile", "label": "2/3 of screen"},
+        {"value": "screen-height-one-half--mobile", "label": "1/2 of screen"},
+        {"value": "screen-height-one-third--mobile", "label": "1/3 of screen"},
+        {"value": "seven-fifty-height-hero--mobile", "label": "750px"},
+        {"value": "sixty-fifty-height-hero--mobile", "label": "650px"},
+        {"value": "five-fifty-height-hero--mobile", "label": "550px"},
+        {"value": "four-fifty-height-hero--mobile", "label": "450px"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "info": "Increase contrast for legible text.",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay_text",
+      "label": "Overlay behind text only",
+      "info": "Overlay opacity must be greater than 0.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "label": "Top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Advanced"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_placeholder",
+      "label": "Show placeholder image",
+      "info": "Disable if using a metafield",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "scrolling_text",
+      "name": "Scrolling text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p><strong>Make an announcement</strong> | More info</p>"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "paragraph",
+          "content": "Overrides color scheme. Set to Transparent to revert back to using color schemes."
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Text"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Image banner"
+        },
+        {
+          "type": "select",
+          "id": "heading_font_size",
+          "label": "Heading size",
+          "default": "heading-x-large",
+          "options": [
+            {"value": "heading-mini", "label": "Mini"},
+            {"value": "heading-x-small", "label": "Extra small"},
+            {"value": "heading-small", "label": "Small"},
+            {"value": "heading-medium", "label": "Medium"},
+            {"value": "heading-large", "label": "Large"},
+            {"value": "heading-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Advanced"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "Heading SEO tag",
+          "default": "automatic",
+          "options": [
+            {"value": "automatic", "label": "Automatic"},
+            {"value": "h1", "label": "H1"},
+            {"value": "h2", "label": "H2"},
+            {"value": "h3", "label": "H3"},
+            {"value": "h4", "label": "H4"},
+            {"value": "h5", "label": "H5"},
+            {"value": "h6", "label": "H6"}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Text",
+          "default": "Tell your brand's story through images."
+        },
+        {
+          "type": "select",
+          "id": "text_font_size",
+          "label": "Text size",
+          "info": "Automatically generated by the base size. Applies only when content in Text field is set to Paragraph.",
+          "default": "body-large",
+          "options": [
+            {"value": "body-x-small", "label": "Extra small"},
+            {"value": "body-small", "label": "Small"},
+            {"value": "body-medium", "label": "Medium"},
+            {"value": "body-large", "label": "Large"},
+            {"value": "body-x-large", "label": "Extra large"}
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "paragraph",
+          "content": "Overrides color scheme. Set to Transparent to revert back to using color schemes."
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Text"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Text",
+          "default": "View products"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_type",
+          "label": "Color",
+          "default": "btn--primary",
+          "options": [
+            {"value": "btn--black", "label": "Black"},
+            {"value": "btn--white", "label": "White"},
+            {"value": "btn--primary", "label": "Primary"},
+            {"value": "btn--secondary", "label": "Secondary"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "Size",
+          "default": "",
+          "options": [
+            {"label": "Small", "value": "btn--small"},
+            {"label": "Medium", "value": ""},
+            {"label": "Large", "value": "btn--large"}
+          ]
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Style",
+          "default": "btn--solid",
+          "options": [
+            {"label": "Solid", "value": "btn--solid"},
+            {"label": "Outline", "value": "btn--outline"},
+            {"label": "Text", "value": "btn--text"}
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "show_arrow",
+          "label": "Show arrow",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image with scrolling text",
+      "blocks": [
+        {
+          "type": "text"
+        },
+        {
+          "type": "button"
+        },
+        {
+          "type": "scrolling_text"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

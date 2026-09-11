@@ -1,0 +1,95 @@
+{%- liquid
+  assign button_style = block.settings.style
+  assign show_arrow = block.settings.show_arrow
+
+  if button_style == 'btn--text' and show_arrow
+    assign button_style = button_style | append: ' btn--text-no-underline'
+  endif
+-%}
+
+<div
+  class="hero__button"
+  data-aos="hero"
+  data-aos-order="auto"
+  data-aos-anchor="#{{ section.id }}"
+  {{ block.shopify_attributes }}
+>
+  <a
+    class="btn {{ block.settings.size }} {{ button_style }} {{ block.settings.type }}"
+    href="{{ block.settings.link }}"
+  >
+    <span>{{ block.settings.text | escape }}</span>
+
+    {%- if show_arrow -%}
+      {%- render 'icon-arrow-right' -%}
+    {%- endif -%}
+  </a>
+</div>
+
+{% schema %}
+{
+  "name": "Single button",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Text",
+      "default": "View products"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link"
+    },
+    {
+      "type": "select",
+      "id": "type",
+      "label": "Color",
+      "default": "btn--primary",
+      "options": [
+        {"value": "btn--black", "label": "Black"},
+        {"value": "btn--white", "label": "White"},
+        {"value": "btn--primary", "label": "Primary"},
+        {"value": "btn--secondary", "label": "Secondary"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "Size",
+      "default": "",
+      "options": [
+        {"label": "Small", "value": "btn--small"},
+        {"label": "Medium", "value": ""},
+        {"label": "Large", "value": "btn--large"}
+      ]
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "default": "btn--solid",
+      "options": [
+        {"label": "Solid", "value": "btn--solid"},
+        {"label": "Outline", "value": "btn--outline"},
+        {"label": "Text", "value": "btn--text"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrow",
+      "label": "Show arrow",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Single button",
+      "settings": {
+        "text": "View products"
+      }
+    }
+  ]
+}
+{% endschema %}

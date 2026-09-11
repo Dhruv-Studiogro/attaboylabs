@@ -1,0 +1,87 @@
+{% comment %} Icon block for Product page & Cart drawer/page {% endcomment %}
+{%- liquid
+  assign text = block.settings.text
+  assign prev_index = index | minus: 1
+  assign next_index = index | plus: 1
+  assign prev_block = section.blocks[prev_index]
+  assign next_block = section.blocks[next_index]
+  assign image = block.settings.image
+  assign icon_color = block.settings.icon_color
+  assign padding_bottom = block.settings.padding_bottom | default: 0
+
+  case block.settings.width
+    when 'full'
+      assign width = ' block__icon__container--full'
+    when 'half'
+      assign width = ' block__icon__container--half'
+    when 'third'
+      assign width = ' block__icon__container--third'
+    when 'quarter'
+      assign width = ' block__icon__container--quarter'
+  endcase
+
+  capture block_style
+    echo 'style="'
+    if icon_color != blank and icon_color != 'rgba(0,0,0,0)'
+      echo '--icons: ' | append: icon_color | append: ';'
+    endif
+    echo '--block-padding-bottom: ' | append: padding_bottom | append: 'px;'
+    echo '"'
+  endcapture
+-%}
+
+{%- if is_product -%}
+  {%- if index == 0 or prev_block.type != 'icon' -%}
+    <div class="product__block block__icon__row">
+  {%- endif -%}
+{%- endif -%}
+
+<div class="product__block block__icon__container{{ width }} block-padding"
+  {{ block.shopify_attributes }}
+  {{ block_style }}
+>
+  {%- liquid
+    assign icon_size = block.settings.icon_size
+    assign icon_color = block.settings.icon_color
+    capture icon_style
+      echo 'style="'
+      echo '--icon-size: ' | append: icon_size | append: 'px;'
+      if icon_color != blank and icon_color != 'rgba(0,0,0,0)'
+        echo ' --icons: ' | append: icon_color | append: ';'
+      endif
+      echo '"'
+    endcapture
+  -%}
+  <div class="block__icon" data-aos="img-in" {{ icon_style }}>
+    {%- liquid
+      if image
+        assign icon_width = icon_size
+        assign icon_width_retina = icon_width | times: 2
+        assign icon_sizes = icon_width | append: 'px'
+        assign icon_widths = icon_width | append: ', ' | append: icon_width_retina
+
+        render 'image' image: image, width: icon_width_retina, sizes: icon_sizes, widths: icon_widths, show_backfill: false
+      else
+        render 'animated-icon', filename: block.settings.icon_name
+      endif
+    -%}
+  </div>
+
+  {%- if text != blank -%}
+    {%- assign icon_text_tag = 'p' -%}
+    {%- if text contains '<p>' -%}
+      {%- assign icon_text_tag = 'div' -%}
+    {%- endif -%}
+
+    <div class="block__icon__text" data-aos="fade" data-aos-duration="500">
+      <{{ icon_text_tag }} class="{{ block.settings.text_font_size }}">{{ text }}</{{ icon_text_tag }}>
+    </div>
+  {%- endif -%}
+</div>
+
+{%- if is_product -%}
+  {%- assign blocks_size = section.blocks.size | minus: 1 -%}
+  {%- if index == section.blocks.size or next_block.type != 'icon' -%}
+    </div>
+  {%- endif -%}
+{%- endif -%}

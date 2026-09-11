@@ -1,0 +1,745 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "product",
+      "blocks": {
+        "code_VJEhpd": {
+          "type": "code",
+          "disabled": true,
+          "settings": {
+            "code": "<span style=\"display: inline-flex; align-items: center;\">\n  <span class=\"junip-product-summary\" data-product-id=\"7947823382562\"></span>\n  <span style=\"margin-left: 8px; font-size: 16px; font-family: 'coolvetica', sans-serif; font-weight: 500; color: #333; text-transform: uppercase; position: relative; top: -1px;\">\n    VERIFIED REVIEWS\n  </span>\n</span>",
+            "padding_bottom": 0
+          }
+        },
+        "divider_9hL8fV": {
+          "type": "divider",
+          "settings": {
+            "show_line": false,
+            "padding_bottom": 10
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {
+            "subheading_option": "none",
+            "heading_font_size": "heading-medium",
+            "padding_bottom": 20
+          }
+        },
+        "price_cN4XmJ": {
+          "type": "price",
+          "settings": {
+            "text_font_size": "body-large",
+            "padding_bottom": 16
+          }
+        },
+        "variants_rnwtw3": {
+          "type": "variants",
+          "settings": {
+            "info_page": "",
+            "size_chart_style": "text",
+            "subscriptions_enable_selectors": false,
+            "padding_bottom": 16
+          }
+        },
+        "code_iBVHdR": {
+          "type": "code",
+          "settings": {
+            "code": "<div class=\"attaboy-card\">\n  <a class=\"attaboy-card-link\" href=\"https://liveattaboy.com/products/everydamnday\">\n    <div class=\"attaboy-left\">\n      <img\n        src=\"https://cdn.shopify.com/s/files/1/0795/9012/9698/files/every-damn-day-1840368.jpg?v=1753514608\"\n        alt=\"SAVE $5 WHEN YOU ADD EVERY DAMN DAY\"\n        class=\"attaboy-img\"\n      />\n      <div class=\"attaboy-copy\">\n        <div class=\"attaboy-title\">SAVE $5 WHEN YOU ADD EVERY DAMN DAY</div>\n        <div class=\"attaboy-sub\">Add both to cart & discount applies automatically</div>\n      </div>\n    </div>\n  </a>\n</div>\n\n<style>\n/* Card shell */\n.attaboy-card{\n  width:100%;\n  margin:12px 0;\n  border:1px solid #abb2b0;\n  border-radius:12px;\n  background: linear-gradient(90deg, #ffe0d6 0%, #ebebeb 100%);\n  box-shadow: 0 1px 0 rgba(0,0,0,0.04);\n  overflow:hidden;\n}\n\n/* Make entire card clickable */\n.attaboy-card-link{\n  display:flex;\n  align-items:center;\n  gap:16px;\n  padding:14px 16px;\n  text-decoration:none;\n  color:inherit;\n}\n\n/* Left cluster (image + text) */\n.attaboy-left{\n  display:flex;\n  align-items:center;\n  gap:14px;\n  min-width:0;\n}\n\n.attaboy-img{\n  width:64px; height:64px;\n  object-fit:cover;\n  border-radius:8px;\n  flex-shrink:0;\n}\n\n/* Text styles */\n.attaboy-copy{ display:flex; flex-direction:column; gap:4px; }\n.attaboy-title{\n  font-family: \"coolvetica\";\n  font-weight:600;\n  font-size:18px;\n  line-height:1.2;\n  letter-spacing: 1px;\n  word-break: break-word;\n  white-space: normal;\n}\n.attaboy-sub{\n  font-size:14px;\n  line-height:1.4;\n  opacity:0.9;\n  white-space: normal;\n  overflow: visible;\n  text-overflow: unset;\n}\n\n/* Hover polish */\n.attaboy-card:hover{ box-shadow: 0 2px 8px rgba(0,0,0,0.06); }\n\n/* Mobile tweaks */\n@media (max-width: 480px){\n  .attaboy-card-link{ \n    padding:12px; \n    gap:12px; \n    flex-wrap:wrap;\n  }\n  .attaboy-img{ width:60px; height:60px; }\n  .attaboy-title{ font-size:18px; line-height: 1; }\n  .attaboy-sub{ font-size:13px; line-height: 1; }\n}\n</style>",
+            "padding_bottom": 16
+          }
+        },
+        "buttons": {
+          "type": "buttons",
+          "settings": {
+            "show_quantity": true,
+            "button_type": "btn--primary",
+            "button_style": "btn--solid",
+            "show_payment_button": true,
+            "button_type_dynamic": "btn--secondary",
+            "button_style_dynamic": "btn--outline",
+            "show_gift_card_recipient": false,
+            "padding_bottom": 20
+          }
+        },
+        "divider_eNUztJ": {
+          "type": "divider",
+          "settings": {
+            "show_line": true,
+            "padding_bottom": 20
+          }
+        },
+        "description_MnFafW": {
+          "type": "description",
+          "settings": {
+            "show_read_more": true,
+            "padding_bottom": 10
+          }
+        },
+        "text_ijyqjg": {
+          "type": "text",
+          "settings": {
+            "title": "Material",
+            "heading_font_size": "body-medium",
+            "text": "{{ product.metafields.shopify.fabric | metafield_tag: field: 'label' }}",
+            "text_font_size": "body-medium",
+            "text_alignment": "text-left",
+            "layout": "inline",
+            "padding_bottom": 0
+          }
+        },
+        "text_RPnFHb": {
+          "type": "text",
+          "settings": {
+            "title": "Features",
+            "heading_font_size": "body-medium",
+            "text": "{{ product.metafields.shopify[\"headwear-features\"] | metafield_tag: field: 'label' }}",
+            "text_font_size": "body-medium",
+            "text_alignment": "text-left",
+            "layout": "inline",
+            "padding_bottom": 10
+          }
+        },
+        "divider_4qhpQ8": {
+          "type": "divider",
+          "settings": {
+            "show_line": true,
+            "padding_bottom": 20
+          }
+        },
+        "icon_BNaHgD": {
+          "type": "icon",
+          "disabled": true,
+          "settings": {
+            "icon_name": "icon-check-circle",
+            "icon_size": 20,
+            "icon_color": "",
+            "text": "<p>90-day money back guarantee</p>",
+            "text_font_size": "body-small",
+            "width": "full",
+            "padding_bottom": 6
+          }
+        },
+        "divider_7BKUDg": {
+          "type": "divider",
+          "settings": {
+            "show_line": false,
+            "padding_bottom": 10
+          }
+        },
+        "divider_93Uqeb": {
+          "type": "divider",
+          "settings": {
+            "show_line": false,
+            "padding_bottom": 5
+          }
+        },
+        "fit_guide_4AqLRn": {
+          "type": "fit-guide",
+          "settings": {
+            "heading": "Fit",
+            "selected_segment": "3",
+            "left_label": "Small",
+            "middle_label": "True to size",
+            "right_label": "Large",
+            "fit_color": "",
+            "padding_bottom": 8
+          }
+        }
+      },
+      "block_order": [
+        "code_VJEhpd",
+        "divider_9hL8fV",
+        "title",
+        "price_cN4XmJ",
+        "variants_rnwtw3",
+        "code_iBVHdR",
+        "buttons",
+        "divider_eNUztJ",
+        "description_MnFafW",
+        "text_ijyqjg",
+        "text_RPnFHb",
+        "divider_4qhpQ8",
+        "icon_BNaHgD",
+        "divider_7BKUDg",
+        "divider_93Uqeb",
+        "fit_guide_4AqLRn"
+      ],
+      "custom_css": [
+        "h1 {font-family: \"NewScienceMonoBold\", monospace;}",
+        "h4,h5 {font-family: \"coolvetica\", sans-serif; text-transform: uppercase; font-size: 18px; letter-spacing: 1px;}",
+        ".btn__text {font-family: \"coolvetica\", sans-serif; text-transform: uppercase; font-size: 18px;}"
+      ],
+      "settings": {
+        "product_sticky_enable": true,
+        "variant_image_scroll": true,
+        "show_cart_bar": false,
+        "enable_zoom": false,
+        "enable_video_looping": false,
+        "image_layout": "stacked",
+        "image_size": "normal",
+        "mobile_image_style": "slider",
+        "color_scheme": "scheme-3",
+        "padding_top": 50,
+        "padding_bottom": 20
+      }
+    },
+    "instant_rc_omxccj_vg_bfns4i_BqYFFJ": {
+      "type": "instant-rcOmxccjVgBfns4i",
+      "name": "MODERN USP SECTION",
+      "settings": {
+        "text_bsM7mn5Px5bfegVv": "<h3>why we're built different</h3>",
+        "text_f6W8dYY1pHJylaPL": "<p>all-in-one</p>",
+        "text_N7xNRCEoalD39NFq": "<p>One scoop a day covers strength, focus, energy, recovery, and hydration.</p>",
+        "text_tSEzmIPcrIKoamgT": "<p>clinical doses</p>",
+        "text_1LBt2YVOBddl7hNf": "<p>No fairy dust. Every ingredient is included at real, effective levels.</p>",
+        "text_xqikiqJZEWkUZmmC": "<p>zero bloat</p>",
+        "text_dc2OuGhDZMjVCWTf": "<p>No fillers, no junk. Just clean performance your body actually uses.</p>",
+        "text_D4UkFpbtznWO75aM": "<p>stimulant-free</p>",
+        "text_sNrbUaPSD3Y88xjN": "<p>Get steady, natural energy without the caffeine, crash, or jitters.</p>",
+        "text_s03F3braViXNOr1R": "<p>saves time</p>",
+        "text_iySxj97eAbqSVh97": "<p>Skip the 8-pill routine. Every Damn Day simplifies your stack in seconds.</p>",
+        "text_aEnQXIf5qkNikaB7": "<p>built for men</p>",
+        "text_PXRt7WbLdvpjhQEe": "<p>Designed specifically for men who want to feel, perform, and live better.</p>",
+        "url_rgVuvNFThoczrBiQ": "shopify://products/everydamnday",
+        "text_IIdPJQK6Pb2ANl94": "<p>Try risk-free now</p>",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "instant_wi_fc6_j_yn1n_erm1_qy_Jdnkn9": {
+      "type": "instant-WiFc6JYn1nERM1QY",
+      "disabled": true,
+      "name": "MODERN FORMULA SECTION",
+      "settings": {
+        "text_NB4fjT0t2qHEdeqk": "<p>OUR FORMULA</p>",
+        "text_cRK8tnhHaaCWTrBM": "<h3>Built to</h3>",
+        "text_0Mzcj63KtiUDxWIX": "<h3>Power you up.</h3>",
+        "text_IxiuehxYvXo3G7kQ": "<p>One daily scoop. Clinically dosed. No bullshit. Every Damn Day delivers the goods to power your day, every damn day.</p>",
+        "text_vRCsbEKyRkm6DYGK": "<h3>Creatine monohydrate</h3>",
+        "text_bs0Cqj3WL8yMMrgv": "<h3>5 grams</h3>",
+        "text_ImYdxFO2bLApRDhz": "<p>Clinically proven to boost strength, muscle power, and recovery by increasing ATP - your body's primary energy source for high-intensity performance. Creatine also enhances brain energy metabolism, supporting sharper thinking, better memory, and improved mental performance under stress.</p>",
+        "text_HAFTz3SbPBCWXaED": "<h3>l-citrulline</h3>",
+        "text_2JVdHRnTtZRW5Ll1": "<h3>4 grams</h3>",
+        "text_QMiCqjtRDqnozwes": "<p>Enhances blood flow and oxygen delivery by increasing nitric oxide production - supporting endurance, reducing fatigue, and powering better performance in every moment.</p>",
+        "text_xy8G4sCUsf6eJbcq": "<h3>alpha-gpc</h3>",
+        "text_jHx62yE7LHiYKuuM": "<h3>600 milligrams</h3>",
+        "text_b33zTQDVN4qyi8qt": "<p>Elevates mental clarity, focus, and reaction time by increasing acetylcholine - a key a neurotransmitter for cognitive and physical performance.</p>",
+        "text_KBWMEQsoIksMZwpt": "<h3>L-theanine</h3>",
+        "text_Huq3ZDNDKjbx9gZR": "<h3>300 milligrams</h3>",
+        "text_TcxJqjVlJoPuLvOF": "<p>Promotes calm, focused concentration by supporting alpha brain waves - helping reduce stress without drowsiness.</p>",
+        "text_oWwrVBTPYreBV9Qk": "<h3>Acetyl-l-carnitine</h3>",
+        "text_Ni8zQfIJ3IJIc9yC": "<h3>1.5 grams</h3>",
+        "text_pmVmob8oMYDAeA2t": "<p>Supports cellular energy and mental clarity by transporting fatty acids into mitochondria, helping fuel both your body and brain while reducing fatigue.</p>",
+        "text_n35fc4oD2MOPK27x": "<h3>Glycine</h3>",
+        "text_mFK9NcD3SxWD26vN": "<h3>3 grams</h3>",
+        "text_3xQfPdC1GfBNd1hf": "<p>Supports muscle recovery, joint health, and deeper sleep by promoting collagen production and calming the nervous system, helping your body repair and recharge every damn day.</p>",
+        "text_3xjXf3dTAEspBCi0": "<h3>Magnesium glycinate</h3>",
+        "text_g4ESe0ChNKmaugiH": "<h3>1 gram</h3>",
+        "text_VAPxHUVGDSc6xtrU": "<p>Supports muscle relaxation, stress reduction, and recovery by helping regulate nerve function and cortisol, in a highly absorbable form that's gentle on the gut.</p>",
+        "text_gU45ChrQhPcMcEGn": "<h3>electrolytes</h3>",
+        "text_4LEBlsyAweyUXeu0": "<h3>750 milligrams</h3>",
+        "text_aAl3maPQfweyubSy": "<p>500 milligrams of Sodium Citrate, 150 milligrams of Potassium Citrate, 100 milligrams of Potassium Chloride.</p><p></p><p>Helps maintain hydration, nerve signaling, and muscle function by balancing fluid levels inside and outside your cells, keeping your body running at full capacity without the sugar.</p><p></p><p></p>",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "instant_mrxk_exgfbpshbw_ur_4Hx87j": {
+      "type": "instant-mrxkExgfbpshbwUR",
+      "disabled": true,
+      "name": "MODERN REVIEW SECTION",
+      "settings": {
+        "text_avZSSSKFMopWmeCM": "<h3>what attaboys are saying...</h3>",
+        "text_07WLSH7CnrudMr86": "<p>Hear from a few real dudes who upgraded their routine.</p>",
+        "text_SIT5zWwQryyydAuy": "<p>Completely Worth It.</p>",
+        "text_aSe3VhDSkJcWkg98": "<p>“I'm about 12 days in from starting and I can already feel differences. Lasting energy later in the day, sleeping a little better, mood swings aren't as drastic, and I feel more focused. It took about a week, maybe a little over, for me to start noticing the changes.”</p>",
+        "text_lVgOkprZZKDlYKDC": "<p>Chris in Florida</p>",
+        "text_MjHhCEnXuGLZfZC7": "<p>worth the hype</p>",
+        "text_qHs0cbHWzvx2qH3y": "<p>“I've always hated having to buy multiple supplements and spending hundreds of dollars on all of them. I found Attaboy, and after just a week or so of using the product, I can already tell such a huge difference. I feel the effects within 10-15 minutes of my scoop every morning. Truly an incredible product.”</p>",
+        "text_wIlIDQfmD0gR2Oj4": "<p>Baylor in Tennessee</p>",
+        "text_OfSRdKjju9OLuMHt": "<p>checks all the boxes</p>",
+        "text_6ess5Xvf4Oe4v5nb": "<p>“Clean taste and handy way to check all of the boxes.”</p>",
+        "text_t1hzRoGoMMUWiuBR": "<p>PJ in Nebraska</p>",
+        "text_vYCtZGRveNWvpvpp": "<p>great product and execution - gimme more...</p>",
+        "text_lW7SuOZ494PpJibk": "<p>“The concept is great and I like that it's stacking all the benefits. Tastes great and definitely not too sweet or artificial.”</p>",
+        "text_ggdTgLJ5yEGPgaZy": "<p>Christian in New York</p>",
+        "text_UM5gdd6PP9A0I3SD": "<p>so far, so damn good</p>",
+        "text_Ty43EJ5h6RlLGIMc": "<p>“love it so far, only 4 stars as it is a bit early in my use of it. Flavor is great, mixability is great. So far so good!”</p>",
+        "text_CFCrlMpC04cZzqwx": "<p>Jeremy in New York</p>",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "section_announcement_z7UR3r": {
+      "type": "section-announcement",
+      "blocks": {
+        "text_MpQmXG": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>One Scoop a Day</strong></p>",
+            "text_font_size": "body-small",
+            "color": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text_m4Pfqb": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>|</strong></p>",
+            "text_font_size": "body-small",
+            "color": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text_yeU4q6": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>energy</strong></p>",
+            "text_font_size": "body-small",
+            "color": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text_eadxRJ": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>|</strong></p>",
+            "text_font_size": "body-small",
+            "color": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text_4jFNfL": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>focus</strong></p>",
+            "text_font_size": "body-small",
+            "color": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text_ANBNdE": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>|</strong></p>",
+            "text_font_size": "body-small",
+            "color": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text_F9WJ4E": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>hydration</strong></p>",
+            "text_font_size": "body-small",
+            "color": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text_xzfajm": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>|</strong></p>",
+            "text_font_size": "body-small",
+            "color": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text_yW78hT": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>strength</strong></p>",
+            "text_font_size": "body-small",
+            "color": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text_pkraJc": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>|</strong></p>",
+            "text_font_size": "body-small",
+            "color": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text_NbWGUL": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>recovery</strong></p>",
+            "text_font_size": "body-small",
+            "color": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        },
+        "text_UynLFq": {
+          "type": "text",
+          "settings": {
+            "text": "<p><strong>|</strong></p>",
+            "text_font_size": "body-small",
+            "color": "",
+            "target_device_enabled": false,
+            "target_device": "mobile"
+          }
+        }
+      },
+      "block_order": [
+        "text_MpQmXG",
+        "text_m4Pfqb",
+        "text_yeU4q6",
+        "text_eadxRJ",
+        "text_4jFNfL",
+        "text_ANBNdE",
+        "text_F9WJ4E",
+        "text_xzfajm",
+        "text_yW78hT",
+        "text_pkraJc",
+        "text_NbWGUL",
+        "text_UynLFq"
+      ],
+      "custom_css": [
+        "p {font-family: \"coolvetica\", monospace !important; font-size: 22px; text-transform: uppercase;}",
+        "@media screen and (max-width: 768px) {p {font-size: 14px; }}"
+      ],
+      "name": "Scrolling text",
+      "settings": {
+        "slider_speed": 5,
+        "text_alignment": "center",
+        "marquee_speed": 50,
+        "direction": "ticker-rtl",
+        "message_spacing": 20,
+        "background_image": "shopify://shop_images/statement-bg_64fad84b-7c24-4e14-95be-352f31406a07.jpg",
+        "show_border": false,
+        "layout": "marquee",
+        "color_scheme": "scheme-3",
+        "padding_top": 14,
+        "padding_bottom": 14
+      }
+    },
+    "instant_z2_ncfa_uf_e_pw_yi_tm_h_FQehXJ": {
+      "type": "instant-z2NcfaUfEPwYITmH",
+      "disabled": true,
+      "custom_css": [
+        ".iLzDjl6AmoAkmMeEE {position: sticky; top: 64px; z-index: 1000; transition: top 0.3s ease;}",
+        "@media (min-width: 768px) {.iLzDjl6AmoAkmMeEE {top: 80px; }}"
+      ],
+      "name": "MODERN PDP INGREDIENTS",
+      "settings": {
+        "text_trMjruN94PN3uGGr": "<h3>Every Ingredient Earned Its Spot</h3>",
+        "tab_title_c7NKBbcvPs6QJJ7d": "Strength",
+        "tab_title_7PAS6KRnS8bRRe68": "New item",
+        "text_ilwKxWtNcrupsk1F": "<p>strength</p>",
+        "text_9GvH3FDncRw5khUR": "<p>Strength isn’t just about lifting heavier, it’s about performing better, day after day. Every Damn Day is packed with clinically-backed ingredients that fuel muscle power, support ATP production, and enhance cellular performance, so your body shows up stronger when it counts.</p>",
+        "text_YMxf32dldwlE7yIm": "<p>Creatine Monohydrate</p>",
+        "text_LTRxM1CZz3kfpEnq": "<p>5 grams</p>",
+        "text_Qi9J8ifCFyeIjchX": "<p>Power</p>",
+        "text_HYYoyb0xqJx5P7Pc": "<p>Strength</p>",
+        "text_O3knDueIvlpN9Oqq": "<p>ATP Output</p>",
+        "text_JS2E4NsaNSZ00wYE": "<p>L-CITRULLINE</p>",
+        "text_SCkv38evpX31eZxG": "<p>4 grams</p>",
+        "text_1t2mgzGbZXSh56Hy": "<p>Pump</p>",
+        "text_Aa3Uqo4LVUVd1dL6": "<p>Endurance</p>",
+        "text_g2O0NilKLh9laaKe": "<p>Blood Flow</p>",
+        "text_3WPe8JKy4YqMxrsS": "<p>alpha-gpc</p>",
+        "text_hBNpYLoGYZ7cMblK": "<p>600 milligrams</p>",
+        "text_hNkrcLjfBcb2qAR7": "<p>Focus</p>",
+        "text_YqCew25rYhnnOAx0": "<p>Drive</p>",
+        "text_hXTdPmbQeQwosUaF": "<p>Power Output</p>",
+        "text_9Gbo7ncNpOfRjDME": "<p>Acetyl-L-carnitine</p>",
+        "text_qPgs9pzu4SoGL0tK": "<p>1.5 grams</p>",
+        "text_9LYaCPWRzoY7tBwC": "<p>Metabolism</p>",
+        "text_SKVxufUZidHFUmvU": "<p>Mitochondria</p>",
+        "text_A8zlIOGMpADr59DG": "<p>Energy</p>",
+        "text_dKwL2kvzh3DJrlan": "<p>magnesium glycinate</p>",
+        "text_XNLe1nybop8Eqmd8": "<p>1 gram</p>",
+        "text_YmnvrNUhUXxEPBmq": "<p>Muscle</p>",
+        "text_dbHVWhA5lHm0RgmF": "<p>Function</p>",
+        "text_68oRT4RR2UqzUrHr": "<p>Cramp Control</p>",
+        "text_n2BgcCG6KHxx8UDo": "<p>glycine</p>",
+        "text_IisExNbXEfJiBQaL": "<p>3 grams</p>",
+        "text_V8XCnDAJcTB77UXs": "<p>Repair</p>",
+        "text_NqxVbzKuAVxa3UzW": "<p>Flexibility</p>",
+        "text_ZQUK3cqd8NWy88U1": "<p>Performance</p>",
+        "tab_title_FWnlOJhUoldKExrc": "Energy",
+        "tab_title_NVjnwtovUjpZ3HJc": "New item",
+        "text_xPGXVBjb9uQQfWrI": "<p>energy</p>",
+        "text_D1te5xcK92xFAx6z": "<p>Energy isn’t just about stimulation, it’s about consistent, cellular-level fuel. Every Damn Day delivers stimulant-free support for physical and mental energy by optimizing ATP production, mitochondrial function, and key nutrient pathways, so you feel dialed in without the crash.</p>",
+        "text_XCzYx23hTffXkcYD": "<p>acetyl-l-carnitine</p>",
+        "text_WHkuT8IsxXe5OYws": "<p>1.5 grams</p>",
+        "text_LJPwMHJN65JRGZ9q": "<p>Mitochondria</p>",
+        "text_o9EnY6C2WxFqSaPr": "<p>Metabolism</p>",
+        "text_lJk3auZrMPewg4U1": "<p>Enegy Output</p>",
+        "text_0sWxEbN18US2z8vp": "<p>alpha-gpc</p>",
+        "text_aCxMA0JbQkPRHFML": "<p>600 milligrams</p>",
+        "text_JCBa0Z6gQkWvyXDl": "<p>Brain Fuel</p>",
+        "text_qdXNqPHZrK5qNe2d": "<p>Neuro Drive</p>",
+        "text_Iqa9G97uXUVarpmg": "<p>Meal Energy</p>",
+        "text_ilCvP8lSvGYrYt0L": "<p>creatine monohydrate</p>",
+        "text_p3RqKK4DMweJFskh": "<p>5 grams</p>",
+        "text_7IoUK5cBh0QHaScY": "<p>Fatigue</p>",
+        "text_zP0JuDSRadIcongr": "<p>ATP</p>",
+        "text_gIiTC17LvvjWex26": "<p>Celular Fuel</p>",
+        "text_PyVBE4rZh49ywGnp": "<p>glycine</p>",
+        "text_HY1sQ37otey56xqj": "<p>3 grams</p>",
+        "text_qpWyjHHK2kJV8ZaH": "<p>Blood Sugar</p>",
+        "text_D177Zv5eU2FA0x7t": "<p>Calm Energy</p>",
+        "text_fLkgvirpCKdJ2cu6": "<p>Balance</p>",
+        "text_1yXLUC8aa2vVNph7": "<p>Magnesium Glycinate</p>",
+        "text_IAg5Fy1PjxZirag0": "<p>1 gram</p>",
+        "text_znJYT8oPVBysuxJl": "<p>Metabolism</p>",
+        "text_cerEwQS9iIVU5UDG": "<p>Nerve Support</p>",
+        "text_rTfKUQnjEUu0KZUi": "<p>Energy Flow</p>",
+        "text_sNtFfNMnYVx0V0Il": "<p>L-Citrulline</p>",
+        "text_GvFY5RwU8OXSoR3O": "<p>4 Grams</p>",
+        "text_LM3Cgf1gWPhglhOU": "<p>Circulation</p>",
+        "text_Cqw2l23UAUQMptUu": "<p>Oxygenation</p>",
+        "text_mUllVez4a4kHjyi4": "<p>Endurance</p>",
+        "text_jEAX7QKm43rQyU6u": "<p>Potassium Citrate</p>",
+        "text_vwa8BgeWtU0fEq6h": "<p>150 milligrams</p>",
+        "text_1FLYskxE3Lpbw3XE": "<p>Electrolytes</p>",
+        "text_ogFnUkH7RWqyCpsh": "<p>Muscle Energy</p>",
+        "text_PFMtK3z06bCHPU6a": "<p>Hydration</p>",
+        "text_zC8ftiD7s1nrr5PV": "<p>Sodium Citrate</p>",
+        "text_hpp3YAVNGTe7Qcm7": "<p>500 milligrams</p>",
+        "text_rZXP7VYnEnzTBRRJ": "<p>Fluid Balance</p>",
+        "text_QsC5DwrDbFdvPrDj": "<p>ATP Support</p>",
+        "text_w9JFBf7v2aC1mwOt": "<p>Nerve Firing</p>",
+        "tab_title_kd01vXp8itHn2q8h": "Recovery",
+        "tab_title_lnY48RxObesRWNDk": "New item",
+        "text_dag8uCVw05udfo8U": "<p>Recovery</p>",
+        "text_lim1aKmTP3jk0pC0": "<p>Recovery is where real progress happens. Every Damn Day helps reduce inflammation, support muscle repair, and restore cellular function—so you bounce back faster, feel less sore, and stay ready for whatever comes next. Backed by science, built for consistency.</p>",
+        "text_eSwUIrFHqVvyS2ky": "<p>glycine</p>",
+        "text_PKK9B5t3bvZSt0XW": "<p>3 grams</p>",
+        "text_EIw6vfLpvjS2D8XU": "<p>Tissue Repair</p>",
+        "text_KcJ0jjltdsLb90Oa": "<p>Sleep Quality</p>",
+        "text_zUsxlwqLOiIGp9Pg": "<p>Inflammation</p>",
+        "text_rpkNB2vHPoIuxrNR": "<p>Magnesium Glycinate</p>",
+        "text_Hb37wxCg4OEp18DT": "<p>1 gram</p>",
+        "text_X8T76wqxwn7pg00O": "<p>Relaxation</p>",
+        "text_QIOXxTFYJmfLa2Ya": "<p>Muscle Recovery</p>",
+        "text_mR0mwfW31I3KqAVc": "<p>Nervous System</p>",
+        "text_7MGkYG9F1xmRgg6B": "<p>Acetyl-L-carnitine</p>",
+        "text_Gx2i3eKanGo8TMg5": "<p>1.5 grams</p>",
+        "text_meNSeUwdWWbo9hHT": "<p>Mitochondria</p>",
+        "text_wSIiFxkVYdqN6P6K": "<p>Fat Metabolism</p>",
+        "text_mRHCK09htM5uZAXt": "<p>Cell Repair</p>",
+        "text_RrWVfcwrZnSsg0iz": "<p>Creatine Monohydrate</p>",
+        "text_xvN4XIUfmuWIo7q7": "<p>5 grams</p>",
+        "text_xTwi60KSfano09B0": "<p>Muscle Repair</p>",
+        "text_bNqONfrbLXrr6dDx": "<p>ATP Restoration</p>",
+        "text_2M7ata6QeDV6xKFn": "<p>Recovery Speed</p>",
+        "text_tEL584EI7dVxyrpP": "<p>L-Citrulline</p>",
+        "text_IenxQttGsk7Yg7ps": "<p>4 grams</p>",
+        "text_ADQPPnSKfN6rciXx": "<p>Blood Flow</p>",
+        "text_g6hCechLM7lndZMV": "<p>Oxygen Delivery</p>",
+        "text_3mTBT2DxmEbnjvYw": "<p>Reduced Soreness</p>",
+        "text_A7b6JCPZkor5z9j6": "<p>Alpha-gpc</p>",
+        "text_jBOn0CUtzTtTlOVt": "<p>600 Milligrams</p>",
+        "text_GMESBFnh7wIvRo1h": "<p>Brain Recovery</p>",
+        "text_M7Uv6SgpPQC2X6aE": "<p>Cognitive Reset</p>",
+        "text_uvJ8IYrE3rz52F7s": "<p>Nervous System</p>",
+        "text_awNpwQ208YNXxzSR": "<p>Sodium citrate</p>",
+        "text_4eNGaZbbygVFtfIM": "<p>500 milligrams</p>",
+        "text_wpX1OPVjCzW27hNE": "<p>Rehydration</p>",
+        "text_8PmE0sL1Wz4CqaPA": "<p>Electrolyte Refill</p>",
+        "text_8w8l9Am16c08cM2A": "<p>Muscle Support</p>",
+        "text_KM1bTnyjKixq29jp": "<p>Potassium citrate</p>",
+        "text_OycWtru5J9seeUJJ": "<p>150 milligrams</p>",
+        "text_FS7SfoyU60aIBA1n": "<p>Cramp Prevention</p>",
+        "text_f4HT1FYMLWrjnmmD": "<p>Cellular Hydration</p>",
+        "text_iFrRpi3ZHtUoZ3NV": "<p>Recovery Balance</p>",
+        "tab_title_R6bpPM9mUVRI8cm0": "Focus",
+        "tab_title_vzwX1RLiXDxXVqxT": "New item",
+        "text_4QNB5ftD299F0OuX": "<p>Focus</p>",
+        "text_ZsZCYKH5G9KvDL2V": "<p>Focus isn’t just mental, it’s neurological. Every Damn Day sharpens cognitive performance by fueling neurotransmitter activity, supporting brain cell energy, and promoting calm concentration, so you stay clear, alert, and locked in from start to finish.</p>",
+        "text_WcZu4ZvTX51fHBJF": "<p>Alpha-gpc</p>",
+        "text_XnPdioZkjYYlOnmB": "<p>600 milligrams</p>",
+        "text_5VJLBkv5Whn4qD6q": "<p>Acetylcholine</p>",
+        "text_7bpM9VZtXRRcowST": "<p>Mental Clarity</p>",
+        "text_Sbl7Si7hJdUurU9t": "<p>Neuro Drive</p>",
+        "text_5FdRExugGWcLenkr": "<p>L-Theanine</p>",
+        "text_e9o736Ppqh0L2xly": "<p>300 milligrams</p>",
+        "text_Pe1jk1C7sErNYx11": "<p>Calm</p>",
+        "text_xY8UODAt5lgC6Xuo": "<p>Steady Focus</p>",
+        "text_ttzrikhoLDyxiFiz": "<p>No Crash</p>",
+        "text_be8g6930TlwXMJPU": "<p>Acetyl-l-carnitine</p>",
+        "text_sU9IzBHJ13hdeBvB": "<p>1.5 grams</p>",
+        "text_A9j1lca9SrL4fykA": "<p>Brain Fuel</p>",
+        "text_Q3fqwdzsIHAjhYdc": "<p>Mitochondria</p>",
+        "text_9sEMGdvpGpAGmXYL": "<p>Mental Endurance</p>",
+        "text_n5giX7pOo3Wkj7tB": "<p>Creatine Monohydrate</p>",
+        "text_kgZkxucf3shtdd7z": "<p>5 grams</p>",
+        "text_99Te7yNhWS4kMlv7": "<p>Cognitive Energy</p>",
+        "text_e3iQThOZ7hnhpPK0": "<p>Brain ATP</p>",
+        "text_jkMYKvM838fBWVka": "<p>Mental Output</p>",
+        "text_qGW2h4VU18i5PPb7": "<p>Glycine</p>",
+        "text_daLib5N3cfME18mh": "<p>3 grams</p>",
+        "text_q8aVnVpPq1qahUXI": "<p>Neuro Support</p>",
+        "text_niX2KMjkgOAF8Shw": "<p>Mood Balance</p>",
+        "text_1PN2GuNGIK7wYo6p": "<p>Mental Reset</p>",
+        "text_v35dXxwQOp4rgonv": "<p>Magnesium Glycinate</p>",
+        "text_yCbNlEErNjso1npY": "<p>1 Gram</p>",
+        "text_VWeBopdeCpmSkeJz": "<p>Nerve Health</p>",
+        "text_6SpDRExhA3sxbg9L": "<p>Clarity</p>",
+        "text_RK2rQtvvyR2E8gXX": "<p>Stress Control</p>",
+        "tab_title_KHDIX3MjJeVvn2tG": "Hydration",
+        "tab_title_VuPoC3BHa4RBQ78s": "New item",
+        "text_zqaAlw6lNAk8alcf": "<p>Hydration</p>",
+        "text_iEmWRavzhhfcyuF2": "<p>Hydration isn’t just water, it’s cellular balance. Every Damn Day restores critical electrolytes, supports fluid absorption, and keeps your muscles and nervous system firing on all cylinders, so you stay sharp, energized, and ready to perform in any condition.</p>",
+        "text_xk9D2OQDtk4wH6gV": "<p>sodium citrate</p>",
+        "text_RsqsbiW5FPSgiL2B": "<p>500 milligrams</p>",
+        "text_g2LlVwMdFkVGJBWN": "<p>Electrolyte Refill</p>",
+        "text_eO8mpXzk4p0MRgn4": "<p>Fluid Balance</p>",
+        "text_LxTORRSTVxPAIsqq": "<p>Muscle Function</p>",
+        "text_8Iqkt5dDvnwjUBJ9": "<p>Potassium citrate</p>",
+        "text_HHwGyK7m1W1jJTmU": "<p>150 milligrams</p>",
+        "text_xyoqt2bR6G8xG6uB": "<p>Cellular Hydration</p>",
+        "text_HYoKPy5DSL02utIP": "<p>Cramp Prevention</p>",
+        "text_oMC4vb8KyDMy88e2": "<p>Recovery Support</p>",
+        "text_CFr7TS9kPoETjlym": "<p>Magnesium Glycinate</p>",
+        "text_TYvaUOFREFP5WFTV": "<p>1 gram</p>",
+        "text_rI5vn5qqQtkdm8wz": "<p>Mineral Balance</p>",
+        "text_OE71IjtE8v7GaZkn": "<p>Nerve Function</p>",
+        "text_1fJcJTd0lzbeA7Av": "<p>Electrolyte Flow</p>",
+        "text_rlh9GLdc1dNGBanw": "<p>L-Citrulline</p>",
+        "text_YGbfRcydCAR1UlsV": "<p>4 grams</p>",
+        "text_dpi3aRJQKKxuQRPv": "<p>Blood Flow</p>",
+        "text_G0goshVjSRajwtQQ": "<p>Oxygen Delivery</p>",
+        "text_DSBZEKbahAOaoSYm": "<p>Circulatory Boost</p>",
+        "text_QH6zNmOWdYgCWAVo": "<p>Creatine Monohydrate</p>",
+        "text_uK7lTjHGgb9mPjpW": "<p>5 grams</p>",
+        "text_gTKAcQETemCsWiC5": "<p>Water Retention</p>",
+        "text_7iG5yy26MpQ3kh0o": "<p>Cell Volumizing</p>",
+        "text_FKVi8VJq5o4mG6Ff": "<p>Hydration Support</p>",
+        "text_QlD31sSnEsIeLXpX": "<p>Glycine</p>",
+        "text_3RzMl0oT1uOoQ4ZM": "<p>3 Grams</p>",
+        "text_yhAVKvVFzszRH7UY": "<p>Osmotic Balance</p>",
+        "text_Bro4t9rASVhrdr70": "<p>Fluid Absorption</p>",
+        "text_uLaULKnsfCvSHow7": "<p>Tissue Support</p>",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "related": {
+      "type": "related",
+      "blocks": {
+        "related": {
+          "type": "related",
+          "settings": {
+            "product_recommendations_heading": "Related products",
+            "limit": 4
+          }
+        },
+        "recent": {
+          "type": "recent",
+          "settings": {
+            "product_recently_heading": "Recently viewed",
+            "product_recently_limit": 4
+          }
+        }
+      },
+      "block_order": [
+        "related",
+        "recent"
+      ],
+      "disabled": true,
+      "settings": {
+        "enable_tabs": true,
+        "heading_alignment": "text-center",
+        "heading_font_size": "heading-small",
+        "layout_mobile": "slider",
+        "color_scheme": "scheme-3",
+        "padding_top": 30,
+        "padding_bottom": 0
+      }
+    },
+    "1752014832c38374ac": {
+      "type": "apps",
+      "blocks": {
+        "instafeed_app_block_aftqwi": {
+          "type": "shopify://apps/instafeed/blocks/app-block/c447db20-095d-4a10-9725-b5977662c9d5",
+          "settings": {
+            "title": "",
+            "title_color": "",
+            "title_size_v2": 0,
+            "alignment": "center",
+            "instafeed_margin_top": 0,
+            "instafeed_margin_bottom": 0,
+            "instafeed_margin_sides": 0,
+            "show_instagram_link": false,
+            "link_alignment": "left",
+            "link_color": "#000000",
+            "background_color": "",
+            "feed_id": "",
+            "html_area": ""
+          }
+        },
+        "junip_junip_review_carousel_4YhcKW": {
+          "type": "shopify://apps/junip/blocks/junip-review-carousel/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
+          "disabled": true,
+          "settings": {
+            "reviewsType": "product_reviews",
+            "sortOrder": "highestRated",
+            "product": "{{product}}",
+            "reviewTag": "",
+            "showSummary": true,
+            "title": "",
+            "paddingTop": 48,
+            "paddingBottom": 48,
+            "containerClass": ""
+          }
+        },
+        "junip_junip_product_review_HbiimV": {
+          "type": "shopify://apps/junip/blocks/junip-product-review/dc14f5a8-ed15-41b1-ad08-cfba23f9789b",
+          "disabled": true,
+          "settings": {
+            "product": "{{product}}",
+            "title": "",
+            "alignment": ""
+          }
+        }
+      },
+      "block_order": [
+        "instafeed_app_block_aftqwi",
+        "junip_junip_review_carousel_4YhcKW",
+        "junip_junip_product_review_HbiimV"
+      ],
+      "custom_css": [
+        "h2 {font-family: \"coolvetica\"; letter-spacing: 2px;}"
+      ],
+      "settings": {
+        "include_margins": false
+      }
+    }
+  },
+  "order": [
+    "main",
+    "instant_rc_omxccj_vg_bfns4i_BqYFFJ",
+    "instant_wi_fc6_j_yn1n_erm1_qy_Jdnkn9",
+    "instant_mrxk_exgfbpshbw_ur_4Hx87j",
+    "section_announcement_z7UR3r",
+    "instant_z2_ncfa_uf_e_pw_yi_tm_h_FQehXJ",
+    "related",
+    "1752014832c38374ac"
+  ]
+}

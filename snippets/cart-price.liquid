@@ -1,0 +1,147 @@
+{%- liquid
+  assign subtotal = cart.total_price | plus: 0
+  assign cart_discount_size = cart.cart_level_discount_applications.size
+  assign original_subtotal = cart.original_total_price | plus: 0
+  assign currency_code_enable = settings.currency_code_enable
+  assign cart_90_day_compare_subtotal_base = 0
+  assign cart_90_day_compare_subtotal = 0
+  assign cart_90_day_compare_gift_total = 3299
+  assign cart_90_day_has_trigger_item = false
+  assign cart_90_day_has_upgrade_item = false
+
+  if currency_code_enable
+    assign original_subtotal_formatted = original_subtotal | money_with_currency
+    assign cart_90_day_compare_subtotal_formatted = cart_90_day_compare_subtotal | money_with_currency
+  else
+    assign original_subtotal_formatted = original_subtotal | money
+    assign cart_90_day_compare_subtotal_formatted = cart_90_day_compare_subtotal | money
+  endif
+
+  if original_subtotal < subtotal or cart_discount_size == 0
+    assign cart_total_hidden = true
+  endif
+
+  if cart_discount_size == 0
+    assign cart_total_discount_hidden = true
+  endif
+
+  for line_item in cart.items
+    assign line_item_product_handle = line_item.product.handle | default: ''
+    assign line_item_product_id = line_item.product.id | append: ''
+    assign line_item_final_price_amount = line_item.final_line_price | plus: 0
+    assign line_item_variant_compare_at_price_amount = line_item.variant.compare_at_price | times: line_item.quantity | plus: 0
+    assign line_item_original_price_amount = line_item.original_line_price | plus: 0
+    assign line_item_compare_amount = line_item_final_price_amount
+    assign line_item_discounted = false
+    assign line_item_on_sale = false
+
+    if line_item_original_price_amount > line_item_final_price_amount
+      assign line_item_discounted = true
+    endif
+
+    if line_item_variant_compare_at_price_amount > line_item_final_price_amount
+      assign line_item_on_sale = true
+    endif
+
+    if line_item_product_handle == 'every-damn-day-kit' or line_item_product_handle == 'starter-kit' or line_item_product_id == '8458689478690' or line_item_product_id == '8156483026978'
+      assign cart_90_day_has_trigger_item = true
+      assign line_item_compare_amount = 11298 | times: line_item.quantity
+    elsif line_item_product_handle == 'every-damn-day-90-day-kit-copy' or line_item_product_handle == 'every-damn-day-90-day-kit-1' or line_item_product_id == '8544909492258' or line_item_product_id == '8544898252834'
+      assign cart_90_day_has_upgrade_item = true
+      assign line_item_compare_amount = 20997 | times: line_item.quantity
+    elsif line_item_discounted
+      assign line_item_compare_amount = line_item_original_price_amount
+    elsif line_item_on_sale
+      assign line_item_compare_amount = line_item_variant_compare_at_price_amount
+    endif
+
+    assign cart_90_day_compare_subtotal_base = cart_90_day_compare_subtotal_base | plus: line_item_compare_amount
+  endfor
+
+  assign cart_90_day_compare_subtotal = cart_90_day_compare_subtotal_base
+
+  if cart_90_day_has_upgrade_item
+    assign cart_90_day_compare_subtotal = cart_90_day_compare_subtotal | plus: cart_90_day_compare_gift_total
+  endif
+
+  if currency_code_enable
+    assign cart_90_day_compare_subtotal_formatted = cart_90_day_compare_subtotal | money_with_currency
+  else
+    assign cart_90_day_compare_subtotal_formatted = cart_90_day_compare_subtotal | money
+  endif
+-%}
+
+{%- unless cart_total_hidden -%}
+  <div class="cart__total">
+    <span class="cart__total__label">{{ 'cart.general.subtotal_items' | t }}</span>
+
+    <span class="cart__total__price">
+      {%- if original_subtotal == 0 -%}
+        {{ 'general.money.free' | t }}
+      {%- else -%}
+        {{- original_subtotal_formatted -}}
+      {%- endif -%}
+    </span>
+  </div>
+{%- endunless -%}
+
+{%- unless cart_total_discount_hidden -%}
+  <div class="cart__total__discount">
+    {%- if cart.cart_level_discount_applications.size > 0 -%}
+      {%- for discount in cart.cart_level_discount_applications -%}
+        {%- liquid
+          if currency_code_enable
+            assign discount_total_allocated_amount = discount.total_allocated_amount | money_with_currency
+          else
+            assign discount_total_allocated_amount = discount.total_allocated_amount | money
+          endif
+        -%}
+
+        <div class="cart__total">
+          <div>
+            {%- render 'icon-tags' -%}
+
+            <span>
+              {{- discount.title -}}
+            </span>
+          </div>
+
+          <span>
+            -{{- discount_total_allocated_amount -}}
+          </span>
+        </div>
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+{%- endunless -%}
+
+<div class="cart__total">
+  <span class="cart__total__label">{{- 'cart.general.subtotal' | t -}}</span>
+
+  <span
+    data-cart-price-root
+    data-cart-price-subtotal="{{ subtotal }}"
+    data-cart-price-compare-subtotal="{{ cart_90_day_compare_subtotal }}"
+    data-cart-price-has-trigger-item="{{ cart_90_day_has_trigger_item }}"
+    data-cart-price-has-upgrade-item="{{ cart_90_day_has_upgrade_item }}"
+    style="display: inline-flex; align-items: baseline; gap: 8px; justify-content: flex-end; flex-wrap: wrap;"
+  >
+    <span class="cart__total__price cart__total__price--animated" data-cart-total="{{ subtotal }}">
+      {%- if subtotal == 0 -%}
+        {{ 'general.money.free' | t }}
+      {%- else -%}
+        {{- subtotal | money_with_currency -}}
+      {%- endif -%}
+    </span>
+
+    <span
+      data-cart-price-compare
+      {% if cart_90_day_compare_subtotal <= subtotal %}hidden aria-hidden="true"{% endif %}
+      style="color: #6E6E6E; font-size: 17.5px; font-weight: 400; line-height: 1; text-decoration: line-through; white-space: nowrap;"
+    >
+      {{- cart_90_day_compare_subtotal_formatted -}}
+    </span>
+  </span>
+
+  <div class="cart__price__loader loader"><div class="loader-indeterminate"></div></div>
+</div>

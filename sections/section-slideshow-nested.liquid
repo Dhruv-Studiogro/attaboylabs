@@ -1,0 +1,259 @@
+<!-- /sections/section-slideshow-nested.liquid -->
+
+{%- liquid
+  assign desktop_height = section.settings.height
+  assign mobile_height = section.settings.mobile_height
+  assign fade_option = true
+  assign autoplay = section.settings.autoplay
+  assign autoplay_speed = false
+  assign show_arrows = section.settings.show_arrows
+  assign slideshow_class = 'slideshow__slider'
+  assign default_slide_label = 'general.accessibility.slide_image' | t
+  assign color_scheme = 'color-' | append: section.settings.color_scheme
+
+  case section.settings.transition
+    when 'slide'
+      assign fade_option = false
+      assign slideshow_class = slideshow_class | append: ' slideshow__slider--slide'
+    when 'fade'
+      assign slideshow_class = slideshow_class | append: ' slideshow__slider--fade'
+    when 'zoom-out'
+      assign slideshow_class = slideshow_class | append: ' slideshow__slider--zoom-out'
+    when 'wipe'
+      assign slideshow_class = slideshow_class | append: ' slideshow__slider--wipe'
+  endcase
+
+  if autoplay
+    assign autoplay_speed = section.settings.autoplay_speed | times: 1000
+  endif
+
+  assign page_dots = false
+  if settings.dots_style != 'hidden'
+    assign page_dots = true
+  endif
+-%}
+
+{%- if request.visual_preview_mode -%}
+  {%- style -%}
+    .slideshow,
+    .slideshow .flickity-viewport {
+      height: 100vh;
+    }
+  {%- endstyle -%}
+{%- endif -%}
+
+{%- capture style -%}
+  --PT: {{ section.settings.padding_top }}px;
+  --PB: {{ section.settings.padding_bottom }}px;
+{%- endcapture -%}
+
+<div
+  class="index-hero slideshow {{ desktop_height }} {{ mobile_height }} section-padding {{ color_scheme }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="slideshow"
+  data-overlay-header
+  style="{{ style }}"
+>
+  <div class="{{ section.settings.width }}">
+    {%- if section.blocks.size > 0 -%}
+      <slider-component
+        class="{{ slideshow_class }}"
+        id="{{ section.id }}"
+        data-slider="{{ section.id }}"
+        data-slider-fullwidth
+        data-options='{"fade": {{ fade_option }}, "autoPlay": {{ autoplay_speed }}, "pageDots": {{ page_dots }}, "prevNextButtons": {{ show_arrows }} }'
+        data-dots="{{ settings.dots_style }}"
+      >
+        {% content_for 'blocks' %}
+      </slider-component>
+    {%- endif -%}
+
+    {%- if section.blocks.size == 0 -%}
+      <div class="slideshow__slide slideshow__slide--onboarding {{ section.settings.height }} {{ section.settings.mobile_height }}">
+        <div class="text-center">{{ 'home_page.onboarding.no_content' | t }}</div>
+        <div class="image-overlay"></div>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Slideshow (Nested)",
+  "class": "section-overlay-header",
+  "blocks": [{"type": "_slide"}, {"type": "@app"}],
+  "settings": [
+    {
+      "type": "select",
+      "id": "transition",
+      "label": "Transition style",
+      "default": "slide",
+      "options": [
+        {"label": "Slide", "value": "slide"},
+        {"label": "Fade", "value": "fade"},
+        {"label": "Zoom out", "value": "zoom-out"},
+        {"label": "Wipe", "value": "wipe"}
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show navigation arrows on hover",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-rotate slides",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 4,
+      "max": 15,
+      "step": 1,
+      "unit": "sec",
+      "label": "Change slides every",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width",
+      "default": "wrapper--full",
+      "options": [
+        {"value": "wrapper--full", "label": "Full width"},
+        {"value": "wrapper--full-padded", "label": "Full width padded"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Desktop"
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Height",
+      "default": "screen-height-three-quarters",
+      "options": [
+        {"value": "image-height", "label": "Image height"},
+        {"value": "screen-height-full", "label": "Full screen height"},
+        {"value": "screen-height-three-quarters", "label": "3/4 of screen"},
+        {"value": "screen-height-two-thirds", "label": "2/3 of screen"},
+        {"value": "screen-height-one-half", "label": "1/2 of screen"},
+        {"value": "screen-height-one-third", "label": "1/3 of screen"},
+        {"value": "seven-fifty-height-hero", "label": "750px"},
+        {"value": "sixty-fifty-height-hero", "label": "650px"},
+        {"value": "five-fifty-height-hero ", "label": "550px"},
+        {"value": "four-fifty-height-hero", "label": "450px"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "select",
+      "id": "mobile_height",
+      "label": "Height",
+      "default": "screen-height-three-quarters--mobile",
+      "options": [
+        {"value": "image-height--mobile", "label": "Image height"},
+        {"value": "screen-height-full--mobile", "label": "Full screen height"},
+        {"value": "screen-height-three-quarters--mobile", "label": "3/4 of screen"},
+        {"value": "screen-height-two-thirds--mobile", "label": "2/3 of screen"},
+        {"value": "screen-height-one-half--mobile", "label": "1/2 of screen"},
+        {"value": "screen-height-one-third--mobile", "label": "1/3 of screen"},
+        {"value": "seven-fifty-height-hero--mobile", "label": "750px"},
+        {"value": "sixty-fifty-height-hero--mobile", "label": "650px"},
+        {"value": "five-fifty-height-hero--mobile", "label": "550px"},
+        {"value": "four-fifty-height-hero--mobile", "label": "450px"}
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "default": "scheme_1",
+      "label": "Color scheme"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "label": "Top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Slideshow (Nested)",
+      "settings": {
+        "height": "screen-height-two-thirds"
+      },
+      "blocks": [
+        {
+          "type": "_slide",
+          "blocks": [
+            {
+              "type": "heading"
+            },
+            {
+              "type": "text"
+            },
+            {
+              "type": "button"
+            }
+          ]
+        },
+        {
+          "type": "_slide",
+          "blocks": [
+            {
+              "type": "heading"
+            },
+            {
+              "type": "text"
+            },
+            {
+              "type": "button"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "aside", "footer"]
+  }
+}
+{% endschema %}

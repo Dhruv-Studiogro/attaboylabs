@@ -1,0 +1,45 @@
+{%- comment -%}
+  * Common srcset values
+
+  *  image {object} - The image object (not a url)
+  *  widths {аrray} - An array of the image widths for srcset
+  *  mobile {Boolean} - Set mobile sizes only
+  *  desktop {Boolean} - Set desktop sizes only
+
+  {% render 'image-srcset', image: image, widths: image_widths %}
+{%- endcomment -%}
+
+
+{%- liquid
+  assign image_width = image.width | default: image.preview_image.width
+
+  if image_width != blank
+    assign widths = widths | split: ','
+    assign srcs = ''
+
+    for string_width in widths
+      assign width = string_width | times: 1
+
+      if image_width >= width
+        if mobile and width >= 1500
+          continue;
+        endif
+
+        capture src
+          echo image | image_url: width: width
+          echo ' ' | append: width | append: 'w'
+        endcapture
+
+        unless srcs == ''
+          assign srcs = srcs | append: ', '
+        endunless
+
+        assign srcs = srcs | append: src
+      endif
+    endfor
+
+    echo srcs
+  else
+    echo image
+  endif
+-%}

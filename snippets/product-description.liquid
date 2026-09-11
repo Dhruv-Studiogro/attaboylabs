@@ -1,0 +1,30 @@
+{%- if product_api -%}
+  {%- if product.description != blank and product.description != '<!---->' -%}
+    <div class="product__block product__block--description{% if settings.show_lines %} product__block--lines{% endif %} block-padding"
+      {{ block_style }}
+      {% if animation_name %}
+        data-animation="{{ animation_name }}"
+        data-animation-duration="{{ animation_duration }}"
+        data-animation-delay="{{ animation_delay }}"
+      {% endif %}>
+
+      <div class="product-quick-add__description rte">
+        {{ product.description | strip_html | truncatewords: 30, '...' }}
+      </div>
+    </div>
+  {%- endif -%}
+{%- else -%}
+  {%- if block.type == 'description' -%}
+    <div class="product__block product__description rte block-padding" {{ block.shopify_attributes }} {{ block_style }}>
+      {%- if product.description != blank and product.description != '<!---->' -%}
+        <div class="product__description__content rte">
+          {%- render 'toggle-ellipsis', content: product.description, show_read_more: block.settings.show_read_more -%}
+        </div>
+      {%- endif -%}
+    </div>
+  {%- else -%}
+    <div class="product__block{% if block.type == 'tab_richtext' %} product__block--tabs{% elsif block.type == 'accordion' %} product__block--accordion{% if block.settings.padding_bottom == 0 %} product__block--accordion-clear{% endif %}{% endif %} tabs-wrapper block-padding" {{ block_style }}>
+      {%- render 'product-tabs', product: product, block: block -%}
+    </div>
+  {%- endif -%}
+{%- endif -%}

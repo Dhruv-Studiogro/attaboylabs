@@ -1,0 +1,506 @@
+{%- liquid
+  assign uniq_id = unique | append: 'product-' | append: product.id | append: '-'
+  assign hide_labels_class = ''
+  assign current_variant = product.selected_or_first_available_variant
+  assign enable_size_chart = enable_size_chart | default: false
+  assign show_size_chart = false
+  assign tags_string = product.tags | join: ','
+  assign size_separator = '_size_'
+  assign specific_pages = ''
+  assign show_size_link_separated = true
+  assign has_form_buttons = true
+  assign form_button_blocks = section.blocks | where: 'type', 'buttons'
+  if form_button_blocks.size == 0 and quickview == false
+    assign has_form_buttons = false
+  endif
+
+  assign size_style = block.settings.size_chart_style
+  assign specific_pages = ''
+
+  if block.settings.info_page != blank
+    assign size_translation = 'general.size_chart.size' | t
+    assign info_page = pages[block.settings.info_page]
+  endif
+
+  if tags_string contains size_separator
+    for tag in product.tags
+      if tag contains size_separator
+        assign page_handle = tag | split: size_separator | last | split: ',' | first
+        assign specific_pages = specific_pages | append: page_handle | append: ','
+      endif
+    endfor
+  endif
+-%}
+
+{%- capture size_chart -%}
+  {%- if enable_size_chart -%}
+    {%- if block.settings.info_page != blank or specific_pages != '' -%}
+      {%- liquid
+        assign show_size_chart = true
+        assign specific_pages_arr = specific_pages | split: ','
+      -%}
+
+      {%- capture size_button -%}
+        {%- unless show_size_link_separated -%}
+          {%- case size_style -%}
+            {%- when 'text' -%}
+              <span class="radio__legend__link__label">
+                {{- 'general.size_chart.title' | t -}}
+              </span>
+
+            {%- when 'ruler' -%}
+              <span class="btn-size-chart">
+                {%- render 'icon-ruler' -%}
+              </span>
+
+            {%- when 'question' -%}
+              <span class="btn-size-chart">
+                {%- render 'icon-question' -%}
+              </span>
+          {%- endcase -%}
+        {%- else -%}
+          <span class="radio__legend__link__label">
+            {{- 'general.size_chart.title' | t -}}
+          </span>
+        {%- endunless -%}
+      {%- endcapture -%}
+
+      {%- capture size_chart_link -%}
+        <popup-component>
+          <a href="{{ info_page.url }}" data-popup-open class="radio__legend__link body-x-small{% if product.has_only_default_variant %} size-popup-link{% endif %}{% if size_style == 'text' or show_size_link_separated %} text-link{% endif %}">
+            {{ size_button }}
+          </a>
+
+          <dialog class="product-modal" aria-hidden="true" inert data-scroll-lock-required>
+            <form method="dialog">
+              <button class="visually-hidden no-js" aria-label="{{ 'general.accessibility.close' | t }}"></button>
+            </form>
+
+            <div class="product-modal__outer">
+              <div class="product-modal__content small" data-scroll-lock-scrollable>
+                <button type="button" class="product-modal__close" data-popup-close aria-label="{{ 'general.accessibility.close' | t }}">
+                  {%- render 'icon-cancel' -%}
+                </button>
+
+                <tabs-component class="rte product-tabs">
+                  {%- liquid
+                    assign tabs_navigation = ''
+                    assign tabs = ''
+                    assign has_current = false
+                    assign number_tabs = 0
+                  -%}
+
+                  {%- for page_handle in specific_pages_arr -%}
+                    {%- assign page_size_chart = pages[page_handle] -%}
+
+                    {%- if page_size_chart.title != blank -%}
+                      {%- capture tabs_navigation -%}
+                        {{ tabs_navigation }}
+
+                        <li class="tab-link tab-link-{{ forloop.index0 }}{% if forloop.index == 1 %} current{% endif %}" data-tab="{{ forloop.index0 }}" tabindex="0">
+                          <span>{{ page_size_chart.title }}</span>
+                        </li>
+                      {%- endcapture -%}
+
+                      {%- capture tabs -%}
+                        {{ tabs }}
+
+                        <div class="tab-content tab-content-{{ forloop.index0 }}{% unless has_current %} current{% endunless %}">
+                          {{ page_size_chart.content }}
+                        </div>
+                      {%- endcapture -%}
+
+                      {%- assign has_current = true -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+
+                  {%- if info_page -%}
+                    {%- assign number_tabs = specific_pages_arr.size -%}
+
+                    {%- capture tabs_navigation -%}
+                      {{ tabs_navigation }}
+
+                      <li class="tab-link tab-link-{{ number_tabs }}" data-tab="{{ number_tabs }}" data-lock-scroll tabindex="0">
+                        <span>{{ info_page.title }}</span>
+                      </li>
+                    {%- endcapture -%}
+
+                    {%- capture tabs -%}
+                      {{ tabs }}
+
+                      <div class="tab-content tab-content-{{ number_tabs }}{% unless has_current %} current{% endunless %}">
+                        {{ info_page.content }}
+                      </div>
+                    {%- endcapture -%}
+
+                    {%- assign has_current = true -%}
+                  {%- endif -%}
+
+                  {%- if specific_pages_arr.size > 1 -%}
+                    <native-scrollbar class="tabs__head product-tabs__head">
+                      <ul class="tabs product-tabs-title" data-scrollbar data-scrollbar-slider data-scroll-lock-scrollable>
+                        {{ tabs_navigation }}
+                      </ul>
+
+                      <button type="button" class="tabs__arrow tabs__arrow--prev is-hidden" data-scrollbar-arrow-prev>
+                        {%- render 'icon-nav-arrow-left' -%}
+                        <span class="visually-hidden">{{ 'products.general.see_all' | t }}</span>
+                      </button>
+
+                      <button type="button" class="tabs__arrow tabs__arrow--next is-hidden" data-scrollbar-arrow-next>
+                        {%- render 'icon-nav-arrow-right' -%}
+                        <span class="visually-hidden">{{ 'products.general.see_all' | t }}</span>
+                      </button>
+                    </native-scrollbar>
+                  {%- endif -%}
+
+                  {%- if tabs != '' -%}
+                    {{ tabs }}
+                  {%- endif -%}
+                </tabs-component>
+              </div>
+            </div>
+          </dialog>
+        </popup-component>
+      {%- endcapture -%}
+
+    {%- endif -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture product_variant_options -%}
+  {%- if settings.show_labels == false -%}
+    {%- assign hide_labels_class = ' variant__labels--hide' -%}
+  {%- endif -%}
+
+  {%- capture form_fields -%}
+    {%- unless product.has_only_default_variant -%}
+      {%- assign selects_counter = 0 -%}
+      <div class="product__selectors" data-product-variants>
+        {%- for option in product.options_with_values -%}
+          {%- liquid
+            assign option_name_handle_separator = option.name | handle | prepend: ',' | append: ','
+
+            comment
+              Determine if current option matches size handle translations
+            endcomment
+            assign is_size_option = false
+            assign size_translation = 'general.size_chart.size' | t
+            assign translation_string_size = size_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+            if translation_string_size contains option_name_handle_separator
+              assign is_size_option = true
+              assign show_size_link_separated = false
+            endif
+
+            echo size_chart
+
+            comment
+              Determine if current option matches swatch handle translations
+            endcomment
+            assign is_swatch_option = false
+            assign is_native_swatch_option = false
+
+            if settings.swatches_type == 'theme'
+              assign swatch_translation = 'general.swatches.color' | t
+              assign translation_string = swatch_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+              if translation_string contains option_name_handle_separator
+                assign is_swatch_option = true
+              endif
+            endif
+
+            if settings.swatches_type == 'native'
+              for value in option.values
+                if value.swatch
+                  assign is_native_swatch_option = true
+                  break
+                endif
+              endfor
+            endif
+          -%}
+
+          {%- comment -%}
+            Determine if current option should show images
+          {%- endcomment -%}
+          {%- liquid
+            if settings.show_variant_image
+              assign has_variant_option_image = false
+
+              assign variant_option_image_translation = 'products.product.variant_option_image' | t
+              assign translation_string_variant_option_image = variant_option_image_translation | remove: '  ' | replace: ', ', ',' | replace: ' ,', ',' | replace: ',', '____' | handle | replace: '____', ',' | append: ',' | prepend: ','
+
+              if translation_string_variant_option_image contains option_name_handle_separator and is_swatch_option == false
+                assign has_variant_option_image = true
+              endif
+            endif
+          -%}
+
+          <div class="selector-wrapper{% if settings.variant_lines and is_size_option %} selector-wrapper--size{% elsif settings.variant_lines or is_swatch_option %} selector-wrapper--fullwidth{% endif %}"
+            data-option-position="{{ option.position }}">
+            {%- if settings.variant_lines or is_swatch_option or is_native_swatch_option -%}
+              {%- liquid
+                assign current_value = current_variant.options[forloop.index0]
+                capture radio_fieldset_class
+                  echo 'radio__fieldset'
+
+                  if is_swatch_option or is_native_swatch_option
+                    echo ' radio__fieldset--swatches'
+                  endif
+
+                  if has_variant_option_image
+                    echo ' radio__fieldset--variant-option-image'
+
+                    if settings.variant_image_style == 'stacked'
+                      echo ' radio__fieldset--variant-option-image-stacked'
+                    else
+                      echo ' radio__fieldset--variant-option-image-inline'
+                    endif
+                  endif
+                endcapture
+              -%}
+
+              <fieldset>
+                <div class="{{ radio_fieldset_class }}">
+                  <legend class="radio__legend{% if is_size_option and size_chart_link and show_size_link_separated == false %} radio__legend--size{% endif %}">
+                    <span class="radio__legend__label{% if size_style == 'text' %} radio__legend__label--text{% endif %}">
+                      <span class="radio__legend__option-name">{{ option.name }}</span>
+
+                      {%- if is_size_option -%}
+                        {{- size_chart_link -}}
+                      {%- endif -%}
+
+                      {%- if settings.show_labels -%}
+                        <small class="radio__legend__value" data-option-value>{{ current_value }}</small>
+                      {%- endif -%}
+                    </span>
+                  </legend>
+
+                  <div class="radio__buttons" data-variant-buttons>
+                    {%- for value in option.values -%}
+                      {%- capture input_id -%}{{ uniq_id }}-{{ option.name | handle }}-{{ value | strip_html | escape | handle }}-{{ forloop.index }}{%- endcapture -%}
+                      {%- if is_swatch_option or is_native_swatch_option -%}
+                        {%- liquid
+                          if is_native_swatch_option
+                            if value.swatch.image
+                              assign image_url = value.swatch.image | image_url: width: 96
+                              assign swatch_value = 'url(' | append: image_url | append: ')'
+                            elsif value.swatch.color
+                              assign swatch_value = 'rgb(' | append: value.swatch.color.rgb | append: ')'
+                            else
+                              assign swatch_value = nil
+                            endif
+                          endif
+
+                          assign is_white = false
+                          if swatch_value == 'rgb(255 255 255)' and value.swatch.image == blank
+                            assign is_white = true
+                          endif
+                        -%}
+
+                        <tooltip-component
+                          data-tooltip="{{ value | escape | capitalize }}"
+                          class="swatches swatch__button swatch__button--{{ settings.swatch_style }} swatch__button swatch-{{ value | handle }}{% if is_white %} swatch__button--white{% endif %}"
+                          {% if is_swatch_option %}style="--swatch: var(--{{ value | handle }});"{% endif %}
+                          {% if is_native_swatch_option %}style="--swatch: {{ swatch_value }};"{% endif %}
+                        >
+
+                          <input type="radio"
+                              form="{{ product_form_id }}"
+                              data-single-option-selector
+                              data-index="option{{ option.position }}"
+                              name="options[{{ option.name | escape }}]-{{ uniq_id }}"
+                              value="{{ value | escape }}"
+                              id="{{ input_id }}"
+                              {% if value == current_value %}checked{% endif %}>
+                          <label for="{{ input_id }}" data-swatch="{{ value | escape }}">
+                            <span class="visually-hidden">{{ value }}</span>
+                          </label>
+                        </tooltip-component>
+
+                      {%- else -%}
+                        {% comment %} radio button {% endcomment %}
+                        <span class="radio__button"{% if has_variant_option_image %} data-variant-option-image{% endif %}>
+                          <input
+                            type="radio"
+                            form="{{ product_form_id }}"
+                            data-single-option-selector
+                            data-index="option{{ option.position }}"
+                            name="options[{{ option.name | escape }}]-{{ uniq_id }}"
+                            value="{{ value | escape }}" id="{{ input_id }}"
+                            {% if value == current_value %}checked{% endif %}>
+
+                          <label for="{{ input_id }}">
+                            {%- if has_variant_option_image -%}
+                              {% liquid
+                                if settings.btn_border_style == 'pill'
+                                  capture option_image_border_radius
+                                    echo ' style="--radius: 10px;"'
+                                  endcapture
+                                endif
+                              %}
+
+                              <div class="option-image"{{ option_image_border_radius }}>
+                                {%- assign variant_option_image_translation = 'products.product.variant_option_image' | t -%}
+
+                                {%- if option.name == variant_option_image_translation -%}
+                                  {%- assign option_image_found = false -%}
+
+                                  {%- for variant in product.variants -%}
+                                    {%- for option in variant.options -%}
+                                      {%- if option == value -%}
+                                        {%- assign variant_option_image = variant.featured_media.preview_image -%}
+
+                                        {% if variant_option_image  %}
+                                          {%- capture srcset -%}
+                                            {%- render 'image-srcset', image: variant_option_image, widths: '60, 90, 120, 150, 180' -%}
+                                          {%- endcapture -%}
+
+                                          {{ variant_option_image | image_url: height: 60 | image_tag: sizes: '60px', srcset: srcset }}
+                                        {%- else -%}
+                                          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                                        {% endif %}
+
+                                        {%- assign option_image_found = true -%}
+                                      {%- endif -%}
+
+                                      {%- if option_image_found -%}
+                                        {%- break -%}
+                                      {%- endif -%}
+                                    {%- endfor -%}
+
+                                    {%- if option_image_found -%}
+                                      {%- break -%}
+                                    {%- endif -%}
+                                  {%- endfor -%}
+                                {%- endif -%}
+                              </div>
+                            {%- endif -%}
+
+                            <span class="option-title">{{ value }}</span>
+                          </label>
+                        </span>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </div>
+                </div>
+              </fieldset>
+            {%- else -%}
+              {%- assign selects_counter = selects_counter | plus: 1 -%}
+              <fieldset>
+                <div class="select__fieldset">
+                  {%- capture input_id -%}{{ uniq_id }}-option-{{ option.position }}{%- endcapture -%}
+                  <legend class="radio__legend{% if is_size_option and size_chart_link and show_size_link_separated == false %} radio__legend--size{% endif %}">
+                    <span class="radio__legend__label{% if size_style == 'text' %} radio__legend__label--text{% endif %}" id="{{ uniq_id }}-select-{{ option.name | handle }}-label">
+                      <span class="radio__legend__option-name">{{ option.name }}</span>
+
+                      {%- if is_size_option -%}
+                        {{- size_chart_link -}}
+                      {%- endif -%}
+
+                      {%- if settings.show_labels -%}
+                        <small class="radio__legend__value" data-option-value>{{ current_value }}</small>
+                      {%- endif -%}
+                    </span>
+                  </legend>
+
+                  <popout-select class="select-popout">
+                    <button type="button"
+                      class="select-popout__toggle"
+                      aria-expanded="false"
+                      aria-controls="{{ uniq_id }}-select-{{ option.name | handle }}"
+                      aria-labelledby="{{ uniq_id }}-select-{{ option.name | handle }}-label"
+                      data-select-soldout=" - {{ 'products.product.sold_out' | t }}"
+                      data-select-unavailable=" - {{ 'products.product.unavailable' | t }}"
+                      data-popout-toggle>
+                      <span data-popout-toggle-text>{{ option.selected_value }}</span>
+                      {%- render 'icon-nav-arrow-down' -%}
+                    </button>
+
+                    <ul id="{{ uniq_id }}-select-{{ option.name | handle }}" class="select-popout__list" data-popout-list data-scroll-lock-scrollable>
+                      {%- for value in option.values -%}
+                        <li class="select-popout__item{% if option.selected_value == value %} is-active{% endif %}">
+                          <a class="select-popout__option"
+                            href="#"
+                            {% if option.selected_value == value %}aria-current="true"{% endif %}
+                            data-value="{{ value | escape }}"
+                            data-popout-option
+                            data-select-soldout=" - {{ 'products.product.sold_out' | t }}"
+                            data-select-unavailable=" - {{ 'products.product.unavailable' | t }}">
+                            <span>
+                              {{ value }}
+                            </span>
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                    <input form="{{ product_form_id }}" type="hidden" name="options[{{ option.name | escape }}]-{{ uniq_id }}" id="{{ input_id }}" value="{{ option.selected_value | escape }}" data-popout-input data-single-option-selector data-index="option{{ option.position }}">
+                  </popout-select>
+                </div>
+              </fieldset>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <noscript>
+        <select form="{{ product_form_id }}" name="id" class="product__form__select product__form__select--hidden no-js" aria-label="{{ product.options_with_values | map: 'name' | uniq | join: ', ' }}">
+          {%- for variant in product.variants -%}
+            <option
+              {% if variant == current_variant %}selected="selected"{% endif %}
+              {% unless variant.available %}disabled="disabled"{% endunless %}
+              value="{{ variant.id }}">
+                {{ variant.title }}
+            </option>
+          {%- endfor -%}
+        </select>
+      </noscript>
+    {%- endunless -%}
+  {%- endcapture -%}
+
+  {%- if product.has_only_default_variant -%}
+    {{ size_chart }}
+  {%- endif -%}
+
+  {%- if show_size_link_separated and size_chart_link != blank -%}
+    <div class="radio__fieldset radio__fieldset--single">
+      {{- size_chart_link -}}
+    </div>
+  {%- endif -%}
+
+  {{- form_fields -}}
+
+  {%- if product.selling_plan_groups.size > 0 and block.settings.subscriptions_enable_selectors -%}
+    {%- render 'subscription-form', product: product, product_form_id: product_form_id -%}
+
+    {% comment %} Delete the following line to block the theme from updating subscription prices {% endcomment %}
+    <span data-subscription-watch-price></span>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if product_variant_options != blank -%}
+  <div
+    class="product__block{% if settings.show_lines %} product__block--lines{% endif %} product__form__holder block-padding"
+    {{ block_style }}
+    {{ block.shopify_attributes }}
+    {% if animation_name %}
+      data-animation="{{ animation_name }}"
+      data-animation-duration="{{ animation_duration }}"
+      data-animation-delay="{{ animation_delay }}"
+    {% endif %}
+  >
+    {%- unless has_form_buttons -%}
+      <product-form>
+    {%- endunless -%}
+    <div class="product__form__outer{{ hide_labels_class }}">
+      {{ product_variant_options }}
+    </div>
+    {%- unless has_form_buttons -%}
+      </product-form>
+    {%- endunless -%}
+  </div>
+{%- endif -%}
+
+{%- if request.design_mode and product_variant_options == blank -%}
+  <div {{ block.shopify_attributes }}></div>
+{%- endif -%}

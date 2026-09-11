@@ -1,0 +1,52 @@
+{% comment %}
+    Renders products block for Products with image section
+
+    Accepts:
+    - block: {Object} Block object
+    - animation_anchor: {String} ID of the element that will trigger animations
+
+    Usage:
+    {% render 'brick-products', block: block, animation_anchor: animation_anchor %}
+{% endcomment %}
+
+{%- liquid
+  assign columns_desktop = 2
+  assign columns_medium = 2
+  assign columns_small = 2
+  assign columns_mobile = block.settings.layout_mobile | plus: 0
+
+  capture product_grid_classes
+    echo 'grid'
+
+    if block.settings.layout_mobile == 'slider'
+      echo ' grid--mobile-slider'
+    else
+      echo ' grid--mobile-vertical'
+    endif
+  endcapture
+-%}
+
+{%- capture style -%}
+  --COLUMNS: {{ columns_desktop }};
+  --COLUMNS-MEDIUM: {{ columns_medium }};
+  --COLUMNS-SMALL: {{ columns_small }};
+  --COLUMNS-MOBILE: {{ columns_mobile }};
+{%- endcapture -%}
+
+<div class="brick__block brick__block--products" style="{{ style }}" {{ block.shopify_attributes }}>
+  <div class="grid-outer">
+    <div class="{{ product_grid_classes }}">
+      {%- liquid
+        if block.settings.product_list.count > 0
+          for product in block.settings.product_list
+            render 'product-grid-item', product: product
+          endfor
+        else
+          for i in (1..4)
+            render 'onboarding-product-grid-item'
+          endfor
+        endif
+      -%}
+    </div>
+  </div>
+</div>
